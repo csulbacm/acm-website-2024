@@ -1,0 +1,51 @@
+[
+    {
+      "id": "ai-healthcare",
+      "title": "AI in Healthcare Workshop",
+      "date": "October 25, 2024",
+      "time": "10:00 AM - 1:00 PM",
+      "description": "Learn how AI is transforming healthcare with real-world applications. This workshop covers AI techniques used in medical imaging, diagnosis, and patient care.",
+      "link": "/events/ai-healthcare"
+    },
+    {
+      "id": "cybersecurity-panel",
+      "title": "Cybersecurity Panel",
+      "date": "November 5, 2024",
+      "time": "3:00 PM - 5:00 PM",
+      "description": "Join industry experts as they discuss the latest trends in cybersecurity, potential career paths, and how to protect digital assets in a rapidly changing tech landscape.",
+      "link": "/events/cybersecurity-panel"
+    },
+    {
+      "id": "hackathon-2024",
+      "title": "Annual Hackathon 2024",
+      "date": "December 10-12, 2024",
+      "time": "",
+      "description": "Join us for our annual hackathon event where students and professionals collaborate to build innovative projects over a weekend.",
+      "link": "/events/hackathon-2024"
+    },
+    {
+      "id": "women-in-tech",
+      "title": "Women in Tech Networking",
+      "date": "January 20, 2025",
+      "time": "5:00 PM - 7:00 PM",
+      "description": "A networking event for women in tech, where attendees can share experiences, seek mentorship, and explore opportunities in the industry.",
+      "link": "/events/women-in-tech"
+    },
+    {
+      "id": "resume-workshop",
+      "title": "Tech Resume Workshop",
+      "date": "February 10, 2025",
+      "time": "1:00 PM - 3:00 PM",
+      "description": "A workshop focused on building effective tech resumes and portfolios to help you land your dream job in the technology industry.",
+      "link": "/events/resume-workshop"
+    },
+    {
+      "id": "python-workshop",
+      "title": "Programming with Python",
+      "date": "March 3, 2025",
+      "time": "9:00 AM - 12:00 PM",
+      "description": "A hands-on workshop designed to introduce Python programming, covering the basics of syntax, data structures, and problem-solving techniques.",
+      "link": "/events/python-workshop"
+    }
+  ]
+  
