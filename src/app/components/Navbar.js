@@ -18,7 +18,7 @@ const Navbar = () => {
   };
 
   return (
-    <header className="bg-blue-600 text-white py-4">
+    <header className="bg-blue-900 text-white py-4">
       <nav className="container mx-auto flex justify-between items-center px-4"> {/* Added px-4 for padding */}
         <div>
           <Link href="/">
@@ -48,7 +48,7 @@ const Navbar = () => {
       </nav>
 
       {/* Sidebar for small screens */}
-      <div className={`fixed inset-0 bg-blue-700 bg-opacity-90 z-50 transition-transform duration-300 transform ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <div className={`fixed inset-0 bg-blue-900 bg-opacity-90 z-50 transition-transform duration-300 transform ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex flex-col items-center pt-20 px-4"> {/* Added px-4 for padding */}
           <button onClick={closeSidebar} className="absolute top-4 right-4">
             <FontAwesomeIcon icon={faTimes} className="text-white text-xl" />

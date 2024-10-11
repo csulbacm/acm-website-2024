@@ -1,37 +1,71 @@
 "use client";
 
+import { useState } from 'react';
 import { motion } from 'framer-motion'; // Import motion from framer-motion
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLinkedin, faInstagram, faXTwitter as faX } from '@fortawesome/free-brands-svg-icons'; // Import required icons
+import { faLinkedin, faInstagram, faXTwitter as faX, faDiscord } from '@fortawesome/free-brands-svg-icons'; // Import required icons
 import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
 
-export default function Contact() {
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Page Header */}
-      <motion.section
-        className="bg-blue-700 text-white py-12 text-center"
-        initial={{ opacity: 0, y: -50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <h1 className="text-4xl font-extrabold">Contact Us</h1>
-        <p className="text-xl mt-4">
-          We'd love to hear from you! Feel free to reach out with any questions or inquiries.
-        </p>
-      </motion.section>
 
-      {/* Contact Form and Additional Contact Info */}
-      <motion.section
-        className="container mx-auto py-16 px-6 md:px-0 flex flex-col md:flex-row gap-12" // Added flex properties
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-      >
-        {/* Contact Form */}
-        <div className="bg-white p-8 shadow-lg rounded-lg flex-1"> {/* Added flex-1 for equal width */}
+export default function Contact() {
+  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+  const [status, setStatus] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    const response = await fetch('/api/email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData),
+    });
+
+    if (response.ok) {
+      setStatus('Email sent successfully!');
+      setFormData({ name: '', email: '', message: '' });
+    } else {
+      setStatus('Failed to send the email.');
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-indigo-400">
+      {/* Page Header with Animated Background */}
+      <div className="relative area"> {/* Wrapper for animated background */}
+        <ul className="circles"> {/* Floating circles */}
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+        </ul>
+
+        <motion.section
+          className="relative z-10 text-white py-20 text-center"
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        > 
+          <div className="container mx-auto">
+          <h1 className="text-5xl font-extrabold">Contact Us</h1>
+          <p className="text-xl mt-4">
+            We'd love to hear from you! Feel free to reach out with any questions or inquiries.
+          </p>
+          </div>
+        </motion.section>
+      </div>
+
+      {/* Contact Form */}
+      <motion.section className="container mx-auto py-16 px-6 md:px-0 flex flex-col md:flex-row gap-12"
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
+        <div className="bg-white p-8 shadow-lg rounded-lg flex-1">
           <h2 className="text-3xl font-bold text-blue-700 mb-6">Send Us a Message</h2>
-          <form action="#" method="POST" className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label htmlFor="name" className="block text-gray-700 font-semibold">Name</label>
               <input
@@ -39,6 +73,8 @@ export default function Contact() {
                 id="name"
                 name="name"
                 required
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 className="w-full px-4 py-2 mt-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-gray-700"
               />
             </div>
@@ -49,6 +85,8 @@ export default function Contact() {
                 id="email"
                 name="email"
                 required
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 className="w-full px-4 py-2 mt-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-gray-700"
               />
             </div>
@@ -59,6 +97,8 @@ export default function Contact() {
                 name="message"
                 rows="4"
                 required
+                value={formData.message}
+                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                 className="w-full px-4 py-2 mt-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-gray-700"
               ></textarea>
             </div>
@@ -73,6 +113,7 @@ export default function Contact() {
               </motion.button>
             </div>
           </form>
+          {status && <p className="text-green-600 mt-4">{status}</p>}
         </div>
 
         {/* Additional Contact Info */}
@@ -82,14 +123,17 @@ export default function Contact() {
             You can also email us directly at <a href="mailto:acm@csulb.edu" className="text-blue-600">acm@csulb.edu</a> or follow us on our social media channels.
           </p>
           <div className="mt-6 flex justify-center space-x-6">
-            <a href="https://twitter.com/acmcsulb" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800">
+            <a href="https://x.com/csulbacm" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800">
               <FontAwesomeIcon icon={faX} className="text-2xl" />
             </a>
-            <a href="https://linkedin.com/company/acmcsulb" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800">
+            <a href="https://www.linkedin.com/company/csulbacm/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800">
               <FontAwesomeIcon icon={faLinkedin} className="text-2xl" />
             </a>
-            <a href="https://instagram.com/acmcsulb" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800">
+            <a href="https://www.instagram.com/csulbacm/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800">
               <FontAwesomeIcon icon={faInstagram} className="text-2xl" />
+            </a>
+            <a href="https://discord.gg/TG2CRQNdQt" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800">
+              <FontAwesomeIcon icon={faDiscord} className="text-2xl" />
             </a>
             <a href="mailto:acm@csulb.edu" className="text-blue-600 hover:text-blue-800">
               <FontAwesomeIcon icon={faEnvelope} className="text-2xl" />

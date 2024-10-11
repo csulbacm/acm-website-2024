@@ -25,18 +25,33 @@ export default function Sponsors() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <motion.section
-        className="bg-blue-700 text-white py-20"
-        initial={{ opacity: 0, y: -50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <div className="container mx-auto text-center">
-          <h1 className="text-5xl font-extrabold">Our Sponsors</h1>
-          <p className="text-xl mt-4">We are grateful for the support of our sponsors!</p>
-        </div>
-      </motion.section>
+      {/* Hero Section with Animated Background */}
+      <div className="relative area"> {/* Wrapper for animated background */}
+        <ul className="circles"> {/* Floating circles */}
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+        </ul>
+
+        <motion.section
+          className="relative z-10 text-white py-20 text-center"
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="container mx-auto">
+            <h1 className="text-5xl font-extrabold">Our Sponsors</h1>
+            <p className="text-xl mt-4">We are grateful for the support of our sponsors!</p>
+          </div>
+        </motion.section>
+      </div>
 
       {/* Sponsors Section */}
       <motion.section

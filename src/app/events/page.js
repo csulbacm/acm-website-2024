@@ -18,17 +18,34 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Page Header */}
-      <motion.section
-        className="bg-blue-700 text-white py-12 text-center"
-        initial={{ opacity: 0, y: -50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <h1 className="text-4xl font-extrabold">Upcoming Events</h1>
-        <p className="text-xl mt-4">Explore our upcoming workshops, hackathons, and networking events!</p>
-      </motion.section>
+    <div className="min-h-screen bg-indigo-400">
+      {/* Page Header with Animated Background */}
+      <div className="relative area"> {/* Wrapper for animated background */}
+        <ul className="circles"> {/* Floating circles */}
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+        </ul>
+
+        <motion.section
+          className="relative z-10 text-white py-20 text-center"
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="container mx-auto">
+          <h1 className="text-5xl font-extrabold">Upcoming Events</h1>
+          <p className="text-xl mt-4">Explore our upcoming workshops, hackathons, and networking events!</p>
+          </div>
+        </motion.section>
+      </div>
 
       {/* Event List */}
       <motion.section
@@ -57,7 +74,7 @@ export default function Home() {
 
       {/* Call to Action */}
       <motion.section
-        className="bg-blue-700 text-white py-12 text-center"
+        className="bg-indigo-300 text-white py-12 text-center"
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -66,16 +83,17 @@ export default function Home() {
         <p className="text-xl mt-4">
           Join our mailing list to get the latest updates on upcoming workshops, hackathons, and networking events.
         </p>
-        <motion.button
+        <Link href="/subscribe" passHref>
+          <motion.button
             className="mt-8 inline-block bg-white text-blue-700 px-8 py-4 rounded-lg font-bold"
             whileHover={{ scale: 1.05 }}  // Scale up slightly on hover
             whileTap={{ scale: 0.95 }}    // Scale down slightly on tap
             transition={{ duration: 0.2 }} // Animation duration
           >
-        <Link href="/subscribe">
-          Subscribe Now
+            Subscribe Now
+          </motion.button>
         </Link>
-        </motion.button>
+
       </motion.section>
     </div>
   );
