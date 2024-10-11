@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
+import Image from 'next/image'; // Import Next.js Image for better performance and optimization
+import logo from '../../../public/images/acm-csulb.svg'; // Adjust the path based on your file structure
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false); // State to manage sidebar visibility
@@ -20,7 +22,14 @@ const Navbar = () => {
       <nav className="container mx-auto flex justify-between items-center px-4"> {/* Added px-4 for padding */}
         <div>
           <Link href="/">
-            <h1 className="text-2xl font-bold cursor-pointer">ACM at CSULB</h1>
+            {/* Replacing the title with the logo */}
+            <Image
+              src={logo}
+              alt="ACM CSULB Logo"
+              width={50} // Adjust the width based on your preference
+              height={50} // Adjust the height based on your preference
+              className="cursor-pointer"
+            />
           </Link>
         </div>
         <div className="hidden md:flex"> {/* Desktop Navbar */}

@@ -2,7 +2,8 @@
 
 import { motion } from 'framer-motion'; // Import motion from framer-motion
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLinkedin, faInstagram, faXTwitter as faX, faEnvelope } from '@fortawesome/free-brands-svg-icons'; // Import required icons
+import { faLinkedin, faInstagram, faXTwitter as faX } from '@fortawesome/free-brands-svg-icons'; // Import required icons
+import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
 
 export default function Contact() {
   return (
