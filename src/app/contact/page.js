@@ -29,7 +29,7 @@ export default function Contact() {
   };
 
   return (
-    <div className="min-h-screen bg-indigo-400">
+    <div className="min-h-screen bg-white">
       {/* Page Header with Animated Background */}
       <div className="relative area"> {/* Wrapper for animated background */}
         <ul className="circles"> {/* Floating circles */}
@@ -64,7 +64,7 @@ export default function Contact() {
       <motion.section className="container mx-auto py-16 px-6 md:px-0 flex flex-col md:flex-row gap-12"
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
         <div className="bg-white p-8 shadow-lg rounded-lg flex-1">
-          <h2 className="text-3xl font-bold text-blue-700 mb-6">Send Us a Message</h2>
+          <h2 className="text-3xl font-bold text-black mb-6">Send Us a Message</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label htmlFor="name" className="block text-gray-700 font-semibold">Name</label>
@@ -118,7 +118,7 @@ export default function Contact() {
 
         {/* Additional Contact Info */}
         <div className="bg-white p-8 shadow-lg rounded-lg flex-1"> {/* Added flex-1 for equal width */}
-          <h2 className="text-3xl font-bold text-blue-700">Other Ways to Reach Us</h2>
+          <h2 className="text-3xl font-bold text-black">Other Ways to Reach Us</h2>
           <p className="text-lg mt-4 text-gray-700">
             You can also email us directly at <a href="mailto:acm@csulb.edu" className="text-blue-600">acm@csulb.edu</a> or follow us on our social media channels.
           </p>
@@ -150,7 +150,7 @@ export default function Contact() {
         transition={{ duration: 0.5 }}
       >
         <div className="bg-white shadow-lg rounded-lg p-6">
-          <h2 className="text-3xl font-bold text-blue-700 text-center mb-6">Our Location</h2>
+          <h2 className="text-3xl font-bold text-black text-center mb-6">Our Location</h2>
           <iframe
             src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d1029.0109755573735!2d-118.11206393870413!3d33.783037438855615!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zMzPCsDQ3JzAxLjMiTiAxMTjCsDA2JzQwLjQiVw!5e1!3m2!1sen!2sus!4v1728566345561!5m2!1sen!2sus"
             width="100%"

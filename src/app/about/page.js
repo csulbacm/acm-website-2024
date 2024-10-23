@@ -8,7 +8,7 @@ import { officers } from './officers'; // Import officers list
 
 export default function About() {
   return (
-    <div className="min-h-screen bg-indigo-400">
+    <div className="min-h-screen bg-white">
       {/* About Header with Animated Background */}
       <div className="relative area"> {/* Wrapper for animated background */}
         <ul className="circles"> {/* Floating circles */}
@@ -41,13 +41,13 @@ export default function About() {
 
       {/* Our Mission Section */}
       <motion.section
-        className="container mx-auto py-12 text-center text-white"
+        className="container mx-auto py-12 text-center text-black"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
       >
         <h2 className="text-3xl font-bold">Our Mission</h2>
-        <p className="text-lg mt-4 max-w-2xl mx-auto">
+        <p className="text-lg mt-4 max-w-2xl mx-auto mb-4">
           Our mission is to empower students with knowledge, resources, and opportunities to thrive in the field of computing. We aim to build a bridge between students and industry professionals by hosting workshops, networking events, and technical challenges.
         </p>
       </motion.section>
@@ -59,11 +59,11 @@ export default function About() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <div className="container mx-auto text-center bg-indigo-300">
-          <h2 className="text-3xl font-bold text-white">Meet Our Officers</h2>
+        <div className="container mx-auto text-center bg-white">
+          <h2 className="text-3xl font-bold text-black">Meet Our Officers</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8 text-gray-900 text-xl">
             {officers.map((officer, index) => (
-              <div key={index} className="our-team">
+              <div key={index} className="our-team border-solid border-2 border-black shadow-lg">
                 <div className="picture">
                   <img className="img-fluid" src={officer.image} alt={officer.name} />
                 </div>

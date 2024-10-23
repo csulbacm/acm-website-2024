@@ -18,7 +18,7 @@ const Navbar = () => {
   };
 
   return (
-    <header className="bg-blue-900 text-white py-4">
+    <header className="bg-white text-white py-4">
       <nav className="container mx-auto flex justify-between items-center px-4"> {/* Added px-4 for padding */}
         <div>
           <Link href="/">
@@ -32,11 +32,11 @@ const Navbar = () => {
             />
           </Link>
         </div>
-        <div className="hidden md:flex"> {/* Desktop Navbar */}
-          <Link href="/about" className="mx-4">About</Link>
-          <Link href="/events" className="mx-4">Events</Link>
-          <Link href="/contact" className="mx-4">Contact</Link>
-          <Link href="/sponsors" className="mx-4">Sponsors</Link>
+        <div className="hidden md:flex text-black font-bold"> {/* Desktop Navbar */}
+          <Link href="/about" className="mx-4 hover:text-acm-blue transition-colors duration-300">About</Link>
+          <Link href="/events" className="mx-4 hover:text-acm-blue transition-colors duration-300">Events</Link>
+          <Link href="/contact" className="mx-4 hover:text-acm-blue transition-colors duration-300">Contact</Link>
+          <Link href="/sponsors" className="mx-4 hover:text-acm-blue transition-colors duration-300">Sponsors</Link>
         </div>
         <div className="md:hidden"> {/* Hamburger Menu Icon */}
           {!isOpen && ( // Only show the hamburger icon when the sidebar is closed

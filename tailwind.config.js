@@ -10,6 +10,8 @@ module.exports = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        'acm-blue': '#0092d0',  // Custom color
+        'acm-yellow': '#f6a827', // Add the acm-yellow color as well, if needed
       },
     },
   },

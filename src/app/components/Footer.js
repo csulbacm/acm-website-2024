@@ -4,7 +4,7 @@ import { faXTwitter as faX } from '@fortawesome/free-brands-svg-icons'; // Impor
 
 const Footer = () => {
   return (
-    <footer className="bg-blue-900 text-white py-6">
+    <footer className="bg-gray-900 text-white py-6">
       <div className="container mx-auto flex flex-col md:flex-row justify-between items-center">
         <p className="mb-4 md:mb-0">© 2024 ACM at CSULB. All rights reserved.</p>
         <div className="flex space-x-4">
