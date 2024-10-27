@@ -60,7 +60,7 @@ export const officers = [
         linkedin: 'https://www.linkedin.com/in/mekhihart-delacruz/',
         email: 'mekhihartdelacruz@gmail.com',
         github: 'https://github.com/MekhiHart',
-        website: '',
+        website: 'https://mekhihart.vercel.app/',
         image: '/images/mekhi.png'
       },
       {

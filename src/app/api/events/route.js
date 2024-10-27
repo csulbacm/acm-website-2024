@@ -1,124 +1,100 @@
-import { v4 as uuidv4 } from 'uuid';
+import clientPromise from '../../../../lib/mongodb'; // Adjust path as needed
 import { NextResponse } from 'next/server';
+import { ObjectId } from 'mongodb';
+import jwt from 'jsonwebtoken';
 
-let events = [
-  {
-    id: uuidv4(),
-    title: 'Networking Event',
-    startDate: '2024-10-25T10:00:00',
-    endDate: '2024-10-25T12:00:00',
-    allDay: false,
-    description: 'Join us for a networking event to connect with industry professionals.',
-    image: '/images/arnav.jpeg',
-  },
-  {
-    id: uuidv4(),
-    title: 'React Workshop',
-    startDate: '2024-10-27T14:00:00',
-    endDate: '2024-10-27T16:00:00',
-    allDay: false,
-    description: 'Learn the basics of React in this hands-on workshop.',
-    image: '/images/react-workshop.jpg',
-  },
-  {
-    id: uuidv4(),
-    title: 'Hackathon',
-    startDate: '2024-11-01T09:00:00',
-    endDate: '2024-11-02T17:00:00',
-    allDay: false,
-    description: 'Participate in our hackathon to solve real-world problems and win prizes.',
-    image: '/images/hackathon.jpg',
-  },
-  {
-    id: uuidv4(),
-    title: 'Python Bootcamp',
-    startDate: '2024-11-05T10:00:00',
-    endDate: '2024-11-05T15:00:00',
-    allDay: false,
-    description: 'A comprehensive Python bootcamp for beginners.',
-    image: '/images/python-bootcamp.jpg',
-  },
-  {
-    id: uuidv4(),
-    title: 'AI Seminar',
-    startDate: '2024-11-10T13:00:00',
-    endDate: '2024-11-10T15:00:00',
-    allDay: false,
-    description: 'Discover the latest advancements in AI and machine learning.',
-    image: '/images/ai-seminar.jpg',
-  },
-  {
-    id: uuidv4(),
-    title: 'JavaScript Deep Dive',
-    startDate: '2024-11-15T10:00:00',
-    endDate: '2024-11-15T12:00:00',
-    allDay: false,
-    description: 'A deep dive into JavaScript for intermediate developers.',
-    image: '/images/js-deep-dive.jpg',
-  },
-  {
-    id: uuidv4(),
-    title: 'Career Fair',
-    startDate: '2024-11-20T09:00:00',
-    endDate: '2024-11-20T17:00:00',
-    allDay: false,
-    description: 'Meet potential employers and learn about career opportunities.',
-    image: '/images/career-fair.jpg',
-  },
-  {
-    id: uuidv4(),
-    title: 'Cloud Computing Workshop',
-    startDate: '2024-11-25T14:00:00',
-    endDate: '2024-11-25T17:00:00',
-    allDay: false,
-    description: 'Learn about cloud computing and how to use AWS.',
-    image: '/images/cloud-computing.jpg',
-  },
-  {
-    id: uuidv4(),
-    title: 'Cybersecurity Awareness',
-    startDate: '2024-11-30T10:00:00',
-    endDate: '2024-11-30T12:00:00',
-    allDay: false,
-    description: 'Learn how to protect yourself online with cybersecurity best practices.',
-    image: '/images/cybersecurity.jpg',
-  },
-  {
-    id: uuidv4(),
-    title: 'Data Science Meetup',
-    startDate: '2024-12-05T13:00:00',
-    endDate: '2024-12-05T15:00:00',
-    allDay: false,
-    description: 'Meet other data science enthusiasts and share knowledge.',
-    image: '/images/data-science.jpg',
-  },
-  {
-    id: uuidv4(),
-    title: 'Blockchain Basics',
-    startDate: '2024-12-10T11:00:00',
-    endDate: '2024-12-10T13:00:00',
-    allDay: false,
-    description: 'An introduction to blockchain technology and its applications.',
-    image: '/images/blockchain.jpg',
-  },
-  {
-    id: uuidv4(),
-    title: 'Full Stack Development Workshop',
-    startDate: '2024-12-15T10:00:00',
-    endDate: '2024-12-15T17:00:00',
-    allDay: false,
-    description: 'A full-day workshop on full stack development.',
-    image: '/images/full-stack.jpg',
-  },
-];
+const SECRET_KEY = process.env.JWT_SECRET;
 
 export async function GET() {
-  return NextResponse.json(events);
+  try {
+    // Connect to MongoDB
+    const client = await clientPromise;
+    const db = client.db('acmData'); // Replace 'acmData' with your actual database name
+
+    // Access the 'events' collection and retrieve all events
+    const eventsCollection = db.collection('events');
+    const events = await eventsCollection.find({}).toArray();
+
+    // Return the events in JSON format
+    return NextResponse.json(events);
+  } catch (error) {
+    console.error('Error retrieving events:', error);
+    return NextResponse.json(
+      { error: 'Error retrieving events' },
+      { status: 500 }
+    );
+  }
 }
 
 export async function POST(req) {
-  const newEvent = await req.json();
-  newEvent.id = uuidv4();
-  events.push(newEvent);
-  return NextResponse.json(newEvent, { status: 201 });
+  // Get the token from the authorization header or cookies
+  const authHeader = req.headers.get('authorization') || '';
+  const tokenFromHeader = authHeader.replace('Bearer ', '').trim();
+  const tokenCookie = req.cookies.get('token');
+  const tokenFromCookie = tokenCookie?.value;
+
+  // Choose the token from header or cookie
+  const token = tokenFromHeader || tokenFromCookie;
+
+  if (!token) {
+    console.error('No token provided');
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
+    // Verify the token
+    jwt.verify(token, SECRET_KEY);
+
+    // If verification passes, proceed to add the event
+    const client = await clientPromise;
+    const db = client.db('acmData');
+    const event = await req.json();
+
+    const result = await db.collection('events').insertOne(event);
+    return new Response(JSON.stringify(result), { status: 201 });
+  } catch (error) {
+    console.error(
+      'Error adding event or token verification failed:',
+      error
+    );
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+}
+
+export async function DELETE(req) {
+  // Get the token from the authorization header or cookies
+  const authHeader = req.headers.get('authorization') || '';
+  const tokenFromHeader = authHeader.replace('Bearer ', '').trim();
+  const tokenCookie = req.cookies.get('token');
+  const tokenFromCookie = tokenCookie?.value;
+
+  // Choose the token from header or cookie
+  const token = tokenFromHeader || tokenFromCookie;
+
+  if (!token) {
+    console.error('No token provided');
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
+    // Verify the token
+    jwt.verify(token, SECRET_KEY);
+
+    // If verification passes, proceed to delete events
+    const { ids } = await req.json();
+    const client = await clientPromise;
+    const db = client.db('acmData');
+
+    await db.collection('events').deleteMany({
+      _id: { $in: ids.map((id) => new ObjectId(id)) },
+    });
+
+    return NextResponse.json({ message: 'Events deleted successfully' });
+  } catch (error) {
+    console.error(
+      'Error deleting events or token verification failed:',
+      error
+    );
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
 }
