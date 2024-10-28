@@ -1,12 +1,40 @@
-"use client"; // Marks this component as a client-side component
+"use client";
 
-import { motion } from 'framer-motion'; // Import motion from framer-motion
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // Import FontAwesome for icons
-import { faLinkedin, faGithub } from '@fortawesome/free-brands-svg-icons'; // Import LinkedIn and GitHub icons
-import { faEnvelope, faGlobe } from '@fortawesome/free-solid-svg-icons'; // Import Envelope and Website icons
-import { officers } from './officers'; // Import officers list
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faLinkedin, faGithub } from '@fortawesome/free-brands-svg-icons';
+import { faEnvelope, faGlobe } from '@fortawesome/free-solid-svg-icons';
 
 export default function About() {
+  const [officers, setOfficers] = useState([]); // Initialize as an empty array
+  const [isLoaded, setIsLoaded] = useState(false); // Track if officers data has loaded
+  const [error, setError] = useState(null); // Track errors
+
+  useEffect(() => {
+    const fetchOfficers = async () => {
+      try {
+        // Fetch from the correct endpoint to get all officers
+        const response = await fetch('/api/admin/profile');
+        if (!response.ok) throw new Error('Failed to fetch officers data');
+
+        const data = await response.json();
+
+        if (Array.isArray(data)) {
+          setOfficers(data); // Set officers data if it's an array
+          setIsLoaded(true); // Set loaded state to true after data is fetched
+        } else {
+          throw new Error('Unexpected data format');
+        }
+      } catch (error) {
+        console.error('Error fetching officers:', error);
+        setError(error.message);
+      }
+    };
+
+    fetchOfficers();
+  }, []);
+
   return (
     <div className="min-h-screen bg-white">
       {/* About Header with Animated Background */}
@@ -43,7 +71,7 @@ export default function About() {
       <motion.section
         className="container mx-auto py-12 text-center text-black"
         initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
+        animate={{opacity: 1}}
         transition={{ duration: 0.5 }}
       >
         <h2 className="text-3xl font-bold">Our Mission</h2>
@@ -56,10 +84,10 @@ export default function About() {
       <motion.section
         className="our-team-section py-12"
         initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
+        animate={isLoaded ? { opacity: 1 } : { opacity: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <div className="container mx-auto text-center bg-white">
+        <div className="container mx-auto text-center">
           <h2 className="text-3xl font-bold text-black">Meet Our Officers</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8 text-gray-900 text-xl">
             {officers.map((officer, index) => (

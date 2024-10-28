@@ -19,13 +19,17 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 });
     }
 
+    // Create JWT with email payload
     const token = jwt.sign({ email }, SECRET_KEY, { expiresIn: '1h' });
-    return NextResponse.json({ message: 'Login successful' }, {
-      status: 200,
-      headers: {
-        'Set-Cookie': `token=${token}; Path=/; HttpOnly; Max-Age=3600; SameSite=Strict`,
-      },
-    });
+
+    // Set the token in a secure, HTTP-only cookie
+    const response = NextResponse.json({ message: 'Login successful' }, { status: 200 });
+    response.headers.append(
+      'Set-Cookie',
+      `token=${token}; Path=/; HttpOnly; Secure; Max-Age=3600; SameSite=Strict`
+    );
+
+    return response;
   } catch (error) {
     console.error('Error in login route:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
