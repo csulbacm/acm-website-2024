@@ -79,7 +79,7 @@ export default function Events() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white overflow-x-hidden">
       {/* Hero Section with Background and Circles */}
       <div className="relative area h-screen"> {/* Set height to 100vh */}
         <ul className="circles"> {/* Floating circles */}
@@ -110,7 +110,7 @@ export default function Events() {
             </p>
             <Link href="/events" passHref>
               <motion.button
-                className="mt-8 inline-block bg-white text-blue-700 px-8 py-4 rounded-lg font-bold"
+                className="mt-8 inline-block bg-white text-acm-blue px-8 py-4 rounded-lg font-bold"
                 whileHover={{ scale: 1.05 }}  // Scale up slightly on hover
                 whileTap={{ scale: 0.95 }}    // Scale down slightly on tap
                 transition={{ duration: 0.2 }} // Animation duration
@@ -149,8 +149,8 @@ export default function Events() {
               transition={{ duration: 0.3 }}
             >
               <div className="flex flex-col items-center">
-                <FaNetworkWired className="text-blue-700 text-6xl mb-6" />
-                <h3 className="text-2xl font-semibold text-blue-700 mb-4">Networking</h3>
+                <FaNetworkWired className="text-acm-blue text-6xl mb-6" />
+                <h3 className="text-2xl font-semibold text-acm-blue mb-4">Networking</h3>
               </div>
               <p className="text-gray-700 mx-10">
                 At ACM, we provide you with invaluable networking opportunities. Connect with students, alumni, and industry professionals through our events and partnerships.
@@ -165,8 +165,8 @@ export default function Events() {
               transition={{ duration: 0.3 }}
             >
               <div className="flex flex-col items-center">
-                <FaLaptopCode className="text-blue-700 text-6xl mb-6" />
-                <h3 className="text-2xl font-semibold text-blue-700 mb-4">Workshops</h3>
+                <FaLaptopCode className="text-acm-blue text-6xl mb-6" />
+                <h3 className="text-2xl font-semibold text-acm-blue mb-4">Workshops</h3>
               </div>
               <p className="text-gray-700 mx-10">
                 Our hands-on workshops are designed to help you expand your technical skills in areas such as programming, web development, AI, cybersecurity, and more.
@@ -181,8 +181,8 @@ export default function Events() {
               transition={{ duration: 0.3 }}
             >
               <div className="flex flex-col items-center">
-                <FaLightbulb className="text-blue-700 text-6xl mb-6" />
-                <h3 className="text-2xl font-semibold text-blue-700 mb-4">Hackathons</h3>
+                <FaLightbulb className="text-acm-blue text-6xl mb-6" />
+                <h3 className="text-2xl font-semibold text-acm-blue mb-4">Hackathons</h3>
               </div>
               <p className="text-gray-700 mx-10">
                 ACM hosts exciting hackathons where students come together to solve real-world problems, build innovative projects, and showcase their technical prowess.
@@ -233,7 +233,7 @@ export default function Events() {
         >
           <div className="bg-white p-6 rounded-lg max-w-lg w-full">
             <img src={selectedEvent.image} alt={selectedEvent.title} className="w-full h-64 object-cover rounded-md mb-4" />
-            <h2 className="text-3xl font-bold mb-4 text-blue-700">{selectedEvent.title}</h2>
+            <h2 className="text-3xl font-bold mb-4 text-acm-blue">{selectedEvent.title}</h2>
             <p className="text-gray-800 mb-4">{selectedEvent.description}</p>
             <p className="text-gray-800 mb-4">
               <strong>Date:</strong> {moment(selectedEvent.start).format('MMMM Do, YYYY')}<br />
@@ -263,7 +263,7 @@ export default function Events() {
           </p>
           <Link href="/contact" passHref>
             <motion.button
-              className="mt-8 inline-block bg-blue-700 text-white px-8 py-4 rounded-lg font-bold"
+              className="mt-8 inline-block bg-acm-blue text-white px-8 py-4 rounded-lg font-bold"
               whileHover={{ scale: 1.05 }}  // Scale up slightly on hover
               whileTap={{ scale: 0.95 }}    // Scale down slightly on tap
               transition={{ duration: 0.2 }} // Animation duration

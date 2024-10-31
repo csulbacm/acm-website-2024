@@ -103,15 +103,21 @@ export default function Events() {
         </motion.section>
       </div>
 
-      {/* Custom Toolbar */}
-      <div className="container mx-auto py-4 pt-8 flex justify-center space-x-4">
-        <button className="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold" onClick={goToBack}>Back</button>
-        <button className="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold" onClick={goToToday}>Today</button>
-        <button className="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold" onClick={goToNext}>Next</button>
-        <button className="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold" onClick={() => setCurrentView(Views.MONTH)}>Month</button>
-        <button className="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold" onClick={() => setCurrentView(Views.WEEK)}>Week</button>
-        <button className="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold" onClick={() => setCurrentView(Views.DAY)}>Day</button>
-        <button className="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold" onClick={() => setCurrentView(Views.AGENDA)}>Agenda</button>
+      <div className="container mx-auto py-4 pt-8 flex flex-wrap justify-center space-x-4 space-y-4 md:space-y-0">
+        {/* Navigation Buttons */}
+        <div className="flex space-x-4">
+          <button className="bg-acm-blue text-white px-4 py-2 rounded-lg font-bold" onClick={goToBack}>Back</button>
+          <button className="bg-acm-blue text-white px-4 py-2 rounded-lg font-bold" onClick={goToToday}>Today</button>
+          <button className="bg-acm-blue text-white px-4 py-2 rounded-lg font-bold" onClick={goToNext}>Next</button>
+        </div>
+
+        {/* View Buttons */}
+        <div className="flex space-x-4 md:ml-4">
+          <button className="bg-acm-blue text-white px-4 py-2 rounded-lg font-bold" onClick={() => setCurrentView(Views.MONTH)}>Month</button>
+          <button className="bg-acm-blue text-white px-4 py-2 rounded-lg font-bold" onClick={() => setCurrentView(Views.WEEK)}>Week</button>
+          <button className="bg-acm-blue text-white px-4 py-2 rounded-lg font-bold" onClick={() => setCurrentView(Views.DAY)}>Day</button>
+          <button className="bg-acm-blue text-white px-4 py-2 rounded-lg font-bold" onClick={() => setCurrentView(Views.AGENDA)}>Agenda</button>
+        </div>
       </div>
 
       {/* Calendar Section */}
@@ -154,21 +160,27 @@ export default function Events() {
         >
           <div className="bg-white p-6 rounded-lg max-w-lg w-full">
             <img src={selectedEvent.image} alt={selectedEvent.title} className="w-full h-64 object-cover rounded-md mb-4" />
-            <h2 className="text-3xl font-bold mb-4 text-blue-700">{selectedEvent.title}</h2>
-            <p className="text-gray-800 mb-4">{selectedEvent.description}</p>
+            <h2 className="text-3xl font-bold mb-4 text-black">{selectedEvent.title}</h2>
+            
+            {/* Render description with HTML content */}
+            <div className="text-gray-800 mb-4" style={{ wordBreak: 'break-word' }}
+              dangerouslySetInnerHTML={{ __html: selectedEvent.description || 'No description provided.' }}
+            ></div>
+
             <p className="text-gray-800 mb-4">
               <strong>Date:</strong> {moment(selectedEvent.start).format('MMMM Do, YYYY')}<br />
               <strong>Time:</strong> {moment(selectedEvent.start).format('h:mm A')} - {moment(selectedEvent.end).format('h:mm A')}
             </p>
             <button
               onClick={closeModal}
-              className="mt-4 inline-block bg-blue-700 text-white px-6 py-2 rounded-lg font-bold"
+              className="mt-4 inline-block bg-acm-blue text-white px-6 py-2 rounded-lg font-bold"
             >
               Close
             </button>
           </div>
         </Modal>
       )}
+
 
       {/* Call to Action */}
       <motion.section

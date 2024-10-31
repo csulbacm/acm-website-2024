@@ -60,7 +60,7 @@ export default function Sponsors() {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
       >
-        <h2 className="text-3xl font-bold text-blue-700 text-center mb-10">Thank You to Our Sponsors</h2>
+        <h2 className="text-3xl font-bold text-black text-center mb-10">Thank You to Our Sponsors!</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {sponsors.map((sponsor, index) => (
             <motion.div

@@ -7,6 +7,8 @@ import { faCalendarAlt, faUser } from '@fortawesome/free-solid-svg-icons';
 import { faLinkedin, faGithub } from '@fortawesome/free-brands-svg-icons';
 import { faEnvelope, faGlobe } from '@fortawesome/free-solid-svg-icons';
 import moment from 'moment';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 export default function AdminPage() {
     const router = useRouter();
@@ -192,36 +194,36 @@ export default function AdminPage() {
 
     return (
       <div className="container mx-auto p-6 text-gray-700">
-        {/* Subnavbar with Extra Buttons */}
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex space-x-4">
-            <button
-              onClick={() => handleTabClick('events')}
-              className={`flex items-center px-4 py-2 rounded-md font-bold ${activeTab === 'events' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
-            >
-              <FontAwesomeIcon icon={faCalendarAlt} className="mr-2" />
-              Events
-            </button>
-            <button
-              onClick={() => handleTabClick('profile')}
-              className={`flex items-center px-4 py-2 rounded-md font-bold ${activeTab === 'profile' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
-            >
-              <FontAwesomeIcon icon={faUser} className="mr-2" />
-              Profile
-            </button>
-          </div>
-          <div className="flex space-x-4">
-            <button onClick={handleRegister} className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md">
-              Register New User
-            </button>
-            <button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-md">
-              Logout
-            </button>
-            <button onClick={() => setShowChangePasswordModal(true)} className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md">
-              Change Password
-            </button>
-          </div>
+      {/* Subnavbar with Extra Buttons */}
+      <div className="flex flex-wrap justify-between items-center mb-6 space-y-4 md:space-y-0">
+        <div className="flex flex-wrap space-x-4">
+          <button
+            onClick={() => handleTabClick('events')}
+            className={`flex items-center px-4 py-2 rounded-md font-bold ${activeTab === 'events' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
+          >
+            <FontAwesomeIcon icon={faCalendarAlt} className="mr-2" />
+            Events
+          </button>
+          <button
+            onClick={() => handleTabClick('profile')}
+            className={`flex items-center px-4 py-2 rounded-md font-bold ${activeTab === 'profile' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
+          >
+            <FontAwesomeIcon icon={faUser} className="mr-2" />
+            Profile
+          </button>
         </div>
+        <div className="flex flex-wrap space-x-4">
+          <button onClick={handleRegister} className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md">
+            Register New User
+          </button>
+          <button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-md">
+            Logout
+          </button>
+          <button onClick={() => setShowChangePasswordModal(true)} className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md">
+            Change Password
+          </button>
+        </div>
+      </div>
 
         {/* Change Password Modal */}
         {showChangePasswordModal && (
@@ -315,9 +317,23 @@ export default function AdminPage() {
     );
 }
 
+const modules = {
+  toolbar: [
+    [{ 'header': [1, 2, false] }],
+    ['bold', 'italic', 'underline', 'strike'],       
+    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+    [{ 'color': [] }, { 'background': [] }],          
+    ['link', 'image', 'video'],
+    [{ 'align': [] }],
+  ]
+};
+const formats = [
+  'header', 'bold', 'italic', 'underline', 'strike', 'list', 'bullet', 
+  'link', 'color', 'background', 'align', 'image', 'video'
+];
 // Events Section Component
 const EventsSection = ({ events, title, description, startDate, endDate, allDay, image, setTitle, setDescription, setStartDate, setEndDate, setAllDay, setImage, handleSubmit, handleEditEvent, handleDeleteSelected, handleSelectEvent, selectedEvents, resetForm, editingEvent }) => (
-  <div className="flex flex-col lg:flex-row lg:space-x-8">
+  <div className="flex flex-col-reverse lg:flex-row lg:space-x-8 items-center lg:items-start">
     {/* Event Form */}
     <div className="lg:w-1/2 bg-white shadow-md rounded-lg p-8 space-y-6 border border-gray-200">
       <h2 className="text-3xl font-bold text-gray-900 text-center">Manage Events</h2>
@@ -331,13 +347,19 @@ const EventsSection = ({ events, title, description, startDate, endDate, allDay,
           required 
         />
 
-        <label className="block text-lg font-semibold text-gray-700">Description</label>
-        <textarea 
-          value={description} 
-          onChange={(e) => setDescription(e.target.value)} 
-          className="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400" 
-          required 
+        {/* Rich Text Editor for Event Description */}
+        <label className="block text-lg font-semibold text-gray-700">Event Description</label>
+        <ReactQuill
+          value={description}
+          onChange={setDescription}
+          modules={modules}
+          formats={formats}
+          theme="snow"
+          placeholder="Add event description..."
+          className="mb-4 text-gray-800"
         />
+        
+        {/* Submit Button */}
 
         <label className="block text-lg font-semibold text-gray-700">Start Date</label>
         <input 
@@ -434,20 +456,27 @@ const EventsSection = ({ events, title, description, startDate, endDate, allDay,
       </button>
     </div>
 
-    {/* Live Preview */}
-    <div className="lg:w-1/2 bg-white p-6 rounded-lg max-w-lg w-full border border-gray-200 shadow-md">
-      <h2 className="text-3xl font-bold text-gray-900 text-center">Live Event Preview</h2>
-      <div className="mt-4">
-        {image && <img src={image} alt={title} className="w-full h-64 object-cover rounded-md mb-4" />}
-        <h2 className="text-3xl font-bold mb-4 text-blue-700">{title || 'Event Title'}</h2>
-        <p className="text-gray-800 mb-4">{description || 'Event description will appear here.'}</p>
-        <p className="text-gray-800 mb-4">
-          <strong>Date:</strong> {startDate ? moment(startDate).format('MMMM Do, YYYY') : 'Select a date'}
-          <br />
-          <strong>Time:</strong> {allDay ? 'All Day' : `${moment(startDate).format('h:mm A')} - ${moment(endDate).format('h:mm A')}`}
-        </p>
-      </div>
+{/* Live Event Preview */}
+<div className="lg:w-1/2 flex flex-col justify-center items-center text-gray-900 text-xl mb-4 lg:mt-60">
+  <h2 className="text-3xl font-bold text-gray-900 text-center">Live Event Preview</h2>
+  <div className="border-solid border-2 border-black shadow-lg text-start p-8 rounded-lg" style={{ width: '500px', height: 'auto', wordBreak: 'break-word' }}>
+    <div className="mt-4">
+      {image && <img src={image} alt={title} className="w-full h-64 object-cover rounded-md mb-4" />}
+      <h2 className="text-3xl font-bold mb-4 text-black">{title || 'Event Title'}</h2>
+      <div
+        className="text-gray-800 mb-4"
+        dangerouslySetInnerHTML={{ __html: description || 'Event description will appear here.' }}
+      ></div>
+
+      <p className="text-gray-800 mb-4">
+        <strong>Date:</strong> {startDate ? moment(startDate).format('MMMM Do, YYYY') : 'Select a date'}
+        <br />
+        <strong>Time:</strong> {allDay ? 'All Day' : `${moment(startDate).format('h:mm A')} - ${moment(endDate).format('h:mm A')}`}
+      </p>
     </div>
+  </div>
+</div>
+
   </div>
 );
 
@@ -457,7 +486,7 @@ const ProfileSection = ({
   setName, setTitleProfile, setLinkedin, setGithub, setWebsite,
   setProfileImage, handleProfileUpdate, handleImageChange
 }) => (
-  <div className="flex flex-col lg:flex-row lg:space-x-8">
+  <div className="flex flex-col-reverse lg:flex-row lg:space-x-8">
     {/* Profile Form */}
     <div className="lg:w-1/2 bg-white shadow-md rounded-lg p-8 space-y-6 border border-gray-200">
       <h2 className="text-3xl font-bold text-gray-900 text-center">Update Profile</h2>
@@ -521,7 +550,8 @@ const ProfileSection = ({
     </div>
 
     {/* Live Profile Preview */}
-    <div className="lg:w-1/2 flex justify-center items-center text-gray-900 text-xl">
+    <div className="lg:w-1/2 flex flex-col justify-center items-center text-gray-900 text-xl">
+      <h2 className="text-3xl font-bold text-gray-900 text-center">Live Profile Preview</h2>
       <div className="our-team border-solid border-2 border-black shadow-lg text-center p-8 rounded-lg" style={{ width: '500px', height: '300px' }}>
         <div className="picture mb-4">
           <img

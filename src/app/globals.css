@@ -38,6 +38,10 @@ body{
     font-family: 'Exo', sans-serif;
 }
 
+.container {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
 
 .context {
     width: 100%;

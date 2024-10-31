@@ -105,7 +105,7 @@ export default function Contact() {
             <div>
               <motion.button
                 type="submit"
-                className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700"
+                className="w-full bg-acm-blue text-white py-2 rounded-lg font-semibold hover:bg-acm-yellow"
                 whileHover={{ scale: 1.05 }} // Scale up on hover
                 whileTap={{ scale: 0.95 }} // Scale down on tap
               >
@@ -120,22 +120,22 @@ export default function Contact() {
         <div className="bg-white p-8 shadow-lg rounded-lg flex-1"> {/* Added flex-1 for equal width */}
           <h2 className="text-3xl font-bold text-black">Other Ways to Reach Us</h2>
           <p className="text-lg mt-4 text-gray-700">
-            You can also email us directly at <a href="mailto:acm@csulb.edu" className="text-blue-600">acm@csulb.edu</a> or follow us on our social media channels.
+            You can also email us directly at <a href="mailto:acm@csulb.edu" className="text-acm-blue">acm@csulb.edu</a> or follow us on our social media channels.
           </p>
           <div className="mt-6 flex justify-center space-x-6">
-            <a href="https://x.com/csulbacm" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800">
+            <a href="https://x.com/csulbacm" target="_blank" rel="noopener noreferrer" className="text-acm-blue hover:text-acm-yellow">
               <FontAwesomeIcon icon={faX} className="text-2xl" />
             </a>
-            <a href="https://www.linkedin.com/company/csulbacm/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800">
+            <a href="https://www.linkedin.com/company/csulbacm/" target="_blank" rel="noopener noreferrer" className="text-acm-blue hover:text-acm-yellow">
               <FontAwesomeIcon icon={faLinkedin} className="text-2xl" />
             </a>
-            <a href="https://www.instagram.com/csulbacm/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800">
+            <a href="https://www.instagram.com/csulbacm/" target="_blank" rel="noopener noreferrer" className="text-acm-blue hover:text-acm-yellow">
               <FontAwesomeIcon icon={faInstagram} className="text-2xl" />
             </a>
-            <a href="https://discord.gg/TG2CRQNdQt" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800">
+            <a href="https://discord.gg/TG2CRQNdQt" target="_blank" rel="noopener noreferrer" className="text-acm-blue hover:text-acm-yellow">
               <FontAwesomeIcon icon={faDiscord} className="text-2xl" />
             </a>
-            <a href="mailto:acm@csulb.edu" className="text-blue-600 hover:text-blue-800">
+            <a href="mailto:acm@csulb.edu" className="text-acm-blue hover:text-acm-yellow">
               <FontAwesomeIcon icon={faEnvelope} className="text-2xl" />
             </a>
           </div>
