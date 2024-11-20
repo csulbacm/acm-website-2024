@@ -23,6 +23,10 @@ const Navbar = () => {
     return pathname === path ? 'text-acm-blue' : 'text-black';
   };
 
+  const getMobileLinkClass = (path) => {
+    return pathname === path ? 'text-acm-yellow' : 'text-white';
+  };
+
   return (
     <header className="bg-white text-white py-4">
       <nav className="container mx-auto flex justify-between items-center px-4"> {/* Added px-4 for padding */}
@@ -32,8 +36,8 @@ const Navbar = () => {
             <Image
               src={logo}
               alt="ACM CSULB Logo"
-              width={50} // Adjust the width based on your preference
-              height={50} // Adjust the height based on your preference
+              width={52} // Adjust the width based on your preference
+              height={52} // Adjust the height based on your preference
               className="cursor-pointer"
             />
           </Link>
@@ -41,6 +45,7 @@ const Navbar = () => {
         <div className="hidden md:flex text-black font-bold"> {/* Desktop Navbar */}
           <Link href="/about" className={`mx-4 hover:text-acm-blue transition-colors duration-300 ${getLinkClass('/about')}`}>About</Link>
           <Link href="/events" className={`mx-4 hover:text-acm-blue transition-colors duration-300 ${getLinkClass('/events')}`}>Events</Link>
+          <Link href="/blog" className={`mx-4 hover:text-acm-blue transition-colors duration-300 ${getLinkClass('/blog')}`}>Blog</Link>
           <Link href="/contact" className={`mx-4 hover:text-acm-blue transition-colors duration-300 ${getLinkClass('/contact')}`}>Contact</Link>
           <Link href="/sponsors" className={`mx-4 hover:text-acm-blue transition-colors duration-300 ${getLinkClass('/sponsors')}`}>Sponsors</Link>
         </div>
@@ -59,10 +64,11 @@ const Navbar = () => {
           <button onClick={closeSidebar} className="absolute top-4 right-4">
             <FontAwesomeIcon icon={faTimes} className="text-white text-3xl" />
           </button>
-          <Link href="/about" className="py-5 text-white font-bold text-xl" onClick={closeSidebar}>About</Link>
-          <Link href="/events" className="py-5 text-white font-bold text-xl" onClick={closeSidebar}>Events</Link>
-          <Link href="/contact" className="py-5 text-white font-bold text-xl" onClick={closeSidebar}>Contact</Link>
-          <Link href="/sponsors" className="py-5 text-white font-bold text-xl" onClick={closeSidebar}>Sponsors</Link>
+          <Link href="/about" className={`py-5 font-bold text-xl ${getMobileLinkClass('/about')}`} onClick={closeSidebar}>About</Link>
+          <Link href="/events" className={`py-5 font-bold text-xl ${getMobileLinkClass('/events')}`} onClick={closeSidebar}>Events</Link>
+          <Link href="/blog" className={`py-5 font-bold text-xl ${getMobileLinkClass('/blog')}`} onClick={closeSidebar}>Blog</Link>
+          <Link href="/contact" className={`py-5 font-bold text-xl ${getMobileLinkClass('/contact')}`} onClick={closeSidebar}>Contact</Link>
+          <Link href="/sponsors" className={`py-5 font-bold text-xl ${getMobileLinkClass('/sponsors')}`} onClick={closeSidebar}>Sponsors</Link>
         </div>
       </div>
     </header>

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCalendarAlt, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faCalendarAlt, faUser, faBlog } from '@fortawesome/free-solid-svg-icons';
 import { faLinkedin, faGithub } from '@fortawesome/free-brands-svg-icons';
 import { faEnvelope, faGlobe } from '@fortawesome/free-solid-svg-icons';
 import moment from 'moment';
@@ -34,6 +34,15 @@ export default function AdminPage() {
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
 
+    // Blog-related state variables
+    const [blogs, setBlogs] = useState([]);
+    const [selectedBlogs, setSelectedBlogs] = useState([]);
+    const [blogTitle, setBlogTitle] = useState('');
+    const [blogContent, setBlogContent] = useState('');
+    const [blogImage, setBlogImage] = useState(null);
+    const [editingBlog, setEditingBlog] = useState(null);
+
+
     useEffect(() => {
       const checkAuth = async () => {
         try {
@@ -43,8 +52,18 @@ export default function AdminPage() {
           router.push('/login');
         }
       };
+      const fetchBlogs = async () => {
+        try {
+          const response = await fetch('/api/blog');
+          const data = await response.json();
+          setBlogs(data.blogs);
+        } catch (error) {
+          console.error('Error fetching blogs:', error);
+        }
+      };
       checkAuth();
       fetchEvents();
+      fetchBlogs();
     }, [router]);
     
 
@@ -191,6 +210,69 @@ export default function AdminPage() {
         alert('Error changing password');
       }
     };
+    const handleSubmitBlog = async (e) => {
+      e.preventDefault();
+      const newBlog = { title: blogTitle, content: blogContent, image: blogImage };
+    
+      try {
+        const method = editingBlog ? 'PUT' : 'POST';
+        const url = editingBlog ? `/api/blog/${editingBlog._id}` : '/api/blog';
+        const response = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newBlog),
+        });
+    
+        if (!response.ok) throw new Error('Failed to save blog');
+    
+        alert(editingBlog ? 'Blog updated successfully!' : 'Blog added successfully!');
+        resetBlogForm();
+        fetchBlogs();
+      } catch (error) {
+        console.error('Error saving blog:', error);
+      }
+    };
+    
+    const resetBlogForm = () => {
+      setBlogTitle('');
+      setBlogContent('');
+      setBlogImage(null);
+      setEditingBlog(null);
+    };
+    const handleSelectBlog = (id) => {
+      setSelectedBlogs((prev) =>
+        prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+      );
+    };
+    
+    const handleDeleteSelectedBlogs = async () => {
+      if (selectedBlogs.length === 0) return alert('No blogs selected for deletion');
+    
+      try {
+        const response = await fetch('/api/blog', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids: selectedBlogs }),
+        });
+    
+        if (!response.ok) throw new Error('Failed to delete blogs');
+    
+        alert('Selected blogs deleted successfully');
+        setSelectedBlogs([]);
+        fetchBlogs();
+      } catch (error) {
+        console.error('Error deleting blogs:', error);
+      }
+    };
+    
+    const handleEditBlog = (blog) => {
+      setBlogTitle(blog.title);
+      setBlogContent(blog.content);
+      setBlogImage(blog.image);
+      setEditingBlog(blog);
+    };
+    
+    
 
     return (
       <div className="container mx-auto p-6 text-gray-700">
@@ -210,6 +292,15 @@ export default function AdminPage() {
           >
             <FontAwesomeIcon icon={faUser} className="mr-2" />
             Profile
+          </button>
+          <button
+            onClick={() => handleTabClick('blogs')}
+            className={`flex items-center px-4 py-2 rounded-md font-bold ${
+              activeTab === 'blogs' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'
+            }`}
+          >
+            <FontAwesomeIcon icon={faBlog} className="mr-2" />
+            Blogs
           </button>
         </div>
         <div className="flex flex-wrap space-x-4">
@@ -295,7 +386,7 @@ export default function AdminPage() {
             resetForm={resetForm}
             editingEvent={editingEvent}
           />
-        ) : (
+        ) : activeTab === 'profile' ? (
           <ProfileSection
             name={name}
             titleProfile={titleProfile}
@@ -311,6 +402,23 @@ export default function AdminPage() {
             setProfileImage={setProfileImage}
             handleProfileUpdate={handleProfileUpdate}
             handleImageChange={handleImageChange}
+          />
+        ) : (
+          <BlogsSection
+            blogs={blogs}
+            blogTitle={blogTitle}
+            blogContent={blogContent}
+            blogImage={blogImage}
+            setBlogTitle={setBlogTitle}
+            setBlogContent={setBlogContent}
+            setBlogImage={setBlogImage}
+            handleSubmitBlog={handleSubmitBlog}
+            handleEditBlog={handleEditBlog}
+            handleDeleteSelectedBlogs={handleDeleteSelectedBlogs}
+            handleSelectBlog={handleSelectBlog}
+            selectedBlogs={selectedBlogs}
+            resetBlogForm={resetBlogForm}
+            editingBlog={editingBlog}
           />
         )}
       </div>
@@ -592,6 +700,155 @@ const ProfileSection = ({
             </li>
           )}
         </ul>
+      </div>
+    </div>
+  </div>
+);
+
+const BlogsSection = ({
+  blogs,
+  blogTitle,
+  blogContent,
+  blogImage,
+  setBlogTitle,
+  setBlogContent,
+  setBlogImage,
+  handleSubmitBlog,
+  handleEditBlog,
+  handleDeleteSelectedBlogs,
+  handleSelectBlog,
+  selectedBlogs,
+  resetBlogForm,
+  editingBlog,
+}) => (
+  <div className="flex flex-col-reverse lg:flex-row lg:space-x-8 items-center lg:items-start">
+    {/* Blog Form */}
+    <div className="lg:w-1/2 bg-white shadow-md rounded-lg p-8 space-y-6 border border-gray-200">
+      <h2 className="text-3xl font-bold text-gray-900 text-center">
+        {editingBlog ? 'Edit Blog Post' : 'Create Blog Post'}
+      </h2>
+      <form onSubmit={handleSubmitBlog} className="space-y-4">
+        <label className="block text-lg font-semibold text-gray-700">Title</label>
+        <input
+          type="text"
+          value={blogTitle}
+          onChange={(e) => setBlogTitle(e.target.value)}
+          className="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          required
+        />
+
+        {/* Rich Text Editor for Blog Content */}
+        <label className="block text-lg font-semibold text-gray-700">Content</label>
+        <ReactQuill
+          value={blogContent}
+          onChange={setBlogContent}
+          modules={modules}
+          formats={formats}
+          theme="snow"
+          placeholder="Write your blog content here..."
+          className="mb-4 text-gray-800"
+        />
+
+        <label className="block text-lg font-semibold text-gray-700">Blog Image</label>
+        <input
+          type="file"
+          onChange={(e) => {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onloadend = () => setBlogImage(reader.result);
+            reader.readAsDataURL(file);
+          }}
+          className="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        />
+
+        <div className="flex space-x-4">
+          <button
+            type="submit"
+            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-md transition duration-200"
+          >
+            {editingBlog ? 'Update Blog' : 'Create Blog'}
+          </button>
+          {editingBlog && (
+            <button
+              type="button"
+              onClick={resetBlogForm}
+              className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 rounded-md transition duration-200"
+            >
+              Cancel
+            </button>
+          )}
+        </div>
+      </form>
+
+      <h3 className="text-2xl font-semibold text-gray-800 mb-6 text-center">Your Blog Posts</h3>
+      <table className="w-full bg-white rounded-lg shadow-lg">
+        <thead className="bg-gray-100 text-gray-700 font-semibold">
+          <tr>
+            <th className="p-3 text-left">Select</th>
+            <th className="p-3 text-left">Title</th>
+            <th className="p-3 text-left">Date</th>
+            <th className="p-3 text-left">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {blogs.map((blog) => (
+            <tr key={blog._id} className="border-b border-gray-200">
+              <td className="p-3">
+                <input
+                  type="checkbox"
+                  checked={selectedBlogs.includes(blog._id)}
+                  onChange={() => handleSelectBlog(blog._id)}
+                  className="w-5 h-5 text-blue-600 focus:ring-blue-400 border-gray-300 rounded"
+                />
+              </td>
+              <td className="p-3 text-gray-800 font-medium">{blog.title}</td>
+              <td className="p-3 text-gray-600">{moment(blog.createdAt).format('LL')}</td>
+              <td className="p-3">
+                <button
+                  onClick={() => handleEditBlog(blog)}
+                  className="text-blue-600 hover:underline font-semibold"
+                >
+                  Edit
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <button
+        onClick={handleDeleteSelectedBlogs}
+        className="mt-6 w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-md transition duration-200"
+      >
+        Delete Selected
+      </button>
+    </div>
+
+    {/* Live Blog Preview */}
+    <div className="lg:w-1/2 flex flex-col justify-center items-center text-gray-900 text-xl mb-4 lg:mt-60">
+      <h2 className="text-3xl font-bold text-gray-900 text-center">Live Blog Preview</h2>
+      <div
+        className="border-solid border-2 border-black shadow-lg text-start p-8 rounded-lg"
+        style={{ width: '500px', height: 'auto', wordBreak: 'break-word' }}
+      >
+        <div className="mt-4">
+          {blogImage && (
+            <img
+              src={blogImage}
+              alt={blogTitle}
+              className="w-full h-64 object-cover rounded-md mb-4"
+            />
+          )}
+          <h2 className="text-3xl font-bold mb-4 text-black">
+            {blogTitle || 'Blog Title'}
+          </h2>
+          <div
+            className="text-gray-800 mb-4"
+            dangerouslySetInnerHTML={{ __html: blogContent || 'Blog content will appear here.' }}
+          ></div>
+          <p className="text-gray-800 mb-4">
+            <strong>Date:</strong> {moment().format('MMMM Do, YYYY')}
+          </p>
+        </div>
       </div>
     </div>
   </div>
