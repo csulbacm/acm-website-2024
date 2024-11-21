@@ -213,23 +213,26 @@ export default function AdminPage() {
     const handleSubmitBlog = async (e) => {
       e.preventDefault();
       const newBlog = { title: blogTitle, content: blogContent, image: blogImage };
-    
+  
       try {
-        const method = editingBlog ? 'PUT' : 'POST';
-        const url = editingBlog ? `/api/blog/${editingBlog._id}` : '/api/blog';
+        const method = editingBlog ? "PUT" : "POST";
+        const url = editingBlog ? `/api/blog/${editingBlog._id}` : "/api/blog";
         const response = await fetch(url, {
           method,
-          headers: { 'Content-Type': 'application/json' },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(newBlog),
         });
-    
-        if (!response.ok) throw new Error('Failed to save blog');
-    
-        alert(editingBlog ? 'Blog updated successfully!' : 'Blog added successfully!');
+  
+        if (!response.ok) throw new Error("Failed to save blog");
+  
+        alert(editingBlog ? "Blog updated successfully!" : "Blog added successfully!");
         resetBlogForm();
-        fetchBlogs();
+        // Refresh blogs list
+        const fetchResponse = await fetch("/api/blog");
+        const data = await fetchResponse.json();
+        setBlogs(data.blogs);
       } catch (error) {
-        console.error('Error saving blog:', error);
+        console.error("Error saving blog:", error);
       }
     };
     
@@ -246,22 +249,34 @@ export default function AdminPage() {
     };
     
     const handleDeleteSelectedBlogs = async () => {
-      if (selectedBlogs.length === 0) return alert('No blogs selected for deletion');
-    
+      if (selectedBlogs.length === 0) {
+        alert("No blogs selected for deletion");
+        return;
+      }
+  
       try {
-        const response = await fetch('/api/blog', {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
+        const response = await fetch("/api/blog", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ ids: selectedBlogs }),
         });
-    
-        if (!response.ok) throw new Error('Failed to delete blogs');
-    
-        alert('Selected blogs deleted successfully');
+  
+        if (!response.ok) {
+          const result = await response.json();
+          console.error("Error deleting blogs:", result.error);
+          alert(result.error || "Failed to delete blogs");
+          return;
+        }
+  
+        alert("Selected blogs deleted successfully");
         setSelectedBlogs([]);
-        fetchBlogs();
+        // Refresh blogs list
+        const fetchResponse = await fetch("/api/blog");
+        const data = await fetchResponse.json();
+        setBlogs(data.blogs);
       } catch (error) {
-        console.error('Error deleting blogs:', error);
+        console.error("Error deleting blogs:", error);
+        alert("An unexpected error occurred while deleting blogs");
       }
     };
     

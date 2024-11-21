@@ -4,6 +4,12 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 
+function stripHtml(html) {
+  const tempDiv = document.createElement("div");
+  tempDiv.innerHTML = html;
+  return tempDiv.textContent || tempDiv.innerText || "";
+}
+
 export default function Blogs() {
   const [blogs, setBlogs] = useState([]);
   const [page, setPage] = useState(1);
@@ -91,10 +97,22 @@ export default function Blogs() {
             key={blog._id}
             className="bg-white p-6 rounded-lg shadow-lg text-black hover:shadow-xl transition-shadow"
           >
+            {blog.image && (
+              <img
+                src={blog.image}
+                alt={blog.title}
+                className="w-full h-40 object-cover rounded-lg mb-4"
+              />
+            )}
             <h2 className="text-2xl font-bold mb-2">{blog.title}</h2>
-            <p className="text-gray-700 mb-4">{blog.content.slice(0, 100)}...</p>
+            <p className="text-gray-700 mb-4">
+              {stripHtml(blog.content).slice(0, 100)}...
+            </p>
             <p className="text-sm text-gray-500 mb-4">
               <strong>Author:</strong> {blog.author}
+            </p>
+            <p className="text-sm text-gray-500 mb-4">
+              <strong>Views:</strong> {blog.views}
             </p>
             <div className="flex justify-between items-center">
               <span className="text-acm-blue font-bold">

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createBlog, getAllBlogs, deleteBlogs } from '../../../../lib/blog';
+import { getAdminByEmail } from "../../../../lib/admin";
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 
@@ -32,10 +33,20 @@ export async function POST(req) {
     const decoded = jwt.verify(token, SECRET_KEY);
     const email = decoded.email;
 
+    const admin = await getAdminByEmail(email);
+    if (!admin) {
+      console.error("Admin not found");
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const adminName = admin.name || "Unknown Author";
+
     const blogData = await req.json();
-    blogData.author = email;
+    blogData.author = adminName;
     blogData.createdAt = new Date();
     blogData.upvotes = 0;
+    blogData.views = 0;
+    blogData.upVoters = [];
 
     const result = await createBlog(blogData);
     return NextResponse.json({ message: 'Blog created', blogId: result.insertedId }, { status: 201 });
@@ -58,8 +69,21 @@ export async function DELETE(req) {
     const decoded = jwt.verify(token, SECRET_KEY);
     const email = decoded.email;
 
+    // Retrieve admin's name from the database
+    const admin = await getAdminByEmail(email);
+    if (!admin) {
+      console.error('Admin not found');
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const authorName = admin.name; // Use the admin's name
     const { ids } = await req.json();
-    await deleteBlogs(ids, email);
+
+    const deleteResult = await deleteBlogs(ids, authorName);
+
+    if (deleteResult.deletedCount === 0) {
+      return NextResponse.json({ error: 'No matching blogs found' }, { status: 404 });
+    }
 
     return NextResponse.json({ message: 'Blogs deleted successfully' });
   } catch (error) {
