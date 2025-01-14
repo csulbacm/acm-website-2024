@@ -5,11 +5,12 @@ export async function POST(req, { params }) {
   const { id } = params;
 
   // Extract client IP from the 'x-forwarded-for' header
-  const clientIp = 
-    req.headers["x-forwarded-for"]?.split(",")[0]?.trim() || 
-    "unknown";
-
-  console.log("Detected client IP:", clientIp); // Debugging
+  const clientIp =
+  req.headers["x-forwarded-for"]?.split(",")[0]?.trim() || // Standard header
+  req.headers["x-vercel-forwarded-for"] ||                // Vercel-specific
+  req.socket?.remoteAddress || 
+  "unknown";
+console.log("Detected client IP:", clientIp);
 
   try {
     const client = await clientPromise;
