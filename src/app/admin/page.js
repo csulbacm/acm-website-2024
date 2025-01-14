@@ -342,7 +342,7 @@ export default function AdminPage() {
             Blogs
           </button>
         </div>
-        <div className="flex flex-wrap space-x-4 pt-8 lg:pt-0">
+        <div className="flex flex-wrap space-x-4 pt-8 lg:pt-0 text-xs sm:text-base">
           <button onClick={handleRegister} className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md">
             Register New User
           </button>
@@ -604,27 +604,51 @@ const EventsSection = ({ events, title, description, startDate, endDate, allDay,
       </button>
     </div>
 
-{/* Live Event Preview */}
-<div className="lg:w-1/2 flex flex-col justify-center items-center text-gray-900 text-xl mb-4 lg:mt-60">
-  <h2 className="text-3xl font-bold text-gray-900 text-center mb-4">Live Event Preview</h2>
-  <div className="border-solid border-2 border-black shadow-lg text-start p-8 rounded-lg" style={{ width: '500px', height: 'auto', wordBreak: 'break-word' }}>
-    <div className="mt-4">
-      {image && <img src={image} alt={title} className="w-full h-64 object-cover rounded-md mb-4" />}
-      <h2 className="text-3xl font-bold mb-4 text-black">{title || 'Event Title'}</h2>
+    {/* Live Event Preview */}
+    <div className="lg:w-1/2 flex flex-col justify-center items-center text-gray-900 text-xl mb-4 lg:mt-60">
+      <h2 className="text-3xl font-bold text-gray-900 text-center mb-4">
+        Live Event Preview
+      </h2>
       <div
-        className="text-gray-800 mb-4 ql-editor"
-        dangerouslySetInnerHTML={{ __html: description || 'Event description will appear here.' }}
-      ></div>
+        className="border-solid border-2 border-black shadow-lg text-start p-6 rounded-lg
+                  w-[400px] sm:w-[500px] 
+                  h-auto"
+        style={{ wordBreak: 'break-word' }}
+      >
+        <div className="mt-4">
+          {image && (
+            <img
+              src={image}
+              alt={title}
+              className="w-full sm:h-64 h-48 object-cover rounded-md mb-4"
+            />
+          )}
+          <h2 className="text-2xl sm:text-3xl font-bold mb-4 text-black">
+            {title || 'Event Title'}
+          </h2>
+          <div
+            className="text-gray-800 mb-4 ql-editor"
+            dangerouslySetInnerHTML={{
+              __html: description || 'Event description will appear here.',
+            }}
+          ></div>
 
-      <p className="text-gray-800 mb-4">
-        <strong>Date:</strong> {startDate ? moment(startDate).format('MMMM Do, YYYY') : 'Select a date'}
-        <br />
-        <strong>Time:</strong> {allDay ? 'All Day' : `${moment(startDate).format('h:mm A')} - ${moment(endDate).format('h:mm A')}`}
-      </p>
+          <p className="text-gray-800 mb-4">
+            <strong>Date:</strong>{' '}
+            {startDate
+              ? moment(startDate).format('MMMM Do, YYYY')
+              : 'Select a date'}
+            <br />
+            <strong>Time:</strong>{' '}
+            {allDay
+              ? 'All Day'
+              : `${moment(startDate).format('h:mm A')} - ${moment(endDate).format(
+                  'h:mm A'
+                )}`}
+          </p>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
-
   </div>
 );
 
@@ -698,50 +722,84 @@ const ProfileSection = ({
     </div>
 
     {/* Live Profile Preview */}
-    <div className="lg:w-1/2 flex flex-col justify-center items-center text-gray-900 text-xl">
-      <h2 className="text-3xl font-bold text-gray-900 text-center mb-4">Live Profile Preview</h2>
-      <div className="our-team border-solid border-2 border-black shadow-lg text-center p-8 rounded-lg" style={{ width: '500px', height: '300px' }}>
-        <div className="picture mb-4">
-          <img
-            src={profileImage || '/images/default-profile.jpg'}
-            alt={name || 'Default Name'}
-            className="img-fluid w-40 h-40 object-cover rounded-full mx-auto"
-          />
-        </div>
-        <div className="team-content">
-          <h3 className="name">{name || 'Officer Name'}</h3>
-          <h4 className="title text-gray-600 text-lg">{titleProfile || 'Officer Title'}</h4>
-        </div>
-        <ul className="social flex justify-center mt-4 space-x-4">
-          {linkedin && (
-            <li>
-              <a href={linkedin} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800">
-                <FontAwesomeIcon icon={faLinkedin} size="lg" />
-              </a>
-            </li>
-          )}
-          <li>
-            <a href={`mailto:example@example.com`} className="text-blue-600 hover:text-blue-800">
-              <FontAwesomeIcon icon={faEnvelope} size="lg" />
-            </a>
-          </li>
-          {github && (
-            <li>
-              <a href={github} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800">
-                <FontAwesomeIcon icon={faGithub} size="lg" />
-              </a>
-            </li>
-          )}
-          {website && (
-            <li>
-              <a href={website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800">
-                <FontAwesomeIcon icon={faGlobe} size="lg" />
-              </a>
-            </li>
-          )}
-        </ul>
-      </div>
+<div className="lg:w-1/2 flex flex-col justify-center items-center text-gray-900 text-xl">
+  <h2 className="text-3xl font-bold text-gray-900 text-center mb-4">
+    Live Profile Preview
+  </h2>
+  <div
+    className="
+      our-team 
+      border-2 border-black 
+      shadow-lg 
+      text-center 
+      p-8 
+      rounded-lg 
+      w-[400px] h-[300px]      /* default for screens < 640px */
+      sm:w-[500px] sm:h-[300px] /* for screens >= 640px        */
+    "
+  >
+    <div className="picture mb-4">
+      <img
+        src={profileImage || '/images/default-profile.jpg'}
+        alt={name || 'Default Name'}
+        className="w-32 h-32 sm:w-40 sm:h-40 object-cover rounded-full mx-auto"
+      />
     </div>
+    <div className="team-content">
+      <h3 className="name">{name || 'Officer Name'}</h3>
+      <h4 className="title text-gray-600 text-lg">
+        {titleProfile || 'Officer Title'}
+      </h4>
+    </div>
+    <ul className="social flex justify-center mt-4 space-x-4">
+      {linkedin && (
+        <li>
+          <a
+            href={linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:text-blue-800"
+          >
+            <FontAwesomeIcon icon={faLinkedin} size="lg" />
+          </a>
+        </li>
+      )}
+      <li>
+        <a
+          href={`mailto:example@example.com`}
+          className="text-blue-600 hover:text-blue-800"
+        >
+          <FontAwesomeIcon icon={faEnvelope} size="lg" />
+        </a>
+      </li>
+      {github && (
+        <li>
+          <a
+            href={github}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:text-blue-800"
+          >
+            <FontAwesomeIcon icon={faGithub} size="lg" />
+          </a>
+        </li>
+      )}
+      {website && (
+        <li>
+          <a
+            href={website}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:text-blue-800"
+          >
+            <FontAwesomeIcon icon={faGlobe} size="lg" />
+          </a>
+        </li>
+      )}
+    </ul>
+  </div>
+</div>
+
   </div>
 );
 
@@ -868,29 +926,38 @@ const BlogsSection = ({
 
     {/* Live Blog Preview */}
     <div className="lg:w-1/2 flex flex-col justify-center items-center text-gray-900 text-xl mb-4 lg:mt-60">
-      <h2 className="text-3xl font-bold text-gray-900 text-center mb-4">Live Blog Preview</h2>
+      <h2 className="text-3xl font-bold text-gray-900 text-center mb-4">
+        Live Blog Preview
+      </h2>
       <div
-        className="border-solid border-2 border-black shadow-lg text-start p-8 rounded-lg"
-        style={{ width: '500px', height: 'auto', wordBreak: 'break-word' }}
+        className="border-solid border-2 border-black shadow-lg text-start p-6 rounded-lg
+                  w-[400px] sm:w-[500px] 
+                  h-auto"
+        style={{ wordBreak: 'break-word' }}
       >
         <div className="mt-4">
           {blogImage && (
             <img
               src={blogImage}
               alt={blogTitle}
-              className="w-full h-64 object-cover rounded-md mb-4"
+              className="w-full sm:h-64 h-48 object-cover rounded-md mb-4"
             />
           )}
-          <h2 className="text-3xl font-bold mb-4 text-black">
+          <h2 className="text-2xl sm:text-3xl font-bold mb-4 text-black">
             {blogTitle || 'Blog Title'}
           </h2>
           <p className="text-gray-500 text-sm mb-4">
-        <strong>Author:</strong> {editingBlog?.author || name || 'Your Name'} |{" "}
-        <strong>Published:</strong> {editingBlog?.createdAt ? moment(editingBlog.createdAt).format('MMMM DD, YYYY') : moment().format('MMMM DD, YYYY')}
-      </p>
+            <strong>Author:</strong> {editingBlog?.author || name || 'Your Name'} |{' '}
+            <strong>Published:</strong>{' '}
+            {editingBlog?.createdAt
+              ? moment(editingBlog.createdAt).format('MMMM DD, YYYY')
+              : moment().format('MMMM DD, YYYY')}
+          </p>
           <div
             className="text-gray-800 mb-4 ql-editor"
-            dangerouslySetInnerHTML={{ __html: blogContent || 'Blog content will appear here.' }}
+            dangerouslySetInnerHTML={{
+              __html: blogContent || 'Blog content will appear here.',
+            }}
           ></div>
         </div>
       </div>

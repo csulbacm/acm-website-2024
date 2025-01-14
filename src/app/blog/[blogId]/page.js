@@ -147,12 +147,12 @@ export default function BlogDetails({ params }) {
 
         {/* Back to Blog Page Button */}
         <div className="mt-6">
-          <button
-            onClick={() => navigate('/blog')} // Use this for simple navigation
+          <a
+            href="/blog"
             className="px-6 py-2 bg-gray-100 text-gray-700 font-semibold rounded-lg shadow hover:bg-gray-200 transition"
           >
             Back to Blog Page
-          </button>
+          </a>
         </div>
       </div>
     </div>
