@@ -54,7 +54,7 @@ export default function Contact() {
           <div className="container mx-auto">
           <h1 className="text-5xl font-extrabold">Contact Us</h1>
           <p className="text-xl mt-4">
-            We'd love to hear from you! Feel free to reach out with any questions or inquiries.
+            We&apos;d love to hear from you! Feel free to reach out with any questions or inquiries.
           </p>
           </div>
         </motion.section>

@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'; // Import motion
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Calendar, momentLocalizer, Views } from 'react-big-calendar';
-import moment from 'moment';
+import moment from 'moment-timezone';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
@@ -222,68 +222,76 @@ export default function Events() {
       </motion.section>
 
       {/* Event Modal */}
-      {selectedEvent && modalIsOpen && (
-        <Modal
-          isOpen={modalIsOpen}
-          onRequestClose={closeModal}
-          contentLabel="Event Details"
-          className="modal-content fixed inset-0 flex items-center justify-center z-50"
-          overlayClassName="modal-overlay fixed inset-0 bg-black bg-opacity-50 z-40"
-          shouldCloseOnOverlayClick={true}
-        >
-          <div className="bg-white p-6 rounded-lg max-w-lg w-full">
-          <Image
-            src={selectedEvent.image}
-            alt={selectedEvent.title}
-            layout="responsive"
-            width={800} // Set a reasonable width for aspect ratio
-            height={400} // Set a reasonable height for aspect ratio
-            className="rounded-md mb-4"
-          />
-            <h2 className="text-3xl font-bold mb-4 text-black">{selectedEvent.title}</h2>         
-            <div
-              className="text-gray-800 mb-4"
-              style={{ wordBreak: "break-word" }}
-              dangerouslySetInnerHTML={{
-                __html: selectedEvent.description || "No description provided.",
-              }}
-            ></div>
-
-            <p className="text-gray-800 mb-4">
-              <strong>Start Date:</strong> {moment(selectedEvent.start).format("MMMM Do, YYYY [at] h:mm A")}
-              <br />
-              {moment(selectedEvent.end).isSame(selectedEvent.start, 'day') ? (
-                <><strong>Time:</strong> {moment(selectedEvent.start).format("h:mm A")} - {moment(selectedEvent.end).format("h:mm A")}</>
-              ) : (
-                <>
-                  <strong>End Date:</strong> {moment(selectedEvent.end).format("MMMM Do, YYYY [at] h:mm A")}
-                </>
-              )}
-            </p>
-
-            {/* Add to Calendar Buttons */}
-            <div className="flex space-x-4">
-              {/* Google Calendar */}
-              <a
-                href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
-                  selectedEvent.title
-                )}&dates=${moment.tz(selectedEvent.start, "America/Los_Angeles").utc().format(
-                  "YYYYMMDDTHHmmss[Z]"
-                )}/${moment.tz(selectedEvent.end, "America/Los_Angeles").utc().format(
-                  "YYYYMMDDTHHmmss[Z]"
-                )}&details=${encodeURIComponent(
-                  selectedEvent.description || "Event details not provided."
-                )}&location=${encodeURIComponent("CSULB")}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-blue-500 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-600 transition"
+        {selectedEvent && modalIsOpen && (
+          <Modal
+            isOpen={modalIsOpen}
+            onRequestClose={closeModal}
+            contentLabel="Event Details"
+            className="modal-content fixed inset-0 flex items-center justify-center z-50"
+            overlayClassName="modal-overlay fixed inset-0 bg-black bg-opacity-50 z-40"
+            shouldCloseOnOverlayClick={true}
+          >
+            <div className="bg-white p-6 rounded-lg max-w-lg w-full">
+            <Image
+              src={selectedEvent.image}
+              alt={selectedEvent.title}
+              layout="responsive"
+              width={800} // Set a reasonable width for aspect ratio
+              height={400} // Set a reasonable height for aspect ratio
+              className="rounded-md mb-4"
+            />
+              <h2 className="text-3xl font-bold mb-4 text-black">{selectedEvent.title}</h2>
+  
+              <div
+                className="text-gray-800 mb-4"
+                style={{ wordBreak: "break-word" }}
+                dangerouslySetInnerHTML={{
+                  __html: selectedEvent.description || "No description provided.",
+                }}
+              ></div>
+  
+              <p className="text-gray-800 mb-4">
+                <strong>Start Date:</strong> {moment(selectedEvent.start).format("MMMM Do, YYYY [at] h:mm A")}
+                <br />
+                {moment(selectedEvent.end).isSame(selectedEvent.start, 'day') ? (
+                  <><strong>Time:</strong> {moment(selectedEvent.start).format("h:mm A")} - {moment(selectedEvent.end).format("h:mm A")}</>
+                ) : (
+                  <>
+                    <strong>End Date:</strong> {moment(selectedEvent.end).format("MMMM Do, YYYY [at] h:mm A")}
+                  </>
+                )}
+              </p>
+  
+              {/* Add to Calendar Buttons */}
+              <div className="flex space-x-4">
+                {/* Google Calendar */}
+                <a
+                  href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
+                    selectedEvent.title
+                  )}&dates=${moment.tz(selectedEvent.start, "America/Los_Angeles").utc().format(
+                    "YYYYMMDDTHHmmss[Z]"
+                  )}/${moment.tz(selectedEvent.end, "America/Los_Angeles").utc().format(
+                    "YYYYMMDDTHHmmss[Z]"
+                  )}&details=${encodeURIComponent(
+                    selectedEvent.description || "Event details not provided."
+                  )}&location=${encodeURIComponent("CSULB")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-blue-500 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-600 transition"
+                >
+                  Add to Google Calendar
+                </a>
+  
+              </div>
+  
+              <button
+                onClick={closeModal}
+                className="mt-4 inline-block bg-gray-700 text-white px-6 py-2 rounded-lg font-bold"
               >
-                Add to Google Calendar
-              </a>
-
+                Close
+              </button>
             </div>
-          </div>
-        </Modal>
+          </Modal>
       )}
 
       {/* Call to Action Section */}

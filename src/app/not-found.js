@@ -21,7 +21,7 @@ export default function NotFound() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.3 }}
       >
-        Oops! The page you&apos;re looking for doesn't exist.
+        Oops! The page you&apos;re looking for doesn&apos;t exist.
       </motion.p>
       <Link href="/" passHref>
         <motion.button
