@@ -3,15 +3,12 @@ import clientPromise from "../../../../../../lib/mongodb";
 
 export async function POST(req, { params }) {
   const { id } = params;
+  const cookies = req.headers.get('cookie');
+  const upvotedCookie = cookies?.split('; ').find(c => c.startsWith(`upvoted_${id}=`));
 
-  // Extract client IP
-  const clientIp =
-    req.headers.get('x-client-ip') ||
-    req.headers.get('x-forwarded-for')?.split(',')[0] ||
-    req.headers.get('x-real-ip') ||
-    req.headers.get('x-vercel-forwarded-for') ||
-    req.ip ||
-    'unknown';
+  if (upvotedCookie) {
+    return new Response(JSON.stringify({ error: "You have already upvoted this blog." }), { status: 400 });
+  }
 
   try {
     const client = await clientPromise;
@@ -24,20 +21,17 @@ export async function POST(req, { params }) {
       return new Response(JSON.stringify({ error: "Blog not found" }), { status: 404 });
     }
 
-    if (blog.upvoters?.includes(clientIp)) {
-      return new Response(JSON.stringify({ error: "You have already upvoted this blog." }), { status: 400 });
-    }
-
     const result = await blogsCollection.findOneAndUpdate(
       { _id: new ObjectId(id) },
       {
         $inc: { upvotes: 1 },
-        $addToSet: { upvoters: clientIp },
       },
       { returnDocument: "after" }
     );
 
-    return new Response(JSON.stringify(result.value), { status: 200 });
+    const response = new Response(JSON.stringify(result.value), { status: 200 });
+    response.headers.set('Set-Cookie', `upvoted_${id}=true; Path=/; HttpOnly; Max-Age=31536000`);
+    return response;
   } catch (error) {
     console.error("Error updating upvotes:", error);
     return new Response(JSON.stringify({ error: "Internal Server Error" }), { status: 500 });

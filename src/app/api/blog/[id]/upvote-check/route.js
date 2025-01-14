@@ -3,14 +3,9 @@ import clientPromise from "../../../../../../lib/mongodb";
 
 export async function GET(req, { params }) {
   const { id } = params;
-
-  const clientIp =
-    req.headers.get('x-client-ip') ||
-    req.headers.get('x-forwarded-for')?.split(',')[0] ||
-    req.headers.get('x-real-ip') ||
-    req.headers.get('x-vercel-forwarded-for') ||
-    req.ip ||
-    'unknown';
+  const cookies = req.headers.get('cookie');
+  const upvotedCookie = cookies?.split('; ').find(c => c.startsWith(`upvoted_${id}=`));
+  const hasUpvoted = Boolean(upvotedCookie);
 
   try {
     const client = await clientPromise;
@@ -21,7 +16,6 @@ export async function GET(req, { params }) {
       return new Response(JSON.stringify({ error: "Blog not found" }), { status: 404 });
     }
 
-    const hasUpvoted = Array.isArray(blog.upvoters) && blog.upvoters.includes(clientIp);
     return new Response(JSON.stringify({ hasUpvoted }), { status: 200 });
   } catch (error) {
     console.error("Error checking upvote status:", error);
