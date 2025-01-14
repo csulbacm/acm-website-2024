@@ -13,7 +13,7 @@ import "react-quill/dist/quill.snow.css";
 
 export default function AdminPage() {
     const router = useRouter();
-    const [activeTab, setActiveTab] = useState('events'); // 'events' or 'profile'
+    const [activeTab, setActiveTab] = useState('profile');
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [startDate, setStartDate] = useState('');
@@ -316,21 +316,21 @@ export default function AdminPage() {
     return (
       <div className="container mx-auto p-6 text-gray-700">
       {/* Subnavbar with Extra Buttons */}
-      <div className="flex flex-wrap justify-between items-center mb-6 space-y-4 md:space-y-0">
+      <div className="flex flex-wrap justify-center md:justify-between items-center mb-6 space-y-4 md:space-y-0">
         <div className="flex flex-wrap space-x-4">
-          <button
-            onClick={() => handleTabClick('events')}
-            className={`flex items-center px-4 py-2 rounded-md font-bold ${activeTab === 'events' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
-          >
-            <FontAwesomeIcon icon={faCalendarAlt} className="mr-2" />
-            Events
-          </button>
           <button
             onClick={() => handleTabClick('profile')}
             className={`flex items-center px-4 py-2 rounded-md font-bold ${activeTab === 'profile' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
           >
             <FontAwesomeIcon icon={faUser} className="mr-2" />
             Profile
+          </button>
+          <button
+            onClick={() => handleTabClick('events')}
+            className={`flex items-center px-4 py-2 rounded-md font-bold ${activeTab === 'events' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
+          >
+            <FontAwesomeIcon icon={faCalendarAlt} className="mr-2" />
+            Events
           </button>
           <button
             onClick={() => handleTabClick('blogs')}
@@ -342,7 +342,7 @@ export default function AdminPage() {
             Blogs
           </button>
         </div>
-        <div className="flex flex-wrap space-x-4">
+        <div className="flex flex-wrap space-x-4 pt-8 lg:pt-0">
           <button onClick={handleRegister} className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md">
             Register New User
           </button>
@@ -444,6 +444,7 @@ export default function AdminPage() {
           />
         ) : (
           <BlogsSection
+            name={name}
             blogs={blogs}
             blogTitle={blogTitle}
             blogContent={blogContent}
@@ -759,6 +760,7 @@ const BlogsSection = ({
   selectedBlogs,
   resetBlogForm,
   editingBlog,
+  name
 }) => (
   <div className="flex flex-col-reverse lg:flex-row lg:space-x-8 items-center lg:items-start">
     {/* Blog Form */}
@@ -883,9 +885,9 @@ const BlogsSection = ({
             {blogTitle || 'Blog Title'}
           </h2>
           <p className="text-gray-500 text-sm mb-4">
-            <strong>Author:</strong> {editingBlog?.author || 'Unknown Author'} |{" "}
-            <strong>Published:</strong> {editingBlog?.createdAt ? moment(editingBlog.createdAt).format('MMMM DD, YYYY') : 'Unknown Date'}
-          </p>
+        <strong>Author:</strong> {editingBlog?.author || name || 'Your Name'} |{" "}
+        <strong>Published:</strong> {editingBlog?.createdAt ? moment(editingBlog.createdAt).format('MMMM DD, YYYY') : moment().format('MMMM DD, YYYY')}
+      </p>
           <div
             className="text-gray-800 mb-4 ql-editor"
             dangerouslySetInnerHTML={{ __html: blogContent || 'Blog content will appear here.' }}

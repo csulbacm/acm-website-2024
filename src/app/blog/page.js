@@ -103,64 +103,67 @@ export default function Blogs() {
         transition={{ duration: 0.5 }}
       >
         {loading ? (
-          <div className="flex justify-center items-center col-span-full h-80">
-            <RotatingLines
-              visible={true}
-              height="50"
-              width="50"
-              color="grey"
-              strokeColor="grey"
-              strokeWidth="5"
-              animationDuration="0.75"
-              ariaLabel="rotating-lines-loading"
+      <div className="flex justify-center items-center col-span-full h-80">
+        <RotatingLines
+          visible={true}
+          height="50"
+          width="50"
+          color="grey"
+          strokeColor="grey"
+          strokeWidth="5"
+          animationDuration="0.75"
+          ariaLabel="rotating-lines-loading"
+        />
+      </div>
+    ) : (
+      blogs.map((blog) => (
+        <motion.div
+          key={blog._id}
+          className="bg-white p-6 rounded-lg shadow-lg text-black hover:shadow-xl transition-shadow flex flex-col h-full"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >
+          {blog.image && (
+            <img
+              src={blog.image}
+              alt={blog.title}
+              className="w-full h-40 object-cover rounded-lg mb-4"
             />
+          )}
+          <div className="flex-grow">
+            <h2 className="text-2xl font-bold mb-2">{blog.title}</h2>
+            <p className="text-gray-700 mb-4">
+              {stripHtml(blog.content).slice(0, 100)}...
+            </p>
           </div>
-        ) : (
-          blogs.map((blog) => (
-            <motion.div
-              key={blog._id}
-              className="bg-white p-6 rounded-lg shadow-lg text-black hover:shadow-xl transition-shadow"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-            >
-              {blog.image && (
-                <img
-                  src={blog.image}
-                  alt={blog.title}
-                  className="w-full h-40 object-cover rounded-lg mb-4"
-                />
-              )}
-              <h2 className="text-2xl font-bold mb-2">{blog.title}</h2>
-              <p className="text-gray-700 mb-4">
-                {stripHtml(blog.content).slice(0, 100)}...
-              </p>
-              <p className="text-sm text-gray-500 mb-4">
-                <strong>Author:</strong> {blog.author}
-              </p>
-              <p className="text-sm text-gray-500 mb-4">
-                <strong>Views:</strong> {blog.views}
-              </p>
-              <div className="flex justify-between items-center">
-                <span className="text-acm-blue font-bold">
-                  Upvotes: {blog.upvotes}
-                </span>
-                <motion.div
-                  whileHover={{ scale: 1.05 }} // Scale up slightly on hover
-                  whileTap={{ scale: 0.95 }}   // Scale down slightly on tap
-                  transition={{ duration: 0.2 }} // Animation duration
+          <div className="mt-auto">
+            <p className="text-sm text-gray-500 mb-2">
+              <strong>Author:</strong> {blog.author}
+            </p>
+            <p className="text-sm text-gray-500 mb-2">
+              <strong>Views:</strong> {blog.views}
+            </p>
+            <div className="flex justify-between items-center">
+              <span className="text-acm-blue font-bold">Upvotes: {blog.upvotes}</span>
+              <motion.div
+                whileHover={{ scale: 1.05 }} // Scale up slightly on hover
+                whileTap={{ scale: 0.95 }}   // Scale down slightly on tap
+                transition={{ duration: 0.2 }} // Animation duration
+              >
+                <Link
+                  href={`/blog/${blog._id}`}
+                  className="text-white bg-acm-blue px-4 py-2 rounded-lg font-bold whitespace-nowrap"
+                  style={{ fontSize: 'clamp(0.75rem, 1vw, 1rem)' }} // Adjust font size responsively
                 >
-                  <Link
-                    href={`/blog/${blog._id}`}
-                    className="text-white bg-acm-blue px-4 py-2 rounded-lg font-bold"
-                  >
-                    Read More
-                  </Link>
-                </motion.div>
-              </div>
-            </motion.div>
-          ))
-        )}
+                  Read More
+                </Link>
+              </motion.div>
+            </div>
+          </div>
+        </motion.div>
+      ))
+    )}
       </motion.section>
 
       {/* Pagination */}

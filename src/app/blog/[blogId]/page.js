@@ -48,31 +48,35 @@ export default function BlogDetails({ params }) {
   }, [blogId]);
 
   const handleUpvote = async () => {
-    if (hasUpvoted) {
-      alert("You have already upvoted this blog!");
-      return;
-    }
-
     try {
-      setUpvotes((prev) => prev + 1); // Optimistically update upvotes locally
-      setHasUpvoted(true); // Prevent multiple upvotes
-
+      if (hasUpvoted) {
+        alert("You have already upvoted this blog!");
+        return;
+      }
+  
+      // Optimistically update the UI
+      setUpvotes((prev) => prev + 1);
+      setHasUpvoted(true);
+  
       const response = await fetch(`/api/blog/${blogId}/upvote`, {
         method: "POST",
       });
-
+  
       if (!response.ok) {
-        throw new Error("Failed to upvote");
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to upvote");
       }
-
-      const updatedBlog = await response.json();
-      setUpvotes(updatedBlog.upvotes);
+  
+      // If backend updates are successful, no need to adjust since UI already reflects the change
     } catch (error) {
-      console.error("Error upvoting the blog:", error);
-      setUpvotes((prev) => prev - 1); // Revert optimistic update on failure
-      setHasUpvoted(false); // Revert upvote status
+      console.error("Error upvoting the blog:", error.message);
+  
+      // Revert UI update only if an error occurs
+      setUpvotes((prev) => Math.max(prev - 1, 0)); // Ensure it doesn't go below zero
+      setHasUpvoted(false);
     }
   };
+  
 
   if (loading) {
     return (

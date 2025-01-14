@@ -103,21 +103,20 @@ export default function Events() {
           </div>
         </motion.section>
       </div>
-
-      <div className="container mx-auto py-4 pt-8 flex items-center justify-between">
-  {/* Navigation Buttons (Left of Title) */}
-  <div className="flex space-x-4">
+      <div className="container mx-auto py-4 pt-8 flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+  {/* Navigation Buttons */}
+  <div className="flex flex-nowrap justify-center md:justify-start space-x-4">
     <motion.button
-      className="bg-acm-blue text-white px-4 py-2 rounded-lg font-bold"
+      className="bg-acm-blue text-white px-4 py-2 text-sm md:text-base rounded-lg font-bold"
       onClick={goToBack}
-      whileHover={{ scale: 1.05 }}  // Scale up slightly on hover
-      whileTap={{ scale: 0.95 }}    // Scale down slightly on tap
-      transition={{ duration: 0.2 }} // Animation duration
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      transition={{ duration: 0.2 }}
     >
       Back
     </motion.button>
     <motion.button
-      className="bg-acm-blue text-white px-4 py-2 rounded-lg font-bold"
+      className="bg-acm-blue text-white px-4 py-2 text-sm md:text-base rounded-lg font-bold"
       onClick={goToToday}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
@@ -126,7 +125,7 @@ export default function Events() {
       Today
     </motion.button>
     <motion.button
-      className="bg-acm-blue text-white px-4 py-2 rounded-lg font-bold"
+      className="bg-acm-blue text-white px-4 py-2 text-sm md:text-base rounded-lg font-bold"
       onClick={goToNext}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
@@ -136,15 +135,17 @@ export default function Events() {
     </motion.button>
   </div>
 
-  {/* Month Title (Center) */}
+  {/* Month Title */}
   <div className="text-center">
-    <span className="text-black font-bold text-5xl">{moment(date).format('MMMM YYYY')}</span>
+    <span className="block text-black font-bold text-2xl md:text-3xl lg:text-5xl">
+      {moment(date).format('MMMM YYYY')}
+    </span>
   </div>
 
-  {/* View Buttons (Right of Title) */}
-  <div className="flex space-x-4">
+  {/* View Buttons */}
+  <div className="flex flex-nowrap justify-center md:justify-end space-x-4">
     <motion.button
-      className="bg-acm-blue text-white px-4 py-2 rounded-lg font-bold"
+      className="bg-acm-blue text-white px-4 py-2 text-sm md:text-base rounded-lg font-bold"
       onClick={() => setCurrentView(Views.MONTH)}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
@@ -153,7 +154,7 @@ export default function Events() {
       Month
     </motion.button>
     <motion.button
-      className="bg-acm-blue text-white px-4 py-2 rounded-lg font-bold"
+      className="bg-acm-blue text-white px-4 py-2 text-sm md:text-base rounded-lg font-bold"
       onClick={() => setCurrentView(Views.WEEK)}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
@@ -162,7 +163,7 @@ export default function Events() {
       Week
     </motion.button>
     <motion.button
-      className="bg-acm-blue text-white px-4 py-2 rounded-lg font-bold"
+      className="bg-acm-blue text-white px-4 py-2 text-sm md:text-base rounded-lg font-bold"
       onClick={() => setCurrentView(Views.DAY)}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
@@ -171,7 +172,7 @@ export default function Events() {
       Day
     </motion.button>
     <motion.button
-      className="bg-acm-blue text-white px-4 py-2 rounded-lg font-bold"
+      className="bg-acm-blue text-white px-4 py-2 text-sm md:text-base rounded-lg font-bold"
       onClick={() => setCurrentView(Views.AGENDA)}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
@@ -181,6 +182,7 @@ export default function Events() {
     </motion.button>
   </div>
 </div>
+
 
 
     {/* Calendar Section */}
