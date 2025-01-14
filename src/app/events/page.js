@@ -7,6 +7,7 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Modal from 'react-modal';
+import Image from 'next/image';
 
 const localizer = momentLocalizer(moment);
 
@@ -220,11 +221,14 @@ export default function Events() {
           shouldCloseOnOverlayClick={true}
         >
           <div className="bg-white p-6 rounded-lg max-w-lg w-full">
-            <img
-              src={selectedEvent.image}
-              alt={selectedEvent.title}
-              className="w-full h-64 object-cover rounded-md mb-4"
-            />
+          <Image
+            src={selectedEvent.image}
+            alt={selectedEvent.title}
+            layout="responsive"
+            width={800} // Set a reasonable width for aspect ratio
+            height={400} // Set a reasonable height for aspect ratio
+            className="rounded-md mb-4"
+          />
             <h2 className="text-3xl font-bold mb-4 text-black">{selectedEvent.title}</h2>
 
             <div

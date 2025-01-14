@@ -11,7 +11,7 @@ import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import { FaNetworkWired, FaLaptopCode, FaLightbulb } from 'react-icons/fa';
 import Modal from 'react-modal';
-
+import Image from 'next/image';
 const localizer = momentLocalizer(moment);
 
 const settings = {
@@ -106,7 +106,7 @@ export default function Events() {
               Welcome to ACM at CSULB
             </h1>
             <p className="text-2xl mt-4">
-              CSULB's largest student organization for computer science.
+              CSULB&apos;s largest student organization for computer science.
             </p>
             <Link href="/events" passHref>
               <motion.button
@@ -232,19 +232,56 @@ export default function Events() {
           shouldCloseOnOverlayClick={true}
         >
           <div className="bg-white p-6 rounded-lg max-w-lg w-full">
-            <img src={selectedEvent.image} alt={selectedEvent.title} className="w-full h-64 object-cover rounded-md mb-4" />
-            <h2 className="text-3xl font-bold mb-4 text-acm-blue">{selectedEvent.title}</h2>
-            <p className="text-gray-800 mb-4">{selectedEvent.description}</p>
+          <Image
+            src={selectedEvent.image}
+            alt={selectedEvent.title}
+            layout="responsive"
+            width={800} // Set a reasonable width for aspect ratio
+            height={400} // Set a reasonable height for aspect ratio
+            className="rounded-md mb-4"
+          />
+            <h2 className="text-3xl font-bold mb-4 text-black">{selectedEvent.title}</h2>         
+            <div
+              className="text-gray-800 mb-4"
+              style={{ wordBreak: "break-word" }}
+              dangerouslySetInnerHTML={{
+                __html: selectedEvent.description || "No description provided.",
+              }}
+            ></div>
+
             <p className="text-gray-800 mb-4">
-              <strong>Date:</strong> {moment(selectedEvent.start).format('MMMM Do, YYYY')}<br />
-              <strong>Time:</strong> {moment(selectedEvent.start).format('h:mm A')} - {moment(selectedEvent.end).format('h:mm A')}
+              <strong>Start Date:</strong> {moment(selectedEvent.start).format("MMMM Do, YYYY [at] h:mm A")}
+              <br />
+              {moment(selectedEvent.end).isSame(selectedEvent.start, 'day') ? (
+                <><strong>Time:</strong> {moment(selectedEvent.start).format("h:mm A")} - {moment(selectedEvent.end).format("h:mm A")}</>
+              ) : (
+                <>
+                  <strong>End Date:</strong> {moment(selectedEvent.end).format("MMMM Do, YYYY [at] h:mm A")}
+                </>
+              )}
             </p>
-            <button
-              onClick={closeModal}
-              className="mt-4 inline-block bg-blue-700 text-white px-6 py-2 rounded-lg font-bold"
-            >
-              Close
-            </button>
+
+            {/* Add to Calendar Buttons */}
+            <div className="flex space-x-4">
+              {/* Google Calendar */}
+              <a
+                href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
+                  selectedEvent.title
+                )}&dates=${moment.tz(selectedEvent.start, "America/Los_Angeles").utc().format(
+                  "YYYYMMDDTHHmmss[Z]"
+                )}/${moment.tz(selectedEvent.end, "America/Los_Angeles").utc().format(
+                  "YYYYMMDDTHHmmss[Z]"
+                )}&details=${encodeURIComponent(
+                  selectedEvent.description || "Event details not provided."
+                )}&location=${encodeURIComponent("CSULB")}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-blue-500 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-600 transition"
+              >
+                Add to Google Calendar
+              </a>
+
+            </div>
           </div>
         </Modal>
       )}
