@@ -3,10 +3,13 @@ import clientPromise from "../../../../../../lib/mongodb";
 
 export async function POST(req, { params }) {
   const { id } = params;
-  const clientIp =
-    req.headers["x-forwarded-for"]?.split(",")[0] || 
-    req.socket?.remoteAddress || 
+
+  // Extract client IP from the 'x-forwarded-for' header
+  const clientIp = 
+    req.headers["x-forwarded-for"]?.split(",")[0]?.trim() || 
     "unknown";
+
+  console.log("Detected client IP:", clientIp); // Debugging
 
   try {
     const client = await clientPromise;
