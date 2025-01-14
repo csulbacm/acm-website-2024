@@ -4,13 +4,14 @@ import clientPromise from "../../../../../../lib/mongodb";
 export async function POST(req, { params }) {
   const { id } = params;
 
-  // Extract client IP from the 'x-forwarded-for' header
+  // Extract client IP
   const clientIp =
-  req.headers["x-forwarded-for"]?.split(",")[0]?.trim() || // Standard header
-  req.headers["x-vercel-forwarded-for"] ||                // Vercel-specific
-  req.socket?.remoteAddress || 
-  "unknown";
-console.log("Detected client IP:", clientIp);
+    req.headers.get('x-client-ip') ||
+    req.headers.get('x-forwarded-for')?.split(',')[0] ||
+    req.headers.get('x-real-ip') ||
+    req.headers.get('x-vercel-forwarded-for') ||
+    req.ip ||
+    'unknown';
 
   try {
     const client = await clientPromise;
@@ -23,12 +24,10 @@ console.log("Detected client IP:", clientIp);
       return new Response(JSON.stringify({ error: "Blog not found" }), { status: 404 });
     }
 
-    // Check if the user has already upvoted
     if (blog.upvoters?.includes(clientIp)) {
       return new Response(JSON.stringify({ error: "You have already upvoted this blog." }), { status: 400 });
     }
 
-    // Update upvotes and add IP to the upvoters list
     const result = await blogsCollection.findOneAndUpdate(
       { _id: new ObjectId(id) },
       {

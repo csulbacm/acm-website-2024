@@ -4,13 +4,13 @@ import clientPromise from "../../../../../../lib/mongodb";
 export async function GET(req, { params }) {
   const { id } = params;
 
-  // Extract client IP from the 'x-forwarded-for' header
   const clientIp =
-  req.headers["x-forwarded-for"]?.split(",")[0]?.trim() || // Standard header
-  req.headers["x-vercel-forwarded-for"] ||                // Vercel-specific
-  req.socket?.remoteAddress || 
-  "unknown";
-console.log("Detected client IP:", clientIp);
+    req.headers.get('x-client-ip') ||
+    req.headers.get('x-forwarded-for')?.split(',')[0] ||
+    req.headers.get('x-real-ip') ||
+    req.headers.get('x-vercel-forwarded-for') ||
+    req.ip ||
+    'unknown';
 
   try {
     const client = await clientPromise;
