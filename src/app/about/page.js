@@ -15,7 +15,7 @@ export default function About() {
     const fetchOfficers = async () => {
       try {
         // Fetch from the correct endpoint to get all officers
-        const response = await fetch('/api/admin/profile');
+        const response = await fetch('/api/about/officers');
         if (!response.ok) throw new Error('Failed to fetch officers data');
 
         const data = await response.json();

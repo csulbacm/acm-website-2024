@@ -106,7 +106,7 @@ export default function Events() {
               Welcome to ACM at CSULB
             </h1>
             <p className="text-2xl mt-4">
-              Empowering tomorrow's innovators today
+              CSULB's largest student organization for computer science.
             </p>
             <Link href="/events" passHref>
               <motion.button
@@ -121,7 +121,7 @@ export default function Events() {
           </div>
 
           {/* Scroll Down Icon */}
-          <div className="absolute bottom-64 w-full flex justify-center">
+          <div className="absolute bottom-52 w-full flex justify-center">
             <button onClick={scrollToSection} className="animate-bounce text-white text-5xl">
               ⌄ {/* Downward arrow */}
             </button>
@@ -194,13 +194,13 @@ export default function Events() {
 
       {/* Recent Events Section */}
       <motion.section
-        className="bg-gray-100 py-20 bg-white"
+        className="bg-gray-100 pt-20 bg-white"
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
         <div className="container mx-auto text-center">
-          <h2 className="text-3xl font-bold text-black text-start">Upcoming Events</h2>
+          <h2 className="text-3xl font-bold text-black text-start mb-12">Upcoming Events</h2>
           <div className="bg-white p-6 rounded-lg shadow-lg">
             <Calendar
               localizer={localizer}

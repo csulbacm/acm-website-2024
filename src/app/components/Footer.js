@@ -1,12 +1,16 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLinkedin, faInstagram, faDiscord } from '@fortawesome/free-brands-svg-icons';
-import { faXTwitter as faX } from '@fortawesome/free-brands-svg-icons'; // Import the X icon
+import { faXTwitter as faX } from '@fortawesome/free-brands-svg-icons';
+import dynamic from 'next/dynamic';
+
+// Dynamically import CurrentYear without SSR
+const CurrentYear = dynamic(() => import('./CurrentYear'), { ssr: false });
 
 const Footer = () => {
   return (
     <footer className="bg-gray-900 text-white py-6">
       <div className="container mx-auto flex flex-col md:flex-row justify-between items-center">
-        <p className="mb-4 md:mb-0">© 2024 ACM at CSULB. All rights reserved.</p>
+        <p className="mb-4 md:mb-0">&copy; <CurrentYear /> ACM at CSULB. All rights reserved.</p>
         <div className="flex space-x-4">
           <a 
             href="https://x.com/csulbacm" 

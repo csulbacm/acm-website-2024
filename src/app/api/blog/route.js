@@ -79,7 +79,7 @@ export async function DELETE(req) {
     const authorName = admin.name; // Use the admin's name
     const { ids } = await req.json();
 
-    const deleteResult = await deleteBlogs(ids, authorName);
+    const deleteResult = await deleteBlogs(ids);
 
     if (deleteResult.deletedCount === 0) {
       return NextResponse.json({ error: 'No matching blogs found' }, { status: 404 });

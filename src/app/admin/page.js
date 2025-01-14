@@ -287,6 +287,29 @@ export default function AdminPage() {
       setEditingBlog(blog);
     };
     
+
+    useEffect(() => {
+  const fetchProfile = async () => {
+    try {
+      const response = await fetch('/api/admin/profile');
+      if (!response.ok) throw new Error('Failed to fetch profile');
+      const profile = await response.json();
+      setName(profile.name || '');
+      setTitleProfile(profile.title || '');
+      setLinkedin(profile.linkedin || '');
+      setGithub(profile.github || '');
+      setWebsite(profile.website || '');
+      setProfileImage(profile.image || '/images/default-profile.jpg');
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+    }
+  };
+
+  if (activeTab === 'profile') {
+    fetchProfile();
+  }
+}, [activeTab]);
+
     
 
     return (
@@ -322,11 +345,11 @@ export default function AdminPage() {
           <button onClick={handleRegister} className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md">
             Register New User
           </button>
-          <button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-md">
-            Logout
-          </button>
           <button onClick={() => setShowChangePasswordModal(true)} className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md">
             Change Password
+          </button>
+          <button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-md">
+            Logout
           </button>
         </div>
       </div>
@@ -581,13 +604,13 @@ const EventsSection = ({ events, title, description, startDate, endDate, allDay,
 
 {/* Live Event Preview */}
 <div className="lg:w-1/2 flex flex-col justify-center items-center text-gray-900 text-xl mb-4 lg:mt-60">
-  <h2 className="text-3xl font-bold text-gray-900 text-center">Live Event Preview</h2>
+  <h2 className="text-3xl font-bold text-gray-900 text-center mb-4">Live Event Preview</h2>
   <div className="border-solid border-2 border-black shadow-lg text-start p-8 rounded-lg" style={{ width: '500px', height: 'auto', wordBreak: 'break-word' }}>
     <div className="mt-4">
       {image && <img src={image} alt={title} className="w-full h-64 object-cover rounded-md mb-4" />}
       <h2 className="text-3xl font-bold mb-4 text-black">{title || 'Event Title'}</h2>
       <div
-        className="text-gray-800 mb-4"
+        className="text-gray-800 mb-4 ql-editor"
         dangerouslySetInnerHTML={{ __html: description || 'Event description will appear here.' }}
       ></div>
 
@@ -674,7 +697,7 @@ const ProfileSection = ({
 
     {/* Live Profile Preview */}
     <div className="lg:w-1/2 flex flex-col justify-center items-center text-gray-900 text-xl">
-      <h2 className="text-3xl font-bold text-gray-900 text-center">Live Profile Preview</h2>
+      <h2 className="text-3xl font-bold text-gray-900 text-center mb-4">Live Profile Preview</h2>
       <div className="our-team border-solid border-2 border-black shadow-lg text-center p-8 rounded-lg" style={{ width: '500px', height: '300px' }}>
         <div className="picture mb-4">
           <img
@@ -795,12 +818,13 @@ const BlogsSection = ({
         </div>
       </form>
 
-      <h3 className="text-2xl font-semibold text-gray-800 mb-6 text-center">Your Blog Posts</h3>
+      <h3 className="text-2xl font-semibold text-gray-800 mb-6 text-center">Blog Posts</h3>
       <table className="w-full bg-white rounded-lg shadow-lg">
         <thead className="bg-gray-100 text-gray-700 font-semibold">
           <tr>
             <th className="p-3 text-left">Select</th>
             <th className="p-3 text-left">Title</th>
+            <th className="p-3 text-left">Author</th>
             <th className="p-3 text-left">Date</th>
             <th className="p-3 text-left">Actions</th>
           </tr>
@@ -817,6 +841,7 @@ const BlogsSection = ({
                 />
               </td>
               <td className="p-3 text-gray-800 font-medium">{blog.title}</td>
+              <td className="p-3 text-gray-800">{blog.author || 'Unknown Author'}</td>
               <td className="p-3 text-gray-600">{moment(blog.createdAt).format('LL')}</td>
               <td className="p-3">
                 <button
@@ -840,7 +865,7 @@ const BlogsSection = ({
 
     {/* Live Blog Preview */}
     <div className="lg:w-1/2 flex flex-col justify-center items-center text-gray-900 text-xl mb-4 lg:mt-60">
-      <h2 className="text-3xl font-bold text-gray-900 text-center">Live Blog Preview</h2>
+      <h2 className="text-3xl font-bold text-gray-900 text-center mb-4">Live Blog Preview</h2>
       <div
         className="border-solid border-2 border-black shadow-lg text-start p-8 rounded-lg"
         style={{ width: '500px', height: 'auto', wordBreak: 'break-word' }}
@@ -856,13 +881,14 @@ const BlogsSection = ({
           <h2 className="text-3xl font-bold mb-4 text-black">
             {blogTitle || 'Blog Title'}
           </h2>
+          <p className="text-gray-500 text-sm mb-4">
+            <strong>Author:</strong> {editingBlog?.author || 'Unknown Author'} |{" "}
+            <strong>Published:</strong> {editingBlog?.createdAt ? moment(editingBlog.createdAt).format('MMMM DD, YYYY') : 'Unknown Date'}
+          </p>
           <div
-            className="text-gray-800 mb-4"
+            className="text-gray-800 mb-4 ql-editor"
             dangerouslySetInnerHTML={{ __html: blogContent || 'Blog content will appear here.' }}
           ></div>
-          <p className="text-gray-800 mb-4">
-            <strong>Date:</strong> {moment().format('MMMM Do, YYYY')}
-          </p>
         </div>
       </div>
     </div>

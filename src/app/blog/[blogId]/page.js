@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { RotatingLines } from "react-loader-spinner";
+import 'react-quill/dist/quill.snow.css';
 
 export default function BlogDetails({ params }) {
   const { blogId } = params; // Destructure blogId from params
@@ -12,6 +14,7 @@ export default function BlogDetails({ params }) {
 
   useEffect(() => {
     const fetchBlog = async () => {
+      setLoading(true); // Start loading
       try {
         const response = await fetch(`/api/blog/${blogId}`);
         if (!response.ok) {
@@ -29,8 +32,6 @@ export default function BlogDetails({ params }) {
           setHasUpvoted(hasUpvoted); // Update local state
         }
 
-        setLoading(false);
-
         // Increment views
         const viewResponse = await fetch(`/api/blog/${blogId}/view`, { method: "POST" });
         if (viewResponse.ok) {
@@ -38,7 +39,8 @@ export default function BlogDetails({ params }) {
         }
       } catch (error) {
         console.error("Error fetching blog:", error);
-        setLoading(false);
+      } finally {
+        setLoading(false); // End loading
       }
     };
 
@@ -73,7 +75,20 @@ export default function BlogDetails({ params }) {
   };
 
   if (loading) {
-    return <div className="min-h-screen bg-white flex items-center justify-center">Loading...</div>;
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <RotatingLines
+          visible={true}
+          height="50"
+          width="50"
+          color="grey"
+          strokeColor="grey"
+          strokeWidth="5"
+          animationDuration="0.75"
+          ariaLabel="rotating-lines-loading"
+        />
+      </div>
+    );
   }
 
   if (!blog) {
@@ -85,42 +100,57 @@ export default function BlogDetails({ params }) {
   }
 
   return (
-    <div className="min-h-screen bg-white p-6">
-      {blog.image && (
-        <img
-          src={blog.image}
-          alt={blog.title}
-          className="w-full h-auto object-cover rounded-lg mb-6"
-        />
-      )}
-      <h1 className="text-4xl font-bold mb-4">{blog.title}</h1>
-      <p className="text-sm text-gray-500 mb-4">
-        <strong>Author:</strong> {blog.author}
-      </p>
-      <p className="text-sm text-gray-500 mb-4">
-        <strong>Views:</strong> {views}
-      </p>
+    <div className="min-h-screen bg-gray-50">
+      {/* Hero Section */}
       <div
-        className="text-lg text-gray-800 mb-6"
-        dangerouslySetInnerHTML={{ __html: blog.content }}
-      ></div>
-      <div className="flex items-center space-x-4">
-        <button
-          onClick={handleUpvote}
-          disabled={hasUpvoted}
-          className={`px-4 py-2 rounded-lg font-bold transition ${
-            hasUpvoted
-              ? "bg-gray-300 text-gray-700 cursor-not-allowed"
-              : "bg-acm-blue text-white hover:bg-acm-dark-blue"
-          }`}
-        >
-          {hasUpvoted ? "Upvoted" : "Upvote"}
-        </button>
-        <span className="text-lg text-gray-700 font-bold">Upvotes: {upvotes}</span>
+        className="relative w-full h-64 bg-cover bg-center flex items-center justify-center"
+        style={{
+          backgroundImage: `url(${blog.image || "/default-bg.jpg"})`,
+        }}
+      >
+        <div className="absolute inset-0 bg-black opacity-50"></div>
+        <h1 className="relative text-white text-5xl font-bold text-center px-4">
+          {blog.title}
+        </h1>
       </div>
-      <p className="text-gray-600 mt-6">
-        <strong>Created At:</strong> {new Date(blog.createdAt).toLocaleDateString()}
-      </p>
+
+      {/* Content Section */}
+      <div className="max-w-7xl mx-auto p-6 bg-white rounded-lg shadow-md mt-6">
+        <p className="text-gray-500 text-sm mb-4">
+          <strong>Author:</strong> {blog.author} | <strong>Views:</strong> {views} |{" "}
+          <strong>Published:</strong> {new Date(blog.createdAt).toLocaleDateString()}
+        </p>
+        <div
+          className="text-lg text-gray-800 leading-relaxed mb-6 ql-editor"
+          dangerouslySetInnerHTML={{ __html: blog.content }}
+        ></div>
+
+        {/* Action Buttons */}
+        <div className="flex items-center space-x-4">
+          <button
+            onClick={handleUpvote}
+            disabled={hasUpvoted}
+            className={`px-6 py-2 rounded-lg text-white font-bold transition ${
+              hasUpvoted
+                ? "bg-gray-300 cursor-not-allowed"
+                : "bg-blue-500 hover:bg-blue-600"
+            }`}
+          >
+            {hasUpvoted ? "Upvoted" : "Upvote"}
+          </button>
+          <span className="text-lg font-semibold text-gray-700">Upvotes: {upvotes}</span>
+        </div>
+
+        {/* Back to Blog Page Button */}
+        <div className="mt-6">
+          <button
+            onClick={() => window.history.back()} // Use this for simple navigation
+            className="px-6 py-2 bg-gray-100 text-gray-700 font-semibold rounded-lg shadow hover:bg-gray-200 transition"
+          >
+            Back to Blog Page
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

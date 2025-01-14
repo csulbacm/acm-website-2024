@@ -48,12 +48,6 @@ export async function PUT(req, { params }) {
         return NextResponse.json({ error: 'Blog not found' }, { status: 404 });
       }
   
-      // Authorization check updated to match `author` with admin's name
-      if (blog.author !== adminName) {
-        console.error('Unauthorized: User does not own this blog');
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-      }
-  
       const updates = await req.json();
       const updatedBlog = await updateBlog(id, updates);
   

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Calendar, momentLocalizer, Views } from 'react-big-calendar';
-import moment from 'moment';
+import moment from 'moment-timezone';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
@@ -103,50 +103,111 @@ export default function Events() {
         </motion.section>
       </div>
 
-      <div className="container mx-auto py-4 pt-8 flex flex-wrap justify-center space-x-4 space-y-4 md:space-y-0">
-        {/* Navigation Buttons */}
-        <div className="flex space-x-4">
-          <button className="bg-acm-blue text-white px-4 py-2 rounded-lg font-bold" onClick={goToBack}>Back</button>
-          <button className="bg-acm-blue text-white px-4 py-2 rounded-lg font-bold" onClick={goToToday}>Today</button>
-          <button className="bg-acm-blue text-white px-4 py-2 rounded-lg font-bold" onClick={goToNext}>Next</button>
-        </div>
+      <div className="container mx-auto py-4 pt-8 flex items-center justify-between">
+  {/* Navigation Buttons (Left of Title) */}
+  <div className="flex space-x-4">
+    <motion.button
+      className="bg-acm-blue text-white px-4 py-2 rounded-lg font-bold"
+      onClick={goToBack}
+      whileHover={{ scale: 1.05 }}  // Scale up slightly on hover
+      whileTap={{ scale: 0.95 }}    // Scale down slightly on tap
+      transition={{ duration: 0.2 }} // Animation duration
+    >
+      Back
+    </motion.button>
+    <motion.button
+      className="bg-acm-blue text-white px-4 py-2 rounded-lg font-bold"
+      onClick={goToToday}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      transition={{ duration: 0.2 }}
+    >
+      Today
+    </motion.button>
+    <motion.button
+      className="bg-acm-blue text-white px-4 py-2 rounded-lg font-bold"
+      onClick={goToNext}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      transition={{ duration: 0.2 }}
+    >
+      Next
+    </motion.button>
+  </div>
 
-        {/* View Buttons */}
-        <div className="flex space-x-4 md:ml-4">
-          <button className="bg-acm-blue text-white px-4 py-2 rounded-lg font-bold" onClick={() => setCurrentView(Views.MONTH)}>Month</button>
-          <button className="bg-acm-blue text-white px-4 py-2 rounded-lg font-bold" onClick={() => setCurrentView(Views.WEEK)}>Week</button>
-          <button className="bg-acm-blue text-white px-4 py-2 rounded-lg font-bold" onClick={() => setCurrentView(Views.DAY)}>Day</button>
-          <button className="bg-acm-blue text-white px-4 py-2 rounded-lg font-bold" onClick={() => setCurrentView(Views.AGENDA)}>Agenda</button>
-        </div>
+  {/* Month Title (Center) */}
+  <div className="text-center">
+    <span className="text-black font-bold text-5xl">{moment(date).format('MMMM YYYY')}</span>
+  </div>
+
+  {/* View Buttons (Right of Title) */}
+  <div className="flex space-x-4">
+    <motion.button
+      className="bg-acm-blue text-white px-4 py-2 rounded-lg font-bold"
+      onClick={() => setCurrentView(Views.MONTH)}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      transition={{ duration: 0.2 }}
+    >
+      Month
+    </motion.button>
+    <motion.button
+      className="bg-acm-blue text-white px-4 py-2 rounded-lg font-bold"
+      onClick={() => setCurrentView(Views.WEEK)}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      transition={{ duration: 0.2 }}
+    >
+      Week
+    </motion.button>
+    <motion.button
+      className="bg-acm-blue text-white px-4 py-2 rounded-lg font-bold"
+      onClick={() => setCurrentView(Views.DAY)}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      transition={{ duration: 0.2 }}
+    >
+      Day
+    </motion.button>
+    <motion.button
+      className="bg-acm-blue text-white px-4 py-2 rounded-lg font-bold"
+      onClick={() => setCurrentView(Views.AGENDA)}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      transition={{ duration: 0.2 }}
+    >
+      Agenda
+    </motion.button>
+  </div>
+</div>
+
+
+    {/* Calendar Section */}
+    <motion.section
+      className="container mx-auto pb-16 px-6 md:px-0"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      <div className="bg-white p-6 rounded-lg shadow-lg">
+        <Calendar
+          localizer={localizer}
+          events={events}
+          startAccessor="start"
+          endAccessor="end"
+          style={{ height: 600 }}
+          className="rounded-lg shadow-lg text-gray-800 mt-4"
+          onSelectEvent={handleEventClick}
+          view={currentView}
+          onView={(view) => setCurrentView(view)}
+          date={date}
+          onNavigate={(newDate) => setDate(newDate)}
+          views={['month', 'week', 'day', 'agenda']}
+          toolbar={false}
+          popup={true}
+        />
       </div>
-
-      {/* Calendar Section */}
-      <motion.section
-        className="container mx-auto pb-16 px-6 md:px-0"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-      >
-        <div className="bg-white p-6 rounded-lg shadow-lg">
-        <span className="text-black font-bold text-5xl">{moment(date).format('MMMM YYYY')}</span>
-          <Calendar
-            localizer={localizer}
-            events={events}
-            startAccessor="start"
-            endAccessor="end"
-            style={{ height: 600 }}
-            className="rounded-lg shadow-lg text-gray-800"
-            onSelectEvent={handleEventClick}
-            view={currentView}
-            onView={(view) => setCurrentView(view)}
-            date={date}
-            onNavigate={(newDate) => setDate(newDate)}
-            views={['month', 'week', 'day', 'agenda']}
-            toolbar={false}
-            popup={true}
-          />
-        </div>
-      </motion.section>
+    </motion.section>
 
       {/* Event Modal */}
       {selectedEvent && modalIsOpen && (
@@ -159,51 +220,64 @@ export default function Events() {
           shouldCloseOnOverlayClick={true}
         >
           <div className="bg-white p-6 rounded-lg max-w-lg w-full">
-            <img src={selectedEvent.image} alt={selectedEvent.title} className="w-full h-64 object-cover rounded-md mb-4" />
+            <img
+              src={selectedEvent.image}
+              alt={selectedEvent.title}
+              className="w-full h-64 object-cover rounded-md mb-4"
+            />
             <h2 className="text-3xl font-bold mb-4 text-black">{selectedEvent.title}</h2>
-            
-            {/* Render description with HTML content */}
-            <div className="text-gray-800 mb-4" style={{ wordBreak: 'break-word' }}
-              dangerouslySetInnerHTML={{ __html: selectedEvent.description || 'No description provided.' }}
+
+            <div
+              className="text-gray-800 mb-4"
+              style={{ wordBreak: "break-word" }}
+              dangerouslySetInnerHTML={{
+                __html: selectedEvent.description || "No description provided.",
+              }}
             ></div>
 
             <p className="text-gray-800 mb-4">
-              <strong>Date:</strong> {moment(selectedEvent.start).format('MMMM Do, YYYY')}<br />
-              <strong>Time:</strong> {moment(selectedEvent.start).format('h:mm A')} - {moment(selectedEvent.end).format('h:mm A')}
+              <strong>Start Date:</strong> {moment(selectedEvent.start).format("MMMM Do, YYYY [at] h:mm A")}
+              <br />
+              {moment(selectedEvent.end).isSame(selectedEvent.start, 'day') ? (
+                <><strong>Time:</strong> {moment(selectedEvent.start).format("h:mm A")} - {moment(selectedEvent.end).format("h:mm A")}</>
+              ) : (
+                <>
+                  <strong>End Date:</strong> {moment(selectedEvent.end).format("MMMM Do, YYYY [at] h:mm A")}
+                </>
+              )}
             </p>
+
+            {/* Add to Calendar Buttons */}
+            <div className="flex space-x-4">
+              {/* Google Calendar */}
+              <a
+                href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
+                  selectedEvent.title
+                )}&dates=${moment.tz(selectedEvent.start, "America/Los_Angeles").utc().format(
+                  "YYYYMMDDTHHmmss[Z]"
+                )}/${moment.tz(selectedEvent.end, "America/Los_Angeles").utc().format(
+                  "YYYYMMDDTHHmmss[Z]"
+                )}&details=${encodeURIComponent(
+                  selectedEvent.description || "Event details not provided."
+                )}&location=${encodeURIComponent("CSULB")}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-blue-500 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-600 transition"
+              >
+                Add to Google Calendar
+              </a>
+
+            </div>
+
             <button
               onClick={closeModal}
-              className="mt-4 inline-block bg-acm-blue text-white px-6 py-2 rounded-lg font-bold"
+              className="mt-4 inline-block bg-gray-700 text-white px-6 py-2 rounded-lg font-bold"
             >
               Close
             </button>
           </div>
         </Modal>
       )}
-
-
-      {/* Call to Action */}
-      <motion.section
-        className="bg-white text-black py-12 text-center"
-        initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <h2 className="text-3xl font-bold">Stay Updated on Future Events</h2>
-        <p className="text-xl mt-4">
-          Join our mailing list to get the latest updates on upcoming workshops, hackathons, and networking events.
-        </p>
-        <Link href="/subscribe" passHref>
-          <motion.button
-            className="mt-8 inline-block bg-acm-blue text-white px-8 py-4 rounded-lg font-bold"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-          >
-            Subscribe Now
-          </motion.button>
-        </Link>
-      </motion.section>
     </div>
   );
 }
