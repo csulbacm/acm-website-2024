@@ -10,6 +10,7 @@ import { faEnvelope, faGlobe } from '@fortawesome/free-solid-svg-icons';
 import moment from 'moment';
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 import "react-quill/dist/quill.snow.css";
+import { RotatingLines } from "react-loader-spinner";
 
 export default function AdminPage() {
     const router = useRouter();
@@ -19,6 +20,7 @@ export default function AdminPage() {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [allDay, setAllDay] = useState(false);
+    const [eventLocation, setEventLocation] = useState('');
     const [image, setImage] = useState(null);
     const [events, setEvents] = useState([]);
     const [selectedEvents, setSelectedEvents] = useState([]);
@@ -43,6 +45,9 @@ export default function AdminPage() {
     const [blogImage, setBlogImage] = useState(null);
     const [editingBlog, setEditingBlog] = useState(null);
 
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
 
     useEffect(() => {
       const checkAuth = async () => {
@@ -89,6 +94,10 @@ export default function AdminPage() {
 
     const handleProfileUpdate = async (e) => {
       e.preventDefault();
+      e.preventDefault();
+      setLoading(true);
+      setError('');
+      setSuccess('');
   
       // Build updatedProfile object with only non-empty fields
       const updatedProfile = {};
@@ -107,15 +116,21 @@ export default function AdminPage() {
           });
   
           if (!response.ok) throw new Error('Failed to update profile');
-          alert('Profile updated successfully!');
+          setSuccess('Profile updated successfully!');
       } catch (error) {
-          console.error('Error updating profile:', error);
-      }
-  };
+          setError(error.message || 'An error occurred while updating profile.');
+      } finally {
+        setLoading(false);
+    }
+};
 
     const handleSubmit = async (e) => {
       e.preventDefault();
-      const newEvent = { title, description, startDate, endDate, allDay, image };
+      setLoading(true);
+      setError('');
+      setSuccess('');
+
+      const newEvent = { title, description, startDate, endDate, allDay, eventLocation, image };
     
       try {
         const method = editingEvent ? 'PUT' : 'POST';
@@ -126,15 +141,20 @@ export default function AdminPage() {
           body: JSON.stringify(newEvent),
         });
     
-        if (!response.ok) throw new Error('Failed to save event');
-        
-        alert(editingEvent ? 'Event updated successfully!' : 'Event added successfully!');
+        if (!response.ok) {
+            const { error } = await response.json();
+            throw new Error(error || 'Failed to save event');
+        }
+
+        setSuccess(editingEvent ? 'Event updated successfully!' : 'Event added successfully!');
         resetForm();
         fetchEvents();
-      } catch (error) {
-        console.error('Error saving event:', error);
-      }
-    };
+    } catch (error) {
+        setError(error.message || 'An error occurred while saving the event.');
+    } finally {
+        setLoading(false);
+    }
+};
 
     const resetForm = () => {
       setTitle('');
@@ -142,6 +162,7 @@ export default function AdminPage() {
       setStartDate('');
       setEndDate('');
       setAllDay(false);
+      setEventLocation('');
       setImage(null);
       setEditingEvent(null);
     };
@@ -151,8 +172,14 @@ export default function AdminPage() {
     };
 
     const handleDeleteSelected = async () => {
-      if (selectedEvents.length === 0) return alert('No events selected for deletion');
-    
+      if (selectedEvents.length === 0) {
+        setError('No events selected for deletion');
+        return;
+    }
+    setLoading(true);
+    setError('');
+    setSuccess('');
+
       try {
         const response = await fetch('/api/events', {
           method: 'DELETE',
@@ -160,15 +187,20 @@ export default function AdminPage() {
           body: JSON.stringify({ ids: selectedEvents }),
         });
     
-        if (!response.ok) throw new Error('Failed to delete events');
-        
-        alert('Selected events deleted successfully');
+        if (!response.ok) {
+            const { error } = await response.json();
+            throw new Error(error || 'Failed to delete events');
+        }
+
+        setSuccess('Selected events deleted successfully!');
         setSelectedEvents([]);
         fetchEvents();
-      } catch (error) {
-        console.error('Error deleting events:', error);
-      }
-    };
+    } catch (error) {
+        setError(error.message || 'An error occurred while deleting events.');
+    } finally {
+        setLoading(false);
+    }
+};
 
     const handleEditEvent = (event) => {
       setTitle(event.title);
@@ -176,6 +208,7 @@ export default function AdminPage() {
       setStartDate(event.startDate);
       setEndDate(event.endDate);
       setAllDay(event.allDay);
+      setEventLocation(event.eventLocation);
       setImage(event.image);
       setEditingEvent(event);
     };
@@ -190,7 +223,14 @@ export default function AdminPage() {
 
     const handleChangePassword = async (e) => {
       e.preventDefault();
-      if (!newPassword) return alert("Please enter a new password.");
+      if (!newPassword) {
+        setError('Please enter a new password.');
+        return;
+    }
+
+    setLoading(true);
+    setError('');
+    setSuccess('');
   
       try {
         const response = await fetch('/api/admin/change-password', {
@@ -200,19 +240,25 @@ export default function AdminPage() {
         });
   
         const result = await response.json();
-        if (response.ok) {
-          alert('Password updated successfully');
-          setShowChangePasswordModal(false);
-        } else {
-          alert(result.error || 'Failed to update password');
-        }
-      } catch (error) {
-        console.error('Error changing password:', error);
-        alert('Error changing password');
+        if (!response.ok) {
+          const { error } = await response.json();
+          throw new Error(error || 'Failed to update password');
       }
-    };
+
+      setSuccess('Password updated successfully!');
+      setShowChangePasswordModal(false);
+  } catch (error) {
+      setError(error.message || 'An error occurred while changing the password.');
+  } finally {
+      setLoading(false);
+  }
+};
+
     const handleSubmitBlog = async (e) => {
       e.preventDefault();
+      setLoading(true);
+      setError('');
+      setSuccess('');
       const newBlog = { title: blogTitle, content: blogContent, image: blogImage };
   
       try {
@@ -224,18 +270,22 @@ export default function AdminPage() {
           body: JSON.stringify(newBlog),
         });
   
-        if (!response.ok) throw new Error("Failed to save blog");
-  
-        alert(editingBlog ? "Blog updated successfully!" : "Blog added successfully!");
-        resetBlogForm();
-        // Refresh blogs list
-        const fetchResponse = await fetch("/api/blog");
-        const data = await fetchResponse.json();
-        setBlogs(data.blogs);
-      } catch (error) {
-        console.error("Error saving blog:", error);
+        if (!response.ok) {
+          const { error } = await response.json();
+          throw new Error(error || 'Failed to save blog');
       }
-    };
+
+      setSuccess(editingBlog ? 'Blog updated successfully!' : 'Blog added successfully!');
+      resetBlogForm();
+      const fetchResponse = await fetch('/api/blog');
+      const data = await fetchResponse.json();
+      setBlogs(data.blogs);
+  } catch (error) {
+      setError(error.message || 'An error occurred while saving the blog.');
+  } finally {
+      setLoading(false);
+  }
+};
     
     const resetBlogForm = () => {
       setBlogTitle('');
@@ -254,6 +304,10 @@ export default function AdminPage() {
         alert("No blogs selected for deletion");
         return;
       }
+
+      setLoading(true);
+      setError('');
+      setSuccess('');
   
       try {
         const response = await fetch("/api/blog", {
@@ -263,23 +317,21 @@ export default function AdminPage() {
         });
   
         if (!response.ok) {
-          const result = await response.json();
-          console.error("Error deleting blogs:", result.error);
-          alert(result.error || "Failed to delete blogs");
-          return;
-        }
-  
-        alert("Selected blogs deleted successfully");
-        setSelectedBlogs([]);
-        // Refresh blogs list
-        const fetchResponse = await fetch("/api/blog");
-        const data = await fetchResponse.json();
-        setBlogs(data.blogs);
-      } catch (error) {
-        console.error("Error deleting blogs:", error);
-        alert("An unexpected error occurred while deleting blogs");
+          const { error } = await response.json();
+          throw new Error(error || 'Failed to delete blogs');
       }
-    };
+
+      setSuccess('Selected blogs deleted successfully!');
+      setSelectedBlogs([]);
+      const fetchResponse = await fetch('/api/blog');
+      const data = await fetchResponse.json();
+      setBlogs(data.blogs);
+  } catch (error) {
+      setError(error.message || 'An error occurred while deleting blogs.');
+  } finally {
+      setLoading(false);
+  }
+};
     
     const handleEditBlog = (blog) => {
       setBlogTitle(blog.title);
@@ -315,6 +367,24 @@ export default function AdminPage() {
 
     return (
       <div className="container mx-auto p-6 text-gray-700">
+      {/* Display Success Message */}
+      {success && <p className="text-green-500 text-center mb-4">{success}</p>}
+      {/* Display Error Message */}
+      {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+      {/* Display Loading Spinner */}
+      {loading && (
+          <div className="flex justify-center items-center mb-4">
+              <RotatingLines
+                  visible={true}
+                  height="40"
+                  width="40"
+                  color="grey"
+                  strokeWidth="5"
+                  strokeColor="grey"
+                  ariaLabel="rotating-lines-loading"
+              />
+          </div>
+      )}
       {/* Subnavbar with Extra Buttons */}
       <div className="flex flex-wrap justify-center md:justify-between items-center mb-6 space-y-4 md:space-y-0">
         <div className="flex flex-wrap space-x-4">
@@ -416,6 +486,8 @@ export default function AdminPage() {
             setStartDate={setStartDate}
             setEndDate={setEndDate}
             setAllDay={setAllDay}
+            eventLocation={eventLocation}
+            setEventLocation={setEventLocation}
             setImage={setImage}
             handleSubmit={handleSubmit}
             handleEditEvent={handleEditEvent}
@@ -480,7 +552,7 @@ const formats = [
   'link', 'color', 'background', 'align', 'image', 'video'
 ];
 // Events Section Component
-const EventsSection = ({ events, title, description, startDate, endDate, allDay, image, setTitle, setDescription, setStartDate, setEndDate, setAllDay, setImage, handleSubmit, handleEditEvent, handleDeleteSelected, handleSelectEvent, selectedEvents, resetForm, editingEvent }) => (
+const EventsSection = ({ events, title, description, startDate, endDate, allDay, eventLocation, image, setTitle, setDescription, setStartDate, setEndDate, setAllDay, setEventLocation, setImage, handleSubmit, handleEditEvent, handleDeleteSelected, handleSelectEvent, selectedEvents, resetForm, editingEvent }) => (
   <div className="flex flex-col-reverse lg:flex-row lg:space-x-8 items-center lg:items-start">
     {/* Event Form */}
     <div className="lg:w-1/2 bg-white shadow-md rounded-lg p-8 space-y-6 border border-gray-200">
@@ -537,9 +609,20 @@ const EventsSection = ({ events, title, description, startDate, endDate, allDay,
           <span>All Day Event</span>
         </label>
 
-        <label className="block text-lg font-semibold text-gray-700">Event Image</label>
+        <label className="block text-lg font-semibold text-gray-700">Location</label>
+          <input
+            type="text"
+            value={eventLocation}
+            onChange={(e) => setEventLocation(e.target.value)}
+            className="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            required
+          />
+
+
+        <label className="block text-lg font-semibold text-gray-700">Event Image <span className="font-normal">(Limit: 16 MB)</span></label>
         <input 
-          type="file" 
+          type="file"
+          accept="image/png, image/jpeg, image/jpg, image/gif, image/webp" 
           onChange={(e) => {
             const file = e.target.files[0];
             const reader = new FileReader();
@@ -568,6 +651,7 @@ const EventsSection = ({ events, title, description, startDate, endDate, allDay,
             <th className="p-3 text-left">Select</th>
             <th className="p-3 text-left">Title</th>
             <th className="p-3 text-left">Date</th>
+            <th className="p-3 text-left">Location</th>
             <th className="p-3 text-left">Actions</th>
           </tr>
         </thead>
@@ -584,6 +668,7 @@ const EventsSection = ({ events, title, description, startDate, endDate, allDay,
               </td>
               <td className="p-3 text-gray-800 font-medium">{event.title}</td>
               <td className="p-3 text-gray-600">{new Date(event.startDate).toLocaleDateString()}</td>
+              <td className="p-3 text-gray-800">{event.eventLocation || 'No Location'}</td>
               <td className="p-3">
                 <button
                   onClick={() => handleEditEvent(event)}
@@ -611,44 +696,50 @@ const EventsSection = ({ events, title, description, startDate, endDate, allDay,
       </h2>
       <div
         className="border-solid border-2 border-black shadow-lg text-start p-6 rounded-lg
-                  w-[400px] sm:w-[500px] 
-                  h-auto"
+                    w-[400px] sm:w-[500px] 
+                    h-auto"
         style={{ wordBreak: 'break-word' }}
       >
-        <div className="mt-4">
-          {image && (
-            <img
-              src={image}
-              alt={title}
-              className="w-full sm:h-64 h-48 object-cover rounded-md mb-4"
-            />
+        {image && (
+          <img
+            src={image}
+            alt={title}
+            className="w-full sm:h-64 h-48 object-cover rounded-md mb-4"
+          />
+        )}
+        <h2 className="text-3xl font-bold text-black text-center mb-4">
+          {title || 'Event Title'}
+        </h2>
+        <div
+          className="text-gray-700 text-lg leading-relaxed mb-4"
+          dangerouslySetInnerHTML={{
+            __html: description || 'Event description will appear here.',
+          }}
+        ></div>
+        <p className="text-gray-800 text-center mb-4">
+          <strong>Start Date:</strong>{' '}
+          {startDate
+            ? moment(startDate).format('MMMM Do, YYYY [at] h:mm A')
+            : 'Select a date'}
+          <br />
+          {allDay ? (
+            <strong>All Day Event</strong>
+          ) : (
+            <>
+              <strong>Time:</strong>{' '}
+              {startDate && endDate
+                ? `${moment(startDate).format('h:mm A')} - ${moment(endDate).format(
+                    'h:mm A'
+                  )}`
+                : 'Select a time'}
+            </>
           )}
-          <h2 className="text-2xl sm:text-3xl font-bold mb-4 text-black">
-            {title || 'Event Title'}
-          </h2>
-          <div
-            className="text-gray-800 mb-4 ql-editor"
-            dangerouslySetInnerHTML={{
-              __html: description || 'Event description will appear here.',
-            }}
-          ></div>
-
-          <p className="text-gray-800 mb-4">
-            <strong>Date:</strong>{' '}
-            {startDate
-              ? moment(startDate).format('MMMM Do, YYYY')
-              : 'Select a date'}
-            <br />
-            <strong>Time:</strong>{' '}
-            {allDay
-              ? 'All Day'
-              : `${moment(startDate).format('h:mm A')} - ${moment(endDate).format(
-                  'h:mm A'
-                )}`}
-          </p>
-        </div>
+          <br />
+          <strong>Location:</strong> {eventLocation || 'No Location Provided'}
+        </p>
       </div>
     </div>
+
   </div>
 );
 
@@ -703,9 +794,10 @@ const ProfileSection = ({
           className="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
 
-        <label className="block text-lg font-semibold text-gray-700">Profile Image</label>
+        <label className="block text-lg font-semibold text-gray-700">Profile Image <span className="font-normal">(Limit: 16 MB)</span></label>
         <input
           type="file"
+          accept="image/png, image/jpeg, image/jpg, image/gif, image/webp"
           onChange={(e) => {
             const file = e.target.files[0];
             const reader = new FileReader();
@@ -848,9 +940,10 @@ const BlogsSection = ({
           className="mb-4 text-gray-800"
         />
 
-        <label className="block text-lg font-semibold text-gray-700">Blog Image</label>
+        <label className="block text-lg font-semibold text-gray-700">Blog Image <span className="font-normal">(Limit: 16 MB)</span></label>
         <input
           type="file"
+          accept="image/png, image/jpeg, image/jpg, image/gif, image/webp"
           onChange={(e) => {
             const file = e.target.files[0];
             const reader = new FileReader();
@@ -924,43 +1017,42 @@ const BlogsSection = ({
       </button>
     </div>
 
-    {/* Live Blog Preview */}
-    <div className="lg:w-1/2 flex flex-col justify-center items-center text-gray-900 text-xl mb-4 lg:mt-60">
-      <h2 className="text-3xl font-bold text-gray-900 text-center mb-4">
-        Live Blog Preview
-      </h2>
-      <div
-        className="border-solid border-2 border-black shadow-lg text-start p-6 rounded-lg
-                  w-[400px] sm:w-[500px] 
-                  h-auto"
-        style={{ wordBreak: 'break-word' }}
-      >
-        <div className="mt-4">
-          {blogImage && (
-            <img
-              src={blogImage}
-              alt={blogTitle}
-              className="w-full sm:h-64 h-48 object-cover rounded-md mb-4"
-            />
-          )}
-          <h2 className="text-2xl sm:text-3xl font-bold mb-4 text-black">
-            {blogTitle || 'Blog Title'}
-          </h2>
-          <p className="text-gray-500 text-sm mb-4">
-            <strong>Author:</strong> {editingBlog?.author || name || 'Your Name'} |{' '}
-            <strong>Published:</strong>{' '}
-            {editingBlog?.createdAt
-              ? moment(editingBlog.createdAt).format('MMMM DD, YYYY')
-              : moment().format('MMMM DD, YYYY')}
-          </p>
-          <div
-            className="text-gray-800 mb-4 ql-editor"
-            dangerouslySetInnerHTML={{
-              __html: blogContent || 'Blog content will appear here.',
-            }}
-          ></div>
-        </div>
-      </div>
-    </div>
+{/* Live Blog Preview */}
+<div className="lg:w-1/2 flex flex-col justify-center items-center text-gray-900 text-xl mb-4 lg:mt-60">
+  <h2 className="text-3xl font-bold text-gray-900 text-center mb-4">
+    Live Blog Preview
+  </h2>
+  <div
+    className="border-solid border-2 border-black shadow-lg text-start p-6 rounded-lg
+                w-[400px] sm:w-[500px] 
+                h-auto"
+    style={{ wordBreak: 'break-word' }}
+  >
+    {blogImage && (
+      <img
+        src={blogImage}
+        alt={blogTitle}
+        className="w-full sm:h-64 h-48 object-cover rounded-md mb-4"
+      />
+    )}
+    <h2 className="text-3xl font-bold text-black text-center mb-4">
+      {blogTitle || 'Blog Title'}
+    </h2>
+    <p className="text-gray-500 text-sm text-center mb-4">
+      <strong>Author:</strong> {editingBlog?.author || name || 'Your Name'} |{' '}
+      <strong>Published:</strong>{' '}
+      {editingBlog?.createdAt
+        ? moment(editingBlog.createdAt).format('MMMM DD, YYYY')
+        : moment().format('MMMM DD, YYYY')}
+    </p>
+    <div
+      className="text-gray-700 text-lg leading-relaxed mb-6 ql-editor"
+      dangerouslySetInnerHTML={{
+        __html: blogContent || 'Blog content will appear here.',
+      }}
+    ></div>
+  </div>
+</div>
+
   </div>
 );

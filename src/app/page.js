@@ -44,6 +44,7 @@ export default function Events() {
           start: new Date(event.startDate),
           end: new Date(event.endDate),
           allDay: event.allDay || false,
+          eventLocation: event.eventLocation || 'CSULB',
         }));
         setEvents(formattedEvents);
       } catch (error) {
@@ -201,97 +202,116 @@ export default function Events() {
       >
         <div className="container mx-auto text-center">
           <h2 className="text-3xl font-bold text-black text-start mb-12">Upcoming Events</h2>
-          <div className="bg-white p-6 rounded-lg shadow-lg">
-            <Calendar
-              localizer={localizer}
-              events={currentWeekEvents}
-              startAccessor="start"
-              endAccessor="end"
-              style={{ height: 600 }}
-              className="rounded-lg shadow-lg mt-12 text-gray-900" // Updated text color for better readability
-              view={Views.WEEK}
-              onSelectEvent={handleEventClick}
-              date={date}
-              onNavigate={(newDate) => setDate(newDate)}
-              views={['week']}
-              toolbar={false}
-              popup={true}
-            />
+          <div className="bg-white p-6 rounded-lg shadow-lg overflow-x-auto">
+            <div className="min-w-[1200px]">
+              <Calendar
+                localizer={localizer}
+                events={currentWeekEvents}
+                startAccessor="start"
+                endAccessor="end"
+                style={{ height: 600 }}
+                className="rounded-lg shadow-lg text-gray-800 mt-4"
+                onSelectEvent={handleEventClick}
+                view={Views.WEEK}
+                onView={(view) => setCurrentView(view)}
+                date={date}
+                onNavigate={(newDate) => setDate(newDate)}
+                views={['month', 'week', 'day', 'agenda']}
+                toolbar={false}
+                popup={true}
+              />
+            </div>
           </div>
         </div>
       </motion.section>
 
       {/* Event Modal */}
-        {selectedEvent && modalIsOpen && (
-          <Modal
-            isOpen={modalIsOpen}
-            onRequestClose={closeModal}
-            contentLabel="Event Details"
-            className="modal-content fixed inset-0 flex items-center justify-center z-50"
-            overlayClassName="modal-overlay fixed inset-0 bg-black bg-opacity-50 z-40"
-            shouldCloseOnOverlayClick={true}
+      {selectedEvent && modalIsOpen && (
+        <Modal
+          isOpen={modalIsOpen}
+          onRequestClose={closeModal}
+          contentLabel="Event Details"
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          overlayClassName="fixed inset-0 bg-black bg-opacity-50 z-40"
+          shouldCloseOnOverlayClick={true}
+        >
+          <motion.div
+            className="bg-white p-6 rounded-lg max-w-lg w-full shadow-xl"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.3 }}
           >
-            <div className="bg-white p-6 rounded-lg max-w-lg w-full">
-            <Image
-              src={selectedEvent.image}
-              alt={selectedEvent.title}
-              layout="responsive"
-              width={800} // Set a reasonable width for aspect ratio
-              height={400} // Set a reasonable height for aspect ratio
-              className="rounded-md mb-4"
-            />
-              <h2 className="text-3xl font-bold mb-4 text-black">{selectedEvent.title}</h2>
-  
-              <div
-                className="text-gray-800 mb-4"
-                style={{ wordBreak: "break-word" }}
-                dangerouslySetInnerHTML={{
-                  __html: selectedEvent.description || "No description provided.",
-                }}
-              ></div>
-  
-              <p className="text-gray-800 mb-4">
-                <strong>Start Date:</strong> {moment(selectedEvent.start).format("MMMM Do, YYYY [at] h:mm A")}
-                <br />
-                {moment(selectedEvent.end).isSame(selectedEvent.start, 'day') ? (
-                  <><strong>Time:</strong> {moment(selectedEvent.start).format("h:mm A")} - {moment(selectedEvent.end).format("h:mm A")}</>
-                ) : (
-                  <>
-                    <strong>End Date:</strong> {moment(selectedEvent.end).format("MMMM Do, YYYY [at] h:mm A")}
-                  </>
-                )}
+            {selectedEvent.image && (
+              <Image
+                src={selectedEvent.image}
+                alt={selectedEvent.title}
+                layout="responsive"
+                width={800}
+                height={400}
+                className="rounded-md mb-4"
+              />
+            )}
+            <h2 className="text-3xl font-bold mb-4 text-black text-center">
+              {selectedEvent.title}
+            </h2>
+
+            <div
+              className="text-gray-700 mb-4 text-lg leading-relaxed"
+              dangerouslySetInnerHTML={{
+                __html: selectedEvent.description || "No description provided.",
+              }}
+            ></div>
+
+            <p className="text-gray-800 mb-4 text-center">
+              <strong>Start Date:</strong>{" "}
+              {moment(selectedEvent.start).format("MMMM Do, YYYY [at] h:mm A")}
+              <br />
+              {moment(selectedEvent.end).isSame(selectedEvent.start, "day") ? (
+                <>
+                  <strong>Time:</strong>{" "}
+                  {moment(selectedEvent.start).format("h:mm A")} -{" "}
+                  {moment(selectedEvent.end).format("h:mm A")}
+                </>
+              ) : (
+                <>
+                  <strong>End Date:</strong>{" "}
+                  {moment(selectedEvent.end).format("MMMM Do, YYYY [at] h:mm A")}
+                </>
+              )}
+              <br />
+                <strong>Location:</strong>{" "}
+                {selectedEvent.eventLocation || "No location provided."}
               </p>
-  
-              {/* Add to Calendar Buttons */}
-              <div className="flex space-x-4">
-                {/* Google Calendar */}
-                <a
-                  href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
-                    selectedEvent.title
-                  )}&dates=${moment.tz(selectedEvent.start, "America/Los_Angeles").utc().format(
-                    "YYYYMMDDTHHmmss[Z]"
-                  )}/${moment.tz(selectedEvent.end, "America/Los_Angeles").utc().format(
-                    "YYYYMMDDTHHmmss[Z]"
-                  )}&details=${encodeURIComponent(
-                    selectedEvent.description || "Event details not provided."
-                  )}&location=${encodeURIComponent("CSULB")}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-blue-500 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-600 transition"
-                >
-                  Add to Google Calendar
-                </a>
-  
-              </div>
-  
+
+            <div className="flex justify-center mt-6 space-x-4">
+              <a
+                href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
+                  selectedEvent.title
+                )}&dates=${moment
+                  .tz(selectedEvent.start, "America/Los_Angeles")
+                  .utc()
+                  .format("YYYYMMDDTHHmmss[Z]")}/${moment
+                  .tz(selectedEvent.end, "America/Los_Angeles")
+                  .utc()
+                  .format("YYYYMMDDTHHmmss[Z]")}&details=${encodeURIComponent(
+                  selectedEvent.description || "Event details not provided."
+                )}&location=${encodeURIComponent(selectedEvent.eventLocation || "CSULB")}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-blue-500 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-600 transition"
+              >
+                Add to Google Calendar
+              </a>
               <button
                 onClick={closeModal}
-                className="mt-4 inline-block bg-gray-700 text-white px-6 py-2 rounded-lg font-bold"
+                className="bg-gray-700 text-white px-6 py-2 rounded-lg font-bold hover:bg-gray-800 transition"
               >
                 Close
               </button>
             </div>
-          </Modal>
+          </motion.div>
+        </Modal>
       )}
 
       {/* Call to Action Section */}

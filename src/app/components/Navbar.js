@@ -20,11 +20,11 @@ const Navbar = () => {
   };
 
   const getLinkClass = (path) => {
-    return pathname === path ? 'text-acm-blue' : 'text-black';
+    return pathname.startsWith(path) ? 'text-acm-blue' : 'text-black';
   };
 
   const getMobileLinkClass = (path) => {
-    return pathname === path ? 'text-acm-yellow' : 'text-white';
+    return pathname.startsWith(path) ? 'text-acm-yellow' : 'text-white';
   };
 
   return (

@@ -1,9 +1,9 @@
 import moment from "moment-timezone";
 
 export default function handler(req, res) {
-  const { title, start, end, description } = req.query;
+  const { title, start, end, description, location } = req.query;
 
-  if (!title || !start || !end) {
+  if (!title || !start || !end || !location) {
     return res.status(400).json({ error: "Missing required parameters" });
   }
 
@@ -18,6 +18,7 @@ CALSCALE:GREGORIAN
 BEGIN:VEVENT
 SUMMARY:${title}
 DESCRIPTION:${description || ""}
+LOCATION:${location}
 DTSTART:${startUtc}
 DTEND:${endUtc}
 END:VEVENT

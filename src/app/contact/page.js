@@ -5,28 +5,40 @@ import { motion } from 'framer-motion'; // Import motion from framer-motion
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLinkedin, faInstagram, faXTwitter as faX, faDiscord } from '@fortawesome/free-brands-svg-icons'; // Import required icons
 import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
+import { RotatingLines } from "react-loader-spinner"; // Import spinner
 
 
 export default function Contact() {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [status, setStatus] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true); // Start loading
+    setStatus("");
     
-    const response = await fetch('/api/contact', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData),
-    });
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
 
-    if (response.ok) {
-      setStatus('Email sent successfully!');
-      setFormData({ name: '', email: '', message: '' });
-    } else {
-      setStatus('Failed to send the email.');
+      if (response.ok) {
+        setStatus("Email sent successfully!");
+        setFormData({ name: "", email: "", message: "" });
+      } else {
+        setStatus("Failed to send the email.");
+      }
+    } catch (error) {
+      setStatus("An error occurred. Please try again later.");
+    } finally {
+      setLoading(false); // End loading
     }
   };
+
+
 
   return (
     <div className="min-h-screen bg-white">
@@ -105,11 +117,15 @@ export default function Contact() {
             <div>
               <motion.button
                 type="submit"
-                className="w-full bg-acm-blue text-white py-2 rounded-lg font-semibold hover:bg-acm-yellow transition-colors duration-300"
-                whileHover={{ scale: 1.05 }} // Scale up on hover
-                whileTap={{ scale: 0.95 }} // Scale down on tap
+                className={`w-full bg-acm-blue text-white py-2 rounded-lg font-semibold hover:bg-acm-yellow transition-colors duration-300${
+                  loading
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-acm-blue hover:bg-acm-yellow"
+                }`}
+                whileHover={!loading ? { scale: 1.05 } : {}}
+                whileTap={!loading ? { scale: 0.95 } : {}}
               >
-                Send Message
+                {loading ? "Sending..." : "Send Message"}
               </motion.button>
             </div>
           </form>

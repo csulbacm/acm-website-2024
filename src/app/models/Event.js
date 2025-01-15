@@ -6,6 +6,7 @@ const EventSchema = new mongoose.Schema({
   startDate: { type: Date, required: true },
   endDate: { type: Date, required: true },
   allDay: { type: Boolean, default: false },
+  location: { type: String, required: true },
   image: String,
 });
 

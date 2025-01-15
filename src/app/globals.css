@@ -300,3 +300,43 @@ body{
 .team-content {
   margin-bottom: 10px;
 }
+/* Ensure proper rendering of Quill headers */
+.ql-editor h1,
+.ql-editor h2,
+.ql-editor h3,
+.ql-editor h4,
+.ql-editor h5,
+.ql-editor h6 {
+  margin: 1rem 0;
+  font-weight: bold;
+}
+
+.ql-editor h1 {
+  font-size: 2.25rem; /* Tailwind equivalent of text-4xl */
+}
+
+.ql-editor h2 {
+  font-size: 1.875rem; /* Tailwind equivalent of text-3xl */
+}
+
+.ql-editor h3 {
+  font-size: 1.5rem; /* Tailwind equivalent of text-2xl */
+}
+
+.ql-editor h4 {
+  font-size: 1.25rem; /* Tailwind equivalent of text-xl */
+}
+
+.ql-editor h5 {
+  font-size: 1.125rem; /* Tailwind equivalent of text-lg */
+}
+
+.ql-editor h6 {
+  font-size: 1rem; /* Tailwind equivalent of text-base */
+}
+
+/* Other paragraph and text spacing adjustments */
+.ql-editor p {
+  margin: 0.5rem 0;
+  line-height: 1.6;
+}
