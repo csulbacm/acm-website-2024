@@ -4,6 +4,7 @@ import { ObjectId } from 'mongodb';
 import jwt from 'jsonwebtoken';
 
 const SECRET_KEY = process.env.JWT_SECRET;
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {

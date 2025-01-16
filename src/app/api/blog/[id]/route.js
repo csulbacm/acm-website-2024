@@ -4,6 +4,8 @@ import { getAdminByEmail } from '../../../../../lib/admin';
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 
+export const dynamic = 'force-dynamic';
+
 const SECRET_KEY = process.env.JWT_SECRET;
 
 export async function GET(req, { params }) {

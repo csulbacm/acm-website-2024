@@ -5,6 +5,8 @@ import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 
 const SECRET_KEY = process.env.JWT_SECRET;
+export const dynamic = 'force-dynamic';
+
 
 export async function GET(req) {
   try {
