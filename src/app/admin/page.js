@@ -645,33 +645,33 @@ const EventsSection = ({ events, title, description, startDate, endDate, allDay,
 
       <h3 className="text-2xl font-semibold text-gray-800 mb-6 text-center">Event List</h3>
       <table className="w-full bg-white rounded-lg shadow-lg">
-        <thead className="bg-gray-100 text-gray-700 font-semibold">
+        <thead className="text-xs sm:text-base bg-gray-100 text-gray-700 font-semibold">
           <tr>
-            <th className="p-3 text-left">Select</th>
-            <th className="p-3 text-left">Title</th>
-            <th className="p-3 text-left">Date</th>
-            <th className="p-3 text-left">Location</th>
-            <th className="p-3 text-left">Actions</th>
+            <th className="p-1 sm:p-3 text-left">Select</th>
+            <th className="p-1 sm:p-3 text-left">Title</th>
+            <th className="p-1 sm:p-3 text-left">Date</th>
+            <th className="p-1 sm:p-3 text-left">Location</th>
+            <th className="p-1 sm:p-3 text-left">Actions</th>
           </tr>
         </thead>
         <tbody>
           {events.map((event) => (
             <tr key={event._id} className="border-b border-gray-200">
-              <td className="p-3">
+              <td className="p-1 sm:p-3">
                 <input
                   type="checkbox"
                   checked={selectedEvents.includes(event._id)}
                   onChange={() => handleSelectEvent(event._id)}
-                  className="w-5 h-5 text-blue-600 focus:ring-blue-400 border-gray-300 rounded"
+                  className="sm:w-5 sm:h-5 text-blue-600 focus:ring-blue-400 border-gray-300 rounded"
                 />
               </td>
-              <td className="p-3 text-gray-800 font-medium">{event.title}</td>
-              <td className="p-3 text-gray-600">{new Date(event.startDate).toLocaleDateString()}</td>
-              <td className="p-3 text-gray-800">{event.eventLocation || 'No Location'}</td>
-              <td className="p-3">
+              <td className="p-1 sm:p-3 text-xs sm:text-base text-gray-800 font-medium">{event.title}</td>
+              <td className="p-1 sm:p-3 text-xs sm:text-base text-gray-600">{new Date(event.startDate).toLocaleDateString()}</td>
+              <td className="p-1 sm:p-3 text-xs sm:text-base text-gray-800">{event.eventLocation || 'No Location'}</td>
+              <td className="p-1 sm:p-3">
                 <button
                   onClick={() => handleEditEvent(event)}
-                  className="text-blue-600 hover:underline font-semibold"
+                  className="text-xs sm:text-base text-blue-600 hover:underline font-semibold"
                 >
                   Edit
                 </button>
@@ -973,30 +973,30 @@ const BlogsSection = ({
 
       <h3 className="text-2xl font-semibold text-gray-800 mb-6 text-center">Blog Posts</h3>
       <table className="w-full bg-white rounded-lg shadow-lg">
-        <thead className="bg-gray-100 text-gray-700 font-semibold">
+        <thead className="bg-gray-100 text-xs sm:text-base text-gray-700 font-semibold">
           <tr>
-            <th className="p-3 text-left">Select</th>
-            <th className="p-3 text-left">Title</th>
-            <th className="p-3 text-left">Author</th>
-            <th className="p-3 text-left">Date</th>
-            <th className="p-3 text-left">Actions</th>
+            <th className="p-1 sm:p-3 text-left">Select</th>
+            <th className="p-1 sm:p-3 text-left">Title</th>
+            <th className="p-1 sm:p-3 text-left">Author</th>
+            <th className="p-1 sm:p-3 text-left">Date</th>
+            <th className="p-1 sm:p-3 text-left">Actions</th>
           </tr>
         </thead>
         <tbody>
           {blogs.map((blog) => (
             <tr key={blog._id} className="border-b border-gray-200">
-              <td className="p-3">
+              <td className="p-1 sm:p-3">
                 <input
                   type="checkbox"
                   checked={selectedBlogs.includes(blog._id)}
                   onChange={() => handleSelectBlog(blog._id)}
-                  className="w-5 h-5 text-blue-600 focus:ring-blue-400 border-gray-300 rounded"
+                  className="sm:w-5 sm:h-5 text-xs sm:text-base text-blue-600 focus:ring-blue-400 border-gray-300 rounded"
                 />
               </td>
-              <td className="p-3 text-gray-800 font-medium">{blog.title}</td>
-              <td className="p-3 text-gray-800">{blog.author || 'Unknown Author'}</td>
-              <td className="p-3 text-gray-600">{moment(blog.createdAt).format('LL')}</td>
-              <td className="p-3">
+              <td className="p-1 sm:p-3 text-xs sm:text-base text-gray-800 font-medium">{blog.title}</td>
+              <td className="p-1 sm:p-3 text-xs sm:text-base text-gray-800">{blog.author || 'Unknown Author'}</td>
+              <td className="p-1 sm:p-3 text-xs sm:text-base text-gray-600">{moment(blog.createdAt).format('LL')}</td>
+              <td className="p-1 sm:p-3 text-xs sm:text-base">
                 <button
                   onClick={() => handleEditBlog(blog)}
                   className="text-blue-600 hover:underline font-semibold"
