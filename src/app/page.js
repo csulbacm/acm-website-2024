@@ -316,7 +316,7 @@ export default function Events() {
 
       {/* Call to Action Section */}
       <motion.section
-        className="bg-white text-black py-20"
+        className="bg-white text-black py-20 mt-6"
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
