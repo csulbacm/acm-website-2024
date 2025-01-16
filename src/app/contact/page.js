@@ -151,7 +151,7 @@ export default function Contact() {
             <a href="https://discord.gg/TG2CRQNdQt" target="_blank" rel="noopener noreferrer" className="text-acm-blue hover:text-acm-yellow transition-colors duration-300">
               <FontAwesomeIcon icon={faDiscord} className="text-2xl" />
             </a>
-            <a href="mailto:acm@csulb.edu" className="text-acm-blue hover:text-acm-yellow transition-colors duration-300">
+            <a href="mailto:chair@csulb.acm.org" className="text-acm-blue hover:text-acm-yellow transition-colors duration-300">
               <FontAwesomeIcon icon={faEnvelope} className="text-2xl" />
             </a>
           </div>
