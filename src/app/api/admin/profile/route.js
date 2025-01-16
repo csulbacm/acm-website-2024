@@ -62,7 +62,7 @@ export async function PUT(req) {
         return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 });
       }
 
-      return NextResponse.json({ message: 'Profile updated successfully', data: updatedAdmin }, { status: 200 });
+      return NextResponse.json({ message: 'Profile updated successfully'}, { status: 200 });
     }
 
     return NextResponse.json({ error: 'Invalid data' }, { status: 400 });

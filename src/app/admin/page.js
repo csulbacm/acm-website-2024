@@ -94,7 +94,6 @@ export default function AdminPage() {
 
     const handleProfileUpdate = async (e) => {
       e.preventDefault();
-      e.preventDefault();
       setLoading(true);
       setError('');
       setSuccess('');
@@ -553,9 +552,9 @@ const formats = [
 ];
 // Events Section Component
 const EventsSection = ({ events, title, description, startDate, endDate, allDay, eventLocation, image, setTitle, setDescription, setStartDate, setEndDate, setAllDay, setEventLocation, setImage, handleSubmit, handleEditEvent, handleDeleteSelected, handleSelectEvent, selectedEvents, resetForm, editingEvent }) => (
-  <div className="flex flex-col-reverse lg:flex-row lg:space-x-8 items-center lg:items-start">
+  <div className="flex flex-col-reverse lg:flex-row lg:space-x-8 items-center lg:items-start justify-center items-center">
     {/* Event Form */}
-    <div className="lg:w-1/2 bg-white shadow-md rounded-lg p-8 space-y-6 border border-gray-200">
+    <div className="w-full sm:w-[90%] lg:w-[75%] bg-white shadow-md rounded-lg p-4 sm:p-6 space-y-4 sm:space-y-6 border border-gray-200">
       <h2 className="text-3xl font-bold text-gray-900 text-center">Manage Events</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <label className="block text-lg font-semibold text-gray-700">Title</label>
@@ -749,9 +748,9 @@ const ProfileSection = ({
   setName, setTitleProfile, setLinkedin, setGithub, setWebsite,
   setProfileImage, handleProfileUpdate, handleImageChange
 }) => (
-  <div className="flex flex-col-reverse lg:flex-row lg:space-x-8">
+  <div className="flex flex-col-reverse lg:flex-row lg:space-x-8 justify-center items-center">
     {/* Profile Form */}
-    <div className="lg:w-1/2 bg-white shadow-md rounded-lg p-8 space-y-6 border border-gray-200">
+    <div className="w-full sm:w-[90%] lg:w-[75%] bg-white shadow-md rounded-lg p-4 sm:p-6 space-y-4 sm:space-y-6 border border-gray-200">
       <h2 className="text-3xl font-bold text-gray-900 text-center">Update Profile</h2>
       <form onSubmit={handleProfileUpdate} className="space-y-4">
         <label className="block text-lg font-semibold text-gray-700">Name</label>
@@ -912,9 +911,9 @@ const BlogsSection = ({
   editingBlog,
   name
 }) => (
-  <div className="flex flex-col-reverse lg:flex-row lg:space-x-8 items-center lg:items-start">
+  <div className="flex flex-col-reverse lg:flex-row lg:space-x-8 items-center lg:items-start justify-center items-center">
     {/* Blog Form */}
-    <div className="lg:w-1/2 bg-white shadow-md rounded-lg p-8 space-y-6 border border-gray-200">
+    <div className="w-full sm:w-[90%] lg:w-[75%] bg-white shadow-md rounded-lg p-4 sm:p-6 space-y-4 sm:space-y-6 border border-gray-200">
       <h2 className="text-3xl font-bold text-gray-900 text-center">
         {editingBlog ? 'Edit Blog Post' : 'Create Blog Post'}
       </h2>
