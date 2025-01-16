@@ -5,14 +5,16 @@ import { motion } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLinkedin, faGithub } from '@fortawesome/free-brands-svg-icons';
 import { faEnvelope, faGlobe } from '@fortawesome/free-solid-svg-icons';
+import { RotatingLines } from "react-loader-spinner";
 
 export default function About() {
   const [officers, setOfficers] = useState([]); // Initialize as an empty array
-  const [isLoaded, setIsLoaded] = useState(false); // Track if officers data has loaded
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null); // Track errors
 
   useEffect(() => {
     const fetchOfficers = async () => {
+      setLoading(true);
       try {
         // Fetch from the correct endpoint to get all officers
         const response = await fetch('/api/about/officers');
@@ -22,13 +24,15 @@ export default function About() {
 
         if (Array.isArray(data)) {
           setOfficers(data); // Set officers data if it's an array
-          setIsLoaded(true); // Set loaded state to true after data is fetched
         } else {
           throw new Error('Unexpected data format');
         }
       } catch (error) {
         console.error('Error fetching officers:', error);
         setError(error.message);
+      } finally {
+        // End loading once the fetch is complete or fails
+        setLoading(false);
       }
     };
 
@@ -84,11 +88,27 @@ export default function About() {
       <motion.section
         className="our-team-section py-12"
         initial={{ opacity: 0, y: 50 }}
-        animate={isLoaded ? { opacity: 1 } : { opacity: 0 }}
+        animate={!loading ? { opacity: 1, y: 0 } : { opacity: 0 }}
         transition={{ duration: 0.5 }}
       >
         <div className="container mx-auto text-center">
           <h2 className="text-3xl font-bold text-black">Meet Our Officers</h2>
+          {loading ? (
+            <div className="flex justify-center items-center col-span-full h-80">
+              <RotatingLines
+                visible={true}
+                height="50"
+                width="50"
+                color="grey"
+                strokeColor="grey"
+                strokeWidth="5"
+                animationDuration="0.75"
+                ariaLabel="rotating-lines-loading"
+              />
+            </div>
+          ) : error ? (
+            <p className="text-red-500 mt-8">{error}</p>
+          ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8 text-gray-900 text-xl">
             {officers.map((officer, index) => (
               <div key={index} className="our-team border-solid border-2 border-black shadow-lg">
@@ -128,10 +148,11 @@ export default function About() {
                       </a>
                     </li>
                   )}
-                </ul>
-              </div>
-            ))}
-          </div>
+                  </ul>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </motion.section>
     </div>
