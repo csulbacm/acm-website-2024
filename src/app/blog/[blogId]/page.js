@@ -5,42 +5,49 @@ import { RotatingLines } from "react-loader-spinner";
 import 'react-quill/dist/quill.snow.css';
 
 export default function BlogDetails({ params }) {
-  const { blogId } = params; // Destructure blogId from params
+  const { blogId } = params;
   const [blog, setBlog] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [views, setViews] = useState(0); // Track views locally
-  const [upvotes, setUpvotes] = useState(0); // Track upvotes
-  const [hasUpvoted, setHasUpvoted] = useState(false); // Track if the user has upvoted
+  const [views, setViews] = useState(0);
+  const [upvotes, setUpvotes] = useState(0);
+  const [hasUpvoted, setHasUpvoted] = useState(false);
 
   useEffect(() => {
     const fetchBlog = async () => {
-      setLoading(true); // Start loading
+      setLoading(true);
       try {
+        // Fetch blog data
         const response = await fetch(`/api/blog/${blogId}`);
-        if (!response.ok) {
-          throw new Error("Failed to fetch blog");
-        }
+        if (!response.ok) throw new Error("Failed to fetch blog");
         const data = await response.json();
-        setBlog(data);
-        setViews(data.views || 0); // Initialize views
-        setUpvotes(data.upvotes || 0); // Initialize upvotes
 
-        // Check if the user has already upvoted based on their IP
-        const upvoteCheckResponse = await fetch(`/api/blog/${blogId}/upvote-check`);
-        if (upvoteCheckResponse.ok) {
-          const { hasUpvoted } = await upvoteCheckResponse.json();
-          setHasUpvoted(hasUpvoted); // Update local state
+        // Initialize state
+        setBlog(data);
+        setViews(data.views || 0);
+        setUpvotes(data.upvotes || 0);
+
+        // Check upvote status (cookie + IP)
+        const upvoteCheckRes = await fetch(
+          `/api/blog/${blogId}/upvote-check`,
+          { credentials: "include" }
+        );
+        if (upvoteCheckRes.ok) {
+          const { hasUpvoted } = await upvoteCheckRes.json();
+          setHasUpvoted(hasUpvoted);
         }
 
-        // Increment views
-        const viewResponse = await fetch(`/api/blog/${blogId}/view`, { method: "POST" });
-        if (viewResponse.ok) {
-          setViews((prev) => prev + 1); // Optimistically update views locally
+        // Increment view count
+        const viewRes = await fetch(
+          `/api/blog/${blogId}/view`,
+          { method: "POST", credentials: "include" }
+        );
+        if (viewRes.ok) {
+          setViews(prev => prev + 1);
         }
       } catch (error) {
         console.error("Error fetching blog:", error);
       } finally {
-        setLoading(false); // End loading
+        setLoading(false);
       }
     };
 
@@ -48,35 +55,34 @@ export default function BlogDetails({ params }) {
   }, [blogId]);
 
   const handleUpvote = async () => {
+    if (hasUpvoted) {
+      alert("You’ve already upvoted this blog!");
+      return;
+    }
+
+    // Optimistic UI update
+    setUpvotes(prev => prev + 1);
+    setHasUpvoted(true);
+
     try {
-      if (hasUpvoted) {
-        alert("You have already upvoted this blog!");
-        return;
-      }
-  
-      // Optimistically update the UI
-      setUpvotes((prev) => prev + 1);
-      setHasUpvoted(true);
-  
-      const response = await fetch(`/api/blog/${blogId}/upvote`, {
-        method: "POST",
-      });
-  
-      if (!response.ok) {
-        const errorData = await response.json();
+      const res = await fetch(
+        `/api/blog/${blogId}/upvote`,
+        {
+          method: "POST",
+          credentials: "include"
+        }
+      );
+      if (!res.ok) {
+        const errorData = await res.json();
         throw new Error(errorData.error || "Failed to upvote");
       }
-  
-      // If backend updates are successful, no need to adjust since UI already reflects the change
     } catch (error) {
-      console.error("Error upvoting the blog:", error.message);
-  
-      // Revert UI update only if an error occurs
-      setUpvotes((prev) => Math.max(prev - 1, 0)); // Ensure it doesn't go below zero
+      console.error("Error upvoting the blog:", error);
+      // Revert UI on failure
+      setUpvotes(prev => Math.max(prev - 1, 0));
       setHasUpvoted(false);
     }
   };
-  
 
   if (loading) {
     return (
@@ -108,11 +114,9 @@ export default function BlogDetails({ params }) {
       {/* Hero Section */}
       <div
         className="relative w-full h-64 bg-cover bg-center flex items-center justify-center"
-        style={{
-          backgroundImage: `url(${blog.image || "/default-bg.jpg"})`,
-        }}
+        style={{ backgroundImage: `url(${blog.image || "/default-bg.jpg"})` }}
       >
-        <div className="absolute inset-0 bg-black opacity-50"></div>
+        <div className="absolute inset-0 bg-black opacity-50" />
         <h1 className="relative text-white text-5xl font-bold text-center px-4">
           {blog.title}
         </h1>
@@ -121,13 +125,13 @@ export default function BlogDetails({ params }) {
       {/* Content Section */}
       <div className="max-w-7xl mx-auto p-6 bg-white rounded-lg shadow-md mt-6">
         <p className="text-gray-500 text-sm mb-4">
-          <strong>Author:</strong> {blog.author} | <strong>Views:</strong> {views} |{" "}
+          <strong>Author:</strong> {blog.author} | <strong>Views:</strong> {views} |{' '}
           <strong>Published:</strong> {new Date(blog.createdAt).toLocaleDateString()}
         </p>
         <div
           className="text-lg text-gray-800 leading-relaxed mb-6 ql-editor"
           dangerouslySetInnerHTML={{ __html: blog.content }}
-        ></div>
+        />
 
         {/* Action Buttons */}
         <div className="flex items-center space-x-4">
@@ -145,7 +149,7 @@ export default function BlogDetails({ params }) {
           <span className="text-lg font-semibold text-gray-700">Upvotes: {upvotes}</span>
         </div>
 
-        {/* Back to Blog Page Button */}
+        {/* Back Button */}
         <div className="mt-6">
           <a
             href="/blog"
