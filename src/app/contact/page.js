@@ -142,7 +142,7 @@ export default function Contact() {
             <a href="https://x.com/csulbacm" target="_blank" rel="noopener noreferrer" className="text-acm-blue hover:text-acm-yellow transition-colors duration-300">
               <FontAwesomeIcon icon={faX} className="text-2xl" />
             </a>
-            <a href="https://www.linkedin.com/company/csulbacm/" target="_blank" rel="noopener noreferrer" className="text-acm-blue hover:text-acm-yellow transition-colors duration-300">
+            <a href="https://www.linkedin.com/company/acm-at-csulb/" target="_blank" rel="noopener noreferrer" className="text-acm-blue hover:text-acm-yellow transition-colors duration-300">
               <FontAwesomeIcon icon={faLinkedin} className="text-2xl" />
             </a>
             <a href="https://www.instagram.com/csulbacm/" target="_blank" rel="noopener noreferrer" className="text-acm-blue hover:text-acm-yellow transition-colors duration-300">
