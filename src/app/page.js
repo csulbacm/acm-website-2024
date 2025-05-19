@@ -3,6 +3,8 @@
 import { motion } from 'framer-motion'; // Import motion
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import SimpleBar from 'simplebar-react';
+import 'simplebar-react/dist/simplebar.min.css';
 import { Calendar, momentLocalizer, Views } from 'react-big-calendar';
 import moment from 'moment-timezone';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
@@ -202,7 +204,7 @@ export default function Events() {
       >
         <div className="container mx-auto text-center">
           <h2 className="text-3xl font-bold text-black text-start mb-12">Upcoming Events</h2>
-          <div className="bg-white p-6 rounded-lg shadow-lg overflow-x-auto">
+          <SimpleBar forceVisible="x" autoHide={false} className="bg-white p-6 rounded-lg shadow-lg">
             <div className="min-w-[1200px]">
               <Calendar
                 localizer={localizer}
@@ -221,7 +223,7 @@ export default function Events() {
                 popup={true}
               />
             </div>
-          </div>
+          </SimpleBar>
         </div>
       </motion.section>
 
