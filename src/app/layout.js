@@ -1,46 +1,59 @@
-import './globals.css'; // Import global styles
+import './globals.css';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 
 export const metadata = {
   title: 'ACM at CSULB',
-  description: 'Official website for ACM at CSULB',
+  description: 'Join ACM at CSULB — California State University, Long Beach’s largest student organization for computer science. Explore events, resources, and collaboration opportunities.',
+
   openGraph: {
     title: 'ACM at CSULB',
-    description: 'Join the Association for Computing Machinery at CSULB, the largest student organization for computer science students.',
-    url: 'https://acm-website-2024-two.vercel.app/',
+    description: 'Association for Computing Machinery at CSULB: workshops, hackathons, networking, and more.',
+    url: 'https://acmcsulb.com',
+    siteName: 'ACM at CSULB',
     type: 'website',
     images: [
       {
-        url: '/images/acm-csulb-svg',
-        width: 800,
-        height: 600,
+        url: 'https://www.acmcsulb.com/_next/static/media/acm-csulb.86b72584.svg',
+        width: 1200,
+        height: 630,
         alt: 'ACM at CSULB Logo',
       },
     ],
   },
 
-  // Canonical URL to avoid duplicate content issues
   alternates: {
-    canonical: 'https://acm-website-2024-two.vercel.app/',
+    canonical: 'https://acmcsulb.com/',
   },
 
-  // Keywords for SEO
-  keywords: ['ACM', 'CSULB', 'Computer Science', 'Club', 'Association for Computing Machinery'],
+  keywords: [
+    'ACM',
+    'Association for Computing Machinery',
+    'CSULB',
+    'California State University, Long Beach',
+    'Computer Science Club',
+    'CSULB ACM',
+    'Computer Science',
+    'Student Organization',
+    'Workshops',
+    'Hackathons',
+    'Networking',
+    'BeachHacks'
+  ],
 
-  // Robots meta tag to control how search engines crawl and index the page
   robots: {
     index: true,
     follow: true,
+    'max-snippet': -1,
+    'max-image-preview': 'large',
+    'max-video-preview': -1,
   },
 
-  // Language and region
-  language: 'en-US',
-  
-  // Author meta tag
-  authors: [{ name: 'Charles Milton', url: 'https://chuckmilton.com/' }],
+  authors: [
+    { name: 'Charles Milton', url: 'https://chuckmilton.com' },
+  ],
 
-  // Charset meta tag (important for encoding)
+  language: 'en-US',
   charset: 'UTF-8',
 };
 
@@ -55,18 +68,11 @@ export default function RootLayout({ children }) {
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
         <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png" />
         <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png" />
-        
-        {/* Web Manifest */}
         <link rel="manifest" href="/site.webmanifest" />
       </head>
       <body className="min-h-screen bg-gray-50" id="__next">
-        {/* Navbar */}
         <Navbar />
-        
-        {/* Main Content */}
         <main>{children}</main>
-        
-        {/* Footer */}
         <Footer />
       </body>
     </html>
