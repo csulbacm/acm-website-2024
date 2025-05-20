@@ -210,6 +210,9 @@ export default function Events() {
             <div className="flex flex-col sm:flex-row items-center gap-4">
               <input
                 type="email"
+                id="email"
+                name="email"
+                required
                 placeholder="Your email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
