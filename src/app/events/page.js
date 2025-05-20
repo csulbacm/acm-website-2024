@@ -19,6 +19,10 @@ export default function Events() {
   const [currentView, setCurrentView] = useState(Views.MONTH);
   const [date, setDate] = useState(new Date());
 
+  // subscription form state
+  const [email, setEmail] = useState('');
+  const [subStatus, setSubStatus] = useState('');
+
   useEffect(() => {
     const fetchEvents = async () => {
       try {
@@ -76,6 +80,24 @@ export default function Events() {
   };
 
   const goToToday = () => setDate(new Date());
+
+  const handleSubscribe = async () => {
+    if (!email) return setSubStatus('Please enter your email');
+    setSubStatus('...');
+    try {
+      const res = await fetch('/api/subscribers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      if (!res.ok) throw new Error('subscribe failed');
+      setSubStatus('Subscribed! ✅');
+      setEmail('');
+    } catch {
+      setSubStatus('Subscription failed. Try again.');
+    }
+    setTimeout(() => setSubStatus(''), 4000);
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -166,6 +188,50 @@ export default function Events() {
           </div>
         </SimpleBar>
       </motion.section>
+
+      {/* subscription form */}
+      <section className="container mx-auto py-8 px-6 md:px-0">
+        <div className="max-w-2xl mx-auto bg-white shadow-lg rounded-2xl p-8 flex flex-col sm:flex-row items-center gap-6">
+          {/* Logo (optional) */}
+          <div className="hidden sm:block flex-shrink-0">
+            <img
+              src="/images/acm-csulb.png"
+              alt="ACM Logo"
+              className="w-16 h-16 object-contain"
+            />
+          </div>
+
+          <div className="flex-1 w-full">
+            <h2 className="text-2xl font-bold mb-2 text-black">Get Event Updates</h2>
+            <p className="text-gray-700 mb-4">
+              Stay in the loop—never miss a workshop, hackathon, or meetup!
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <input
+                type="email"
+                placeholder="Your email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                className="flex-1 w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-acm-blue text-gray-700"
+              />
+              <motion.button
+                onClick={handleSubscribe}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-acm-blue transition px-6 py-2 rounded-lg font-bold text-white whitespace-nowrap"
+              >
+                Subscribe
+              </motion.button>
+            </div>
+
+            {subStatus && (
+              <p className="mt-3 text-sm text-green-600">{subStatus}</p>
+            )}
+          </div>
+        </div>
+      </section>
+
 
       {/* Modal */}
       {selectedEvent && modalIsOpen && (
