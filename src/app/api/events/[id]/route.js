@@ -38,7 +38,7 @@ export async function PUT(req, { params }) {
 
     // Prepare email content
     const subject = `Updated Event: ${updatedEvent.title}`;
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+    const baseUrl = 'https://acmcsulb.com';
     const logoUrl = `${baseUrl}/images/acm-csulb.png`;
     const eventImage = updatedEvent.image
   ? `${baseUrl}${updatedEvent.image}`        // if event.image is a path like `/uploads/…`

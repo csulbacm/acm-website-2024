@@ -47,7 +47,7 @@ export async function POST(req) {
 
     // Prepare email content
     const subject = `New Event: ${event.title}`;
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+    const baseUrl = 'https://acmcsulb.com';
     const logoUrl = `${baseUrl}/images/acm-csulb.png`;
     const eventImage = `${baseUrl}${event.image}` || null;
     const htmlContent = `
