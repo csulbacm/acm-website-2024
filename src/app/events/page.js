@@ -81,8 +81,19 @@ export default function Events() {
 
   const goToToday = () => setDate(new Date());
 
-  const handleSubscribe = async () => {
-    if (!email) return setSubStatus('Please enter your email');
+  const handleSubscribe = async (e) => {
+    e.preventDefault();
+    
+    // grab the form element
+    const form = e.target;
+    
+    // if HTML5 validity fails, show the browser errors and bail
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+    
+    // at this point email is non-empty and valid
     setSubStatus('...');
     try {
       const res = await fetch('/api/subscribers', {
@@ -207,7 +218,11 @@ export default function Events() {
               Stay in the loop—never miss a workshop, hackathon, or meetup!
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center gap-4">
+            <form 
+              onSubmit={handleSubscribe} 
+              className="flex flex-col sm:flex-row items-center gap-4" 
+              noValidate
+            >
               <input
                 type="email"
                 id="email"
@@ -220,14 +235,13 @@ export default function Events() {
               />
               <motion.button
                 type="submit"
-                onClick={handleSubscribe}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="bg-acm-blue transition px-6 py-2 rounded-lg font-bold text-white whitespace-nowrap"
               >
                 Subscribe
               </motion.button>
-            </div>
+            </form>
 
             {subStatus && (
               <p className="mt-3 text-sm text-green-600">{subStatus}</p>
