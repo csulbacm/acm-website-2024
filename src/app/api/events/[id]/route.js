@@ -40,9 +40,16 @@ export async function PUT(req, { params }) {
     const subject = `Updated Event: ${updatedEvent.title}`;
     const baseUrl = 'https://acmcsulb.com';
     const logoUrl = `${baseUrl}/images/acm-csulb.png`;
-    const eventImage = updatedEvent.image
-  ? `${baseUrl}${updatedEvent.image}`        // if event.image is a path like `/uploads/…`
-  : null;
+    let eventImage = null;
+      if (updatedEvent.image) {
+        if (updatedEvent.image.startsWith("data:") || updatedEvent.image.startsWith("http")) {
+          // already a data URI or full URL
+          eventImage = updatedEvent.image;
+        } else {
+          // a relative path on your site
+          eventImage = `${baseUrl}${updatedEvent.image}`; 
+        }
+      }
     const htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width:600px; margin:auto; padding:20px;">
         <div style="text-align:center; margin-bottom:20px;">

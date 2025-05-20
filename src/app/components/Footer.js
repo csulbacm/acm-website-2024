@@ -21,7 +21,7 @@ const Footer = () => {
             <FontAwesomeIcon icon={faX} className="text-lg h-8" />
           </a>
           <a 
-            href="https://www.linkedin.com/company/csulbacm/" 
+            href="https://www.linkedin.com/company/acm-at-csulb/" 
             target="_blank" 
             rel="noopener noreferrer" 
             className="transition-transform transform hover:scale-110"

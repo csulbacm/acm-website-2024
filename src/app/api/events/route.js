@@ -49,7 +49,16 @@ export async function POST(req) {
     const subject = `New Event: ${event.title}`;
     const baseUrl = 'https://acmcsulb.com';
     const logoUrl = `${baseUrl}/images/acm-csulb.png`;
-    const eventImage = `${baseUrl}${event.image}` || null;
+    let eventImage = null;
+      if (event.image) {
+        if (event.image.startsWith("data:") || event.image.startsWith("http")) {
+          // already a data URI or full URL
+          eventImage = event.image;
+        } else {
+          // a relative path on your site
+          eventImage = `${baseUrl}${event.image}`; 
+        }
+      }
     const htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width:600px; margin:auto; padding:20px;">
         <div style="text-align:center; margin-bottom:20px;">
