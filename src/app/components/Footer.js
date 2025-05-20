@@ -18,7 +18,7 @@ const Footer = () => {
             rel="noopener noreferrer" 
             className="transition-transform transform hover:scale-110"
           >
-            <FontAwesomeIcon icon={faX} className="text-lg h-8" />
+            <FontAwesomeIcon icon={faX} className="text-lg h-6" />
           </a>
           <a 
             href="https://www.linkedin.com/company/acm-at-csulb/" 
@@ -26,7 +26,7 @@ const Footer = () => {
             rel="noopener noreferrer" 
             className="transition-transform transform hover:scale-110"
           >
-            <FontAwesomeIcon icon={faLinkedin} className="text-lg h-8" />
+            <FontAwesomeIcon icon={faLinkedin} className="text-lg h-6" />
           </a>
           <a 
             href="https://www.instagram.com/csulbacm" 
@@ -34,7 +34,7 @@ const Footer = () => {
             rel="noopener noreferrer" 
             className="transition-transform transform hover:scale-110"
           >
-            <FontAwesomeIcon icon={faInstagram} className="text-lg h-8" />
+            <FontAwesomeIcon icon={faInstagram} className="text-lg h-6" />
           </a>
           <a 
             href="https://discord.gg/TG2CRQNdQt" 
@@ -42,7 +42,7 @@ const Footer = () => {
             rel="noopener noreferrer" 
             className="transition-transform transform hover:scale-110"
           >
-            <FontAwesomeIcon icon={faDiscord} className="text-lg h-8" />
+            <FontAwesomeIcon icon={faDiscord} className="text-lg h-6" />
           </a>
         </div>
       </div>
