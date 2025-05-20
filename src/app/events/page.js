@@ -219,6 +219,7 @@ export default function Events() {
                 className="flex-1 w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-acm-blue text-gray-700"
               />
               <motion.button
+                type="submit"
                 onClick={handleSubscribe}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
