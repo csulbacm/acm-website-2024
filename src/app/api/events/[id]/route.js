@@ -38,7 +38,7 @@ export async function PUT(req, { params }) {
 
     // Prepare email content
     const subject = `Updated Event: ${updatedEvent.title}`;
-    const baseUrl = 'https://acmcsulb.com';
+    const baseUrl = 'https://csulb.acm.org';
     const logoUrl = `${baseUrl}/images/acm-csulb.png`;
     let eventImage = null;
       if (updatedEvent.image) {
@@ -61,7 +61,7 @@ export async function PUT(req, { params }) {
         <p>${updatedEvent.description}</p>
         <p><strong>Date:</strong> ${new Date(updatedEvent.startDate).toLocaleString()}</p>
         <div style="text-align:center; margin-top:30px;">
-          <a href="https://acmcsulb.com/events" style="background-color:#00437b;color:#ffffff;padding:12px 24px;border-radius:4px;text-decoration:none;">View All Events</a>
+          <a href="https://csulb.acm.org/events" style="background-color:#00437b;color:#ffffff;padding:12px 24px;border-radius:4px;text-decoration:none;">View All Events</a>
         </div>
       </div>
     `;

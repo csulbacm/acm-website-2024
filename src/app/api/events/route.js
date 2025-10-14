@@ -47,7 +47,7 @@ export async function POST(req) {
 
     // Prepare email content
     const subject = `New Event: ${event.title}`;
-    const baseUrl = 'https://acmcsulb.com';
+    const baseUrl = 'https://csulb.acm.org';
     const logoUrl = `${baseUrl}/images/acm-csulb.png`;
     let eventImage = null;
       if (event.image) {
@@ -71,7 +71,7 @@ export async function POST(req) {
         <p><strong>Date:</strong> ${new Date(event.startDate).toLocaleString()}</p>
         <p><strong>Location:</strong> ${event.eventLocation || 'CSULB'}</p>
         <div style="text-align:center; margin-top:30px;">
-          <a href="https://acmcsulb.com/events" style="background-color:#00437b;color:#ffffff;padding:12px 24px;border-radius:4px;text-decoration:none;">View All Events</a>
+          <a href="https://csulb.acm.org/events" style="background-color:#00437b;color:#ffffff;padding:12px 24px;border-radius:4px;text-decoration:none;">View All Events</a>
         </div>
       </div>
     `;

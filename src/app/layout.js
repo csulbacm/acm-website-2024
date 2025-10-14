@@ -9,12 +9,12 @@ export const metadata = {
   openGraph: {
     title: 'ACM at CSULB',
     description: 'Association for Computing Machinery at CSULB: workshops, hackathons, networking, and more.',
-    url: 'https://acmcsulb.com',
+    url: 'https://csulb.acm.org',
     siteName: 'ACM at CSULB',
     type: 'website',
     images: [
       {
-        url: 'https://www.acmcsulb.com/_next/static/media/acm-csulb.86b72584.svg',
+        url: 'https://www.csulb.acm.org/_next/static/media/acm-csulb.86b72584.svg',
         width: 1200,
         height: 630,
         alt: 'ACM at CSULB Logo',
@@ -23,7 +23,7 @@ export const metadata = {
   },
 
   alternates: {
-    canonical: 'https://acmcsulb.com/',
+    canonical: 'https://csulb.acm.org/',
   },
 
   keywords: [
