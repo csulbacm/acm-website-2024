@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { createAdmin, getAdminByEmail } from '../../../../../lib/admin'; // Adjust the import path
+import { createAdmin, getAdminByEmail, isAdmin } from '../../../../../lib/admin'; // Adjust the import path
 import { cookies } from 'next/headers';
 
 const SECRET_KEY = process.env.JWT_SECRET;
@@ -19,8 +19,13 @@ export async function POST(req) {
   try {
     // Verify the token
     const decoded = jwt.verify(token, SECRET_KEY);
+    // Only admins can create users
+    const actorEmail = decoded?.email;
+    if (!actorEmail || !(await isAdmin(actorEmail))) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
     // Proceed with user registration
-    const { email, password } = await req.json();
+    const { email, password, role = 'editor' } = await req.json();
 
     // Validate input
     if (!email || !password) {
@@ -33,10 +38,10 @@ export async function POST(req) {
       return NextResponse.json({ error: 'User already exists' }, { status: 409 });
     }
 
-    // Hash the password
+  // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
-    // Create the new user with consistent field naming
-    await createAdmin({ email, hashedPassword });
+  // Create the new user with role
+  await createAdmin({ email, hashedPassword, role });
 
     return NextResponse.json({ message: 'User registered successfully' }, { status: 201 });
   } catch (error) {

@@ -2,6 +2,7 @@ import clientPromise from '../../../../lib/mongodb';
 import { NextResponse } from 'next/server';
 import { ObjectId } from 'mongodb';
 import jwt from 'jsonwebtoken';
+import { hasAnyRole } from '../../../../lib/admin';
 import { sendBrevoEmail } from '../../../../lib/brevo';
 
 const SECRET_KEY = process.env.JWT_SECRET;
@@ -31,7 +32,11 @@ export async function POST(req) {
   }
 
   try {
-    jwt.verify(token, SECRET_KEY);
+    const decoded = jwt.verify(token, SECRET_KEY);
+    const email = decoded.email;
+    if (!(await hasAnyRole(email, ['admin', 'editor']))) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     // Parse new event
     const event = await req.json();
@@ -100,7 +105,11 @@ export async function DELETE(req) {
   }
 
   try {
-    jwt.verify(token, SECRET_KEY);
+    const decoded = jwt.verify(token, SECRET_KEY);
+    const email = decoded.email;
+    if (!(await hasAnyRole(email, ['admin', 'editor']))) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     const { ids } = await req.json();
     const client = await clientPromise;
     const db = client.db('acmData');

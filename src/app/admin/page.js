@@ -45,9 +45,25 @@ export default function AdminPage() {
     const [blogImage, setBlogImage] = useState(null);
     const [editingBlog, setEditingBlog] = useState(null);
 
-    const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+  const [myRole, setMyRole] = useState('editor');
+  const [isAdmin, setIsAdmin] = useState(false);
+  // search queries per tab (except profile)
+  const [eventsQuery, setEventsQuery] = useState('');
+  const [blogsQuery, setBlogsQuery] = useState('');
+  const [usersQuery, setUsersQuery] = useState('');
+
+  // Users management (admin-only UI)
+  const [users, setUsers] = useState([]);
+  const [newUserEmail, setNewUserEmail] = useState('');
+  const [newUserPassword, setNewUserPassword] = useState('');
+  const [newUserRole, setNewUserRole] = useState('editor');
+  const [selectedUserIds, setSelectedUserIds] = useState([]);
+  const [showResetUserModal, setShowResetUserModal] = useState(false);
+  const [resetUserId, setResetUserId] = useState(null);
+  const [resetUserNewPassword, setResetUserNewPassword] = useState('');
 
     useEffect(() => {
       const checkAuth = async () => {
@@ -67,9 +83,21 @@ export default function AdminPage() {
           console.error('Error fetching blogs:', error);
         }
       };
+      const fetchRole = async () => {
+        try {
+          const res = await fetch('/api/admin/profile');
+          if (res.ok) {
+            const data = await res.json();
+            const role = data?.role || 'admin';
+            setMyRole(role);
+            setIsAdmin(role === 'admin');
+          }
+        } catch {}
+      };
       checkAuth();
       fetchEvents();
       fetchBlogs();
+      fetchRole();
     }, [router]);
     
 
@@ -84,6 +112,24 @@ export default function AdminPage() {
     };
 
     const handleTabClick = (tab) => setActiveTab(tab);
+
+    const fetchUsers = async () => {
+      try {
+        const res = await fetch('/api/admin/users');
+        if (res.ok) {
+          const data = await res.json();
+          setUsers(data.users || []);
+        }
+      } catch (e) {
+        // ignore; likely not an admin
+      }
+    };
+
+    useEffect(() => {
+      if (activeTab === 'users' && isAdmin) {
+        fetchUsers();
+      }
+    }, [activeTab, isAdmin]);
 
     const handleImageChange = (e) => {
       const file = e.target.files[0];
@@ -211,13 +257,9 @@ export default function AdminPage() {
       setImage(event.image);
       setEditingEvent(event);
     };
-        const handleLogout = async () => {
+  const handleLogout = async () => {
       await fetch('/api/auth/logout', { method: 'GET' });
       router.push('/login');
-    };
-
-    const handleRegister = async () => {
-      router.push('/register');
     };
 
     const handleChangePassword = async (e) => {
@@ -252,6 +294,116 @@ export default function AdminPage() {
       setLoading(false);
   }
 };
+
+    const handleCreateUser = async (e) => {
+      e.preventDefault();
+      setLoading(true);
+      setError('');
+      setSuccess('');
+      try {
+        const res = await fetch('/api/admin/users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: newUserEmail, password: newUserPassword, role: newUserRole })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to create user');
+        setNewUserEmail('');
+        setNewUserPassword('');
+        setNewUserRole('editor');
+        setSuccess('User created successfully');
+        fetchUsers();
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const handleDeleteUsers = async () => {
+      if (!selectedUserIds.length) return;
+      setLoading(true);
+      setError('');
+      setSuccess('');
+      try {
+        const res = await fetch('/api/admin/users', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids: selectedUserIds })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to delete users');
+        setSelectedUserIds([]);
+        setSuccess('User(s) deleted');
+        fetchUsers();
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const toggleSelectUser = (id) => {
+      setSelectedUserIds((prev) => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+    };
+
+    const handleUpdateRole = async (id, role) => {
+      setLoading(true);
+      setError('');
+      setSuccess('');
+      try {
+        const res = await fetch('/api/admin/users', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, role })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to update role');
+        setSuccess('Role updated');
+        fetchUsers();
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const handleResetPassword = (id) => {
+      setResetUserId(id);
+      setResetUserNewPassword('');
+      setShowResetUserModal(true);
+    };
+
+    const handleConfirmResetPassword = async (e) => {
+      e.preventDefault();
+      if (!resetUserId || !resetUserNewPassword) return;
+      setLoading(true);
+      setError('');
+      setSuccess('');
+      try {
+        const res = await fetch('/api/admin/users', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: resetUserId, newPassword: resetUserNewPassword })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to reset password');
+        setSuccess('Password reset');
+        setShowResetUserModal(false);
+        setResetUserId(null);
+        setResetUserNewPassword('');
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const handleCancelResetPassword = () => {
+      setShowResetUserModal(false);
+      setResetUserId(null);
+      setResetUserNewPassword('');
+    };
 
     const handleSubmitBlog = async (e) => {
       e.preventDefault();
@@ -410,11 +562,18 @@ export default function AdminPage() {
             <FontAwesomeIcon icon={faBlog} className="mr-2" />
             Blogs
           </button>
+          {isAdmin && (
+            <button
+              onClick={() => handleTabClick('users')}
+              className={`flex items-center px-4 py-2 rounded-md font-bold ${
+                activeTab === 'users' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'
+              }`}
+            >
+              Users
+            </button>
+          )}
         </div>
         <div className="flex flex-wrap space-x-4 pt-8 lg:pt-0 text-xs sm:text-base">
-          <button onClick={handleRegister} className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md">
-            Register New User
-          </button>
           <button onClick={() => setShowChangePasswordModal(true)} className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md">
             Change Password
           </button>
@@ -471,9 +630,11 @@ export default function AdminPage() {
         )}
 
         {/* Conditional Rendering Based on Selected Tab */}
-        {activeTab === 'events' ? (
+  {activeTab === 'events' ? (
           <EventsSection
             events={events}
+            searchTerm={eventsQuery}
+            setSearchTerm={setEventsQuery}
             title={title}
             description={description}
             startDate={startDate}
@@ -496,7 +657,7 @@ export default function AdminPage() {
             resetForm={resetForm}
             editingEvent={editingEvent}
           />
-        ) : activeTab === 'profile' ? (
+  ) : activeTab === 'profile' ? (
           <ProfileSection
             name={name}
             titleProfile={titleProfile}
@@ -513,10 +674,12 @@ export default function AdminPage() {
             handleProfileUpdate={handleProfileUpdate}
             handleImageChange={handleImageChange}
           />
-        ) : (
+        ) : activeTab === 'blogs' ? (
           <BlogsSection
             name={name}
             blogs={blogs}
+            searchTerm={blogsQuery}
+            setSearchTerm={setBlogsQuery}
             blogTitle={blogTitle}
             blogContent={blogContent}
             blogImage={blogImage}
@@ -531,7 +694,62 @@ export default function AdminPage() {
             resetBlogForm={resetBlogForm}
             editingBlog={editingBlog}
           />
-        )}
+    ) : activeTab === 'users' && isAdmin ? (
+          <UsersSection
+            users={users}
+            searchTerm={usersQuery}
+            setSearchTerm={setUsersQuery}
+            newUserEmail={newUserEmail}
+            newUserPassword={newUserPassword}
+            newUserRole={newUserRole}
+            setNewUserEmail={setNewUserEmail}
+            setNewUserPassword={setNewUserPassword}
+            setNewUserRole={setNewUserRole}
+            selectedUserIds={selectedUserIds}
+            toggleSelectUser={toggleSelectUser}
+            handleCreateUser={handleCreateUser}
+            handleDeleteUsers={handleDeleteUsers}
+      handleUpdateRole={handleUpdateRole}
+      handleResetPassword={handleResetPassword}
+          />
+  ) : null}
+
+      {/* Reset User Password Modal */}
+      {showResetUserModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+          <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">Reset User Password</h2>
+            <form onSubmit={handleConfirmResetPassword}>
+              <div className="space-y-4">
+                <label className="block text-lg font-semibold text-gray-700">New Password</label>
+                <input
+                  type="password"
+                  placeholder="Enter new password"
+                  value={resetUserNewPassword}
+                  onChange={(e) => setResetUserNewPassword(e.target.value)}
+                  required
+                  className="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+              </div>
+              <div className="flex justify-end space-x-4 mt-6">
+                <button
+                  type="button"
+                  onClick={handleCancelResetPassword}
+                  className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-md transition duration-200"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md transition duration-200"
+                >
+                  Reset Password
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
       </div>
     );
 }
@@ -550,8 +768,107 @@ const formats = [
   'header', 'bold', 'italic', 'underline', 'strike', 'list', 'bullet', 
   'link', 'color', 'background', 'align', 'image', 'video'
 ];
+// Users Section Component (admin-only UI)
+const UsersSection = ({
+  users,
+  searchTerm,
+  setSearchTerm,
+  newUserEmail,
+  newUserPassword,
+  newUserRole,
+  setNewUserEmail,
+  setNewUserPassword,
+  setNewUserRole,
+  selectedUserIds,
+  toggleSelectUser,
+  handleCreateUser,
+  handleDeleteUsers,
+  handleUpdateRole,
+  handleResetPassword,
+}) => {
+  const filtered = users.filter((u) => {
+    const q = (searchTerm || '').toLowerCase();
+    if (!q) return true;
+    return (
+      (u.email || '').toLowerCase().includes(q) ||
+      (u.role || '').toLowerCase().includes(q)
+    );
+  });
+  return (
+  <div className="bg-white p-6 rounded-lg shadow-lg">
+    <h2 className="text-2xl font-bold mb-4">Manage Users</h2>
+    <form onSubmit={handleCreateUser} className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <input value={newUserEmail} onChange={(e)=>setNewUserEmail(e.target.value)} type="email" placeholder="Email" className="border p-2 rounded" required />
+      <input value={newUserPassword} onChange={(e)=>setNewUserPassword(e.target.value)} type="password" placeholder="Temp Password" className="border p-2 rounded" required />
+      <select value={newUserRole} onChange={(e)=>setNewUserRole(e.target.value)} className="border p-2 rounded">
+        <option value="editor">Editor</option>
+        <option value="admin">Admin</option>
+      </select>
+      <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">Create</button>
+    </form>
+    {/* Search below create user controls */}
+    <div className="mb-4">
+      <input
+        value={searchTerm}
+        onChange={(e)=>setSearchTerm(e.target.value)}
+        placeholder="Search users..."
+        className="w-full p-2 border rounded"
+      />
+    </div>
+
+    <div className="overflow-x-auto">
+      <table className="min-w-full text-left text-sm">
+        <thead>
+          <tr>
+            <th className="p-2">Select</th>
+            <th className="p-2">Email</th>
+            <th className="p-2">Role</th>
+            <th className="p-2">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filtered.map((u) => (
+            <tr key={u._id} className="border-t">
+              <td className="p-2">
+                <input type="checkbox" checked={selectedUserIds.includes(u._id)} onChange={()=>toggleSelectUser(u._id)} />
+              </td>
+              <td className="p-2">{u.email}</td>
+              <td className="p-2">
+                <select
+                  value={u.role || 'admin'}
+                  onChange={(e)=>handleUpdateRole(u._id, e.target.value)}
+                  className="border p-1 rounded capitalize"
+                >
+                  <option value="editor">Editor</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </td>
+              <td className="p-2">
+                <button onClick={()=>handleResetPassword(u._id)} className="text-blue-600 hover:underline">Reset Password</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <div className="mt-4 flex gap-2">
+      <button onClick={handleDeleteUsers} className="bg-red-600 text-white px-4 py-2 rounded">Delete Selected</button>
+    </div>
+  </div>
+  );
+};
 // Events Section Component
-const EventsSection = ({ events, title, description, startDate, endDate, allDay, eventLocation, image, setTitle, setDescription, setStartDate, setEndDate, setAllDay, setEventLocation, setImage, handleSubmit, handleEditEvent, handleDeleteSelected, handleSelectEvent, selectedEvents, resetForm, editingEvent }) => (
+const EventsSection = ({ events, searchTerm, setSearchTerm, title, description, startDate, endDate, allDay, eventLocation, image, setTitle, setDescription, setStartDate, setEndDate, setAllDay, setEventLocation, setImage, handleSubmit, handleEditEvent, handleDeleteSelected, handleSelectEvent, selectedEvents, resetForm, editingEvent }) => {
+  const filtered = events.filter((e) => {
+    const q = (searchTerm || '').toLowerCase();
+    if (!q) return true;
+    return (
+      (e.title || '').toLowerCase().includes(q) ||
+      (e.description || '').toLowerCase().includes(q) ||
+      (e.eventLocation || '').toLowerCase().includes(q)
+    );
+  });
+  return (
   <div className="flex flex-col-reverse lg:flex-row lg:space-x-8 items-center lg:items-start justify-center items-center">
     {/* Event Form */}
     <div className="w-full sm:w-[90%] lg:w-[75%] bg-white shadow-md rounded-lg p-4 sm:p-6 space-y-4 sm:space-y-6 border border-gray-200">
@@ -643,8 +960,17 @@ const EventsSection = ({ events, title, description, startDate, endDate, allDay,
         </div>
       </form>
 
-      <h3 className="text-2xl font-semibold text-gray-800 mb-6 text-center">Event List</h3>
-      <table className="w-full bg-white rounded-lg shadow-lg">
+      <h3 className="text-2xl font-semibold text-gray-800 mb-2 text-center">Event List</h3>
+      {/* Search below list title */}
+      <div className="mb-4">
+        <input
+          value={searchTerm}
+          onChange={(e)=>setSearchTerm(e.target.value)}
+          placeholder="Search events..."
+          className="w-full p-2 border rounded"
+        />
+      </div>
+  <table className="w-full bg-white rounded-lg shadow-lg">
         <thead className="text-xs sm:text-base bg-gray-100 text-gray-700 font-semibold">
           <tr>
             <th className="p-1 sm:p-3 text-left">Select</th>
@@ -655,7 +981,7 @@ const EventsSection = ({ events, title, description, startDate, endDate, allDay,
           </tr>
         </thead>
         <tbody>
-          {events.map((event) => (
+          {filtered.map((event) => (
             <tr key={event._id} className="border-b border-gray-200">
               <td className="p-1 sm:p-3">
                 <input
@@ -700,6 +1026,7 @@ const EventsSection = ({ events, title, description, startDate, endDate, allDay,
         style={{ wordBreak: 'break-word' }}
       >
         {image && (
+          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={image}
             alt={title}
@@ -740,7 +1067,8 @@ const EventsSection = ({ events, title, description, startDate, endDate, allDay,
     </div>
 
   </div>
-);
+  );
+};
 
 
 const ProfileSection = ({
@@ -830,7 +1158,8 @@ const ProfileSection = ({
     "
   >
     <div className="picture mb-4">
-      <img
+  {/* eslint-disable-next-line @next/next/no-img-element */}
+  <img
         src={profileImage || '/images/default-profile.jpg'}
         alt={name || 'Default Name'}
         className="w-32 h-32 sm:w-40 sm:h-40 object-cover rounded-full mx-auto"
@@ -896,6 +1225,8 @@ const ProfileSection = ({
 
 const BlogsSection = ({
   blogs,
+  searchTerm,
+  setSearchTerm,
   blogTitle,
   blogContent,
   blogImage,
@@ -910,7 +1241,17 @@ const BlogsSection = ({
   resetBlogForm,
   editingBlog,
   name
-}) => (
+}) => {
+  const filtered = blogs.filter((b) => {
+    const q = (searchTerm || '').toLowerCase();
+    if (!q) return true;
+    return (
+      (b.title || '').toLowerCase().includes(q) ||
+      (b.author || '').toLowerCase().includes(q) ||
+      (b.content || '').toLowerCase().includes(q)
+    );
+  });
+  return (
   <div className="flex flex-col-reverse lg:flex-row lg:space-x-8 items-center lg:items-start justify-center items-center">
     {/* Blog Form */}
     <div className="w-full sm:w-[90%] lg:w-[75%] bg-white shadow-md rounded-lg p-4 sm:p-6 space-y-4 sm:space-y-6 border border-gray-200">
@@ -971,7 +1312,16 @@ const BlogsSection = ({
         </div>
       </form>
 
-      <h3 className="text-2xl font-semibold text-gray-800 mb-6 text-center">Blog Posts</h3>
+      <h3 className="text-2xl font-semibold text-gray-800 mb-2 text-center">Blog Posts</h3>
+      {/* Search below list title */}
+      <div className="mb-4">
+        <input
+          value={searchTerm}
+          onChange={(e)=>setSearchTerm(e.target.value)}
+          placeholder="Search blogs..."
+          className="w-full p-2 border rounded"
+        />
+      </div>
       <table className="w-full bg-white rounded-lg shadow-lg">
         <thead className="bg-gray-100 text-xs sm:text-base text-gray-700 font-semibold">
           <tr>
@@ -983,7 +1333,7 @@ const BlogsSection = ({
           </tr>
         </thead>
         <tbody>
-          {blogs.map((blog) => (
+          {filtered.map((blog) => (
             <tr key={blog._id} className="border-b border-gray-200">
               <td className="p-1 sm:p-3">
                 <input
@@ -1028,6 +1378,7 @@ const BlogsSection = ({
     style={{ wordBreak: 'break-word' }}
   >
     {blogImage && (
+      // eslint-disable-next-line @next/next/no-img-element
       <img
         src={blogImage}
         alt={blogTitle}
@@ -1054,4 +1405,5 @@ const BlogsSection = ({
 </div>
 
   </div>
-);
+  );
+};

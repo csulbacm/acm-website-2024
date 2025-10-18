@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getBlogById, updateBlog } from '../../../../../lib/blog';
-import { getAdminByEmail } from '../../../../../lib/admin';
+import { getAdminByEmail, hasAnyRole } from '../../../../../lib/admin';
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 
@@ -35,14 +35,10 @@ export async function PUT(req, { params }) {
     try {
       const decoded = jwt.verify(token, SECRET_KEY);
       const email = decoded.email;
-  
-      // Assuming the admin's name is stored in the token payload or fetched via `email`
-      const adminName = decoded.name || (await getAdminByEmail(email))?.name;
-  
-      if (!adminName) {
-        console.error("Admin name not found");
+      if (!(await hasAnyRole(email, ['admin', 'editor']))) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
       }
+      const adminName = decoded.name || (await getAdminByEmail(email))?.name;
   
       const blog = await getBlogById(id);
       if (!blog) {

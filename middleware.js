@@ -12,7 +12,9 @@ export function middleware(req) {
   }
 
   try {
-    jwt.verify(token, SECRET_KEY);
+  // Token can be an object (cookies) or string (header)
+  const t = typeof token === 'string' ? token : token.value;
+  jwt.verify(t, SECRET_KEY);
     return NextResponse.next(); // Allow access if token is valid
   } catch (error) {
     console.error('Token verification failed:', error.message);

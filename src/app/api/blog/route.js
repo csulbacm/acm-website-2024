@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createBlog, getAllBlogs, deleteBlogs } from '../../../../lib/blog';
-import { getAdminByEmail } from "../../../../lib/admin";
+import { getAdminByEmail, hasAnyRole } from "../../../../lib/admin";
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 
@@ -32,16 +32,16 @@ export async function POST(req) {
   }
 
   try {
-    const decoded = jwt.verify(token, SECRET_KEY);
-    const email = decoded.email;
+  const decoded = jwt.verify(token, SECRET_KEY);
+  const email = decoded.email;
 
-    const admin = await getAdminByEmail(email);
-    if (!admin) {
+  // allow admin or editor
+  if (!(await hasAnyRole(email, ['admin', 'editor']))) {
       console.error("Admin not found");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
-    const adminName = admin.name || "Unknown Author";
+  const admin = await getAdminByEmail(email);
+  const adminName = admin?.name || "Unknown Author";
 
     const blogData = await req.json();
     blogData.author = adminName;
@@ -70,15 +70,10 @@ export async function DELETE(req) {
   try {
     const decoded = jwt.verify(token, SECRET_KEY);
     const email = decoded.email;
-
-    // Retrieve admin's name from the database
-    const admin = await getAdminByEmail(email);
-    if (!admin) {
-      console.error('Admin not found');
+    if (!(await hasAnyRole(email, ['admin', 'editor']))) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const authorName = admin.name; // Use the admin's name
     const { ids } = await req.json();
 
     const deleteResult = await deleteBlogs(ids);

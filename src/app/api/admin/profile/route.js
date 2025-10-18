@@ -22,13 +22,15 @@ export async function GET() {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
-    const adminProfile = await getAdminByEmail(email);
+  const adminProfile = await getAdminByEmail(email);
 
     if (!adminProfile) {
       return NextResponse.json({ error: 'Admin not found' }, { status: 404 });
     }
 
-    return NextResponse.json(adminProfile, { status: 200 });
+  // Exclude sensitive fields like password
+  const { password, ...safeProfile } = adminProfile;
+  return NextResponse.json(safeProfile, { status: 200 });
   } catch (error) {
     console.error('Error fetching admin profile:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
