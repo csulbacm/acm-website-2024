@@ -110,7 +110,7 @@ export default function Blogs() {
 
       {/* Blog List */}
       <motion.section
-        className="container mx-auto pb-16 px-6 md:px-0 grid gap-8 md:grid-cols-3"
+        className="container mx-auto pb-16 px-6 md:px-0 grid gap-8 md:grid-cols-2 lg:grid-cols-3"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}

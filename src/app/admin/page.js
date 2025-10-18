@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -926,13 +927,13 @@ const EventsSection = ({ events, searchTerm, setSearchTerm, title, description, 
         </label>
 
         <label className="block text-lg font-semibold text-gray-700">Location</label>
-          <input
-            type="text"
-            value={eventLocation}
-            onChange={(e) => setEventLocation(e.target.value)}
-            className="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            required
-          />
+        <input 
+          type="text" 
+          value={eventLocation} 
+          onChange={(e) => setEventLocation(e.target.value)} 
+          className="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400" 
+          required 
+        />
 
 
   <label className="block text-lg font-semibold text-gray-700">Event Image</label>
@@ -1157,12 +1158,14 @@ const ProfileSection = ({
       sm:w-[500px] sm:h-[300px] /* for screens >= 640px        */
     "
   >
-    <div className="picture mb-4">
-  {/* eslint-disable-next-line @next/next/no-img-element */}
-  <img
+    <div className="picture relative w-full h-64">
+      <Image
         src={profileImage || '/images/default-profile.jpg'}
         alt={name || 'Default Name'}
-        className="w-32 h-32 sm:w-40 sm:h-40 object-cover rounded-full mx-auto"
+        fill
+        sizes="(max-width: 768px) 100vw, 33vw"
+        className="object-cover"
+        priority={false}
       />
     </div>
     <div className="team-content">
