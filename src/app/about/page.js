@@ -23,7 +23,14 @@ export default function About() {
         const data = await response.json();
 
         if (Array.isArray(data)) {
-          setOfficers(data); // Set officers data if it's an array
+          // Already sorted by API, but ensure stable order client-side
+          const sorted = [...data].sort((a,b)=>{
+            const ao = a.order ?? Number.MAX_SAFE_INTEGER;
+            const bo = b.order ?? Number.MAX_SAFE_INTEGER;
+            if (ao !== bo) return ao - bo;
+            return (a.name||'').localeCompare(b.name||'') || (a.email||'').localeCompare(b.email||'');
+          });
+          setOfficers(sorted);
           setIsLoaded(true); // Set loaded state to true after data is fetched
         } else {
           throw new Error('Unexpected data format');
@@ -111,7 +118,7 @@ export default function About() {
           {isLoaded && officers.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8 text-gray-900 text-xl">
               {officers.map((officer, index) => (
-                <div key={index} className="our-team border-solid border-2 border-black shadow-lg">
+                <div key={officer._id || index} className="our-team border-solid border-2 border-black shadow-lg">
                   <div className="picture relative w-full h-64">
                     <Image
                       src={officer.image || '/images/default-profile.jpg'}

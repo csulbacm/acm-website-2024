@@ -18,7 +18,7 @@ export async function GET(req) {
   try {
     const { email } = jwt.verify(token, SECRET_KEY);
     if (!(await isAdmin(email))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    const users = await listUsers();
+  const users = await listUsers();
     return NextResponse.json({ users });
   } catch (e) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

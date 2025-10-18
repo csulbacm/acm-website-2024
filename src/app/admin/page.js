@@ -58,6 +58,7 @@ export default function AdminPage() {
 
   // Users management (admin-only UI)
   const [users, setUsers] = useState([]);
+  const [userOrderDirty, setUserOrderDirty] = useState(false);
   const [newUserEmail, setNewUserEmail] = useState('');
   const [newUserPassword, setNewUserPassword] = useState('');
   const [newUserRole, setNewUserRole] = useState('editor');
@@ -114,12 +115,13 @@ export default function AdminPage() {
 
     const handleTabClick = (tab) => setActiveTab(tab);
 
-    const fetchUsers = async () => {
+  const fetchUsers = async () => {
       try {
         const res = await fetch('/api/admin/users');
         if (res.ok) {
           const data = await res.json();
           setUsers(data.users || []);
+      setUserOrderDirty(false);
         }
       } catch (e) {
         // ignore; likely not an admin
@@ -712,6 +714,25 @@ export default function AdminPage() {
             handleDeleteUsers={handleDeleteUsers}
       handleUpdateRole={handleUpdateRole}
       handleResetPassword={handleResetPassword}
+      setUsers={setUsers}
+      userOrderDirty={userOrderDirty}
+      setUserOrderDirty={setUserOrderDirty}
+      persistUserOrder={async (orderedIds)=>{
+        try {
+          const res = await fetch('/api/admin/users/reorder', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idOrder: orderedIds }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Failed to save order');
+          setUserOrderDirty(false);
+          // refresh users to reflect any server-side sort
+          await fetchUsers();
+        } catch (err) {
+          setError(err.message);
+        }
+      }}
           />
   ) : null}
 
@@ -786,6 +807,10 @@ const UsersSection = ({
   handleDeleteUsers,
   handleUpdateRole,
   handleResetPassword,
+  setUsers,
+  userOrderDirty,
+  setUserOrderDirty,
+  persistUserOrder,
 }) => {
   const filtered = users.filter((u) => {
     const q = (searchTerm || '').toLowerCase();
@@ -795,6 +820,32 @@ const UsersSection = ({
       (u.role || '').toLowerCase().includes(q)
     );
   });
+  // Drag and drop handlers
+  const onDragStart = (e, id) => {
+    e.dataTransfer.setData('text/plain', id);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+  const onDragOver = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+  const onDrop = (e, targetId) => {
+    e.preventDefault();
+    const draggedId = e.dataTransfer.getData('text/plain');
+    if (!draggedId || draggedId === targetId) return;
+    const current = [...users];
+    const fromIdx = current.findIndex(u => u._id === draggedId);
+    const toIdx = current.findIndex(u => u._id === targetId);
+    if (fromIdx === -1 || toIdx === -1) return;
+    const [moved] = current.splice(fromIdx, 1);
+    current.splice(toIdx, 0, moved);
+    setUsers(current);
+    setUserOrderDirty(true);
+  };
+  const saveOrder = async () => {
+    const ids = users.map(u => u._id);
+    await persistUserOrder(ids);
+  };
   return (
   <div className="bg-white p-6 rounded-lg shadow-lg">
     <h2 className="text-2xl font-bold mb-4">Manage Users</h2>
@@ -818,10 +869,19 @@ const UsersSection = ({
     </div>
 
     <div className="overflow-x-auto">
+      {userOrderDirty && (
+        <div className="mb-2 text-sm text-yellow-700">Order changed. Don&apos;t forget to save.</div>
+      )}
+      {userOrderDirty && (
+        <div className="mb-4">
+          <button onClick={saveOrder} className="px-3 py-2 rounded bg-blue-600 text-white">Save Order</button>
+        </div>
+      )}
       <table className="min-w-full text-left text-sm">
         <thead>
           <tr>
             <th className="p-2">Select</th>
+            <th className="p-2">Drag</th>
             <th className="p-2">Email</th>
             <th className="p-2">Role</th>
             <th className="p-2">Actions</th>
@@ -829,10 +889,18 @@ const UsersSection = ({
         </thead>
         <tbody>
           {filtered.map((u) => (
-            <tr key={u._id} className="border-t">
+            <tr
+              key={u._id}
+              className="border-t"
+              draggable
+              onDragStart={(e)=>onDragStart(e, u._id)}
+              onDragOver={onDragOver}
+              onDrop={(e)=>onDrop(e, u._id)}
+            >
               <td className="p-2">
                 <input type="checkbox" checked={selectedUserIds.includes(u._id)} onChange={()=>toggleSelectUser(u._id)} />
               </td>
+              <td className="p-2 cursor-move" title="Drag to reorder">↕</td>
               <td className="p-2">{u.email}</td>
               <td className="p-2">
                 <select

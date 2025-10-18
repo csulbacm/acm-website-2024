@@ -8,8 +8,15 @@ export async function GET() {
     const client = await clientPromise;
     const db = client.db('acmData');
 
-    // Retrieve all officer profiles from the "admins" collection
-    const officers = await db.collection('admins').find({}).toArray();
+    // Retrieve all officer profiles from the "admins" collection, sorted by custom order
+    const officers = await db
+      .collection('admins')
+      .aggregate([
+        { $addFields: { _orderSafe: { $ifNull: ["$order", 999999] } } },
+        { $sort: { _orderSafe: 1, name: 1, email: 1 } },
+        { $project: { _orderSafe: 0 } },
+      ])
+      .toArray();
 
     return NextResponse.json(officers, { status: 200 });
   } catch (error) {
