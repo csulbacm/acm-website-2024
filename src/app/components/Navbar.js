@@ -1,6 +1,6 @@
 "use client";
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
@@ -9,6 +9,7 @@ import logo from '../../../public/images/acm-csulb.svg'; // Adjust the path base
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false); // State to manage sidebar visibility
+  const [isAuthed, setIsAuthed] = useState(false);
   const pathname = usePathname();
 
   const toggleSidebar = () => {
@@ -18,6 +19,29 @@ const Navbar = () => {
   const closeSidebar = () => {
     setIsOpen(false);
   };
+
+  useEffect(() => {
+    let isMounted = true;
+    const check = async () => {
+      try {
+        const res = await fetch('/api/auth/verify', { method: 'GET', cache: 'no-store' });
+        if (!isMounted) return;
+        setIsAuthed(res.ok);
+      } catch {
+        if (!isMounted) return;
+        setIsAuthed(false);
+      }
+    };
+    check();
+    const handleFocus = () => check();
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleFocus);
+    return () => {
+      isMounted = false;
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleFocus);
+    };
+  }, [pathname]);
 
   const getLinkClass = (path) => {
     return pathname.startsWith(path) ? 'text-acm-blue' : 'text-black';
@@ -54,7 +78,9 @@ const Navbar = () => {
           <Link href="/blog" className={`mx-4 hover:text-acm-blue transition-colors duration-300 ${getLinkClass('/blog')}`}>Blog</Link>
           <Link href="/contact" className={`mx-4 hover:text-acm-blue transition-colors duration-300 ${getLinkClass('/contact')}`}>Contact</Link>
           <Link href="/sponsors" className={`mx-4 hover:text-acm-blue transition-colors duration-300 ${getLinkClass('/sponsors')}`}>Sponsors</Link>
-          <Link href="/login" className={loginBtnClasses}> Member Login </Link>
+          <Link href={isAuthed ? "/admin" : "/login"} className={loginBtnClasses}>
+            {isAuthed ? 'Dashboard' : 'Member Login'}
+          </Link>
         </div>
         <div className="md:hidden"> {/* Hamburger Menu Icon */}
           {!isOpen && ( // Only show the hamburger icon when the sidebar is closed
@@ -76,7 +102,9 @@ const Navbar = () => {
           <Link href="/blog" className={`hover:text-acm-yellow transition-colors duration-300 py-5 font-bold text-xl ${getMobileLinkClass('/blog')}`} onClick={closeSidebar}>Blog</Link>
           <Link href="/contact" className={`hover:text-acm-yellow transition-colors duration-300 py-5 font-bold text-xl ${getMobileLinkClass('/contact')}`} onClick={closeSidebar}>Contact</Link>
           <Link href="/sponsors" className={`hover:text-acm-yellow transition-colors duration-300 py-5 font-bold text-xl ${getMobileLinkClass('/sponsors')}`} onClick={closeSidebar}>Sponsors</Link>
-           <Link href="/login" className={mobileLoginBtnClasses} onClick={closeSidebar}>Member Login</Link>
+           <Link href={isAuthed ? "/admin" : "/login"} className={mobileLoginBtnClasses} onClick={closeSidebar}>
+             {isAuthed ? 'Dashboard' : 'Member Login'}
+           </Link>
         </div>
       </div>
     </header>

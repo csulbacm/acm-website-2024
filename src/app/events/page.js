@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import useSWR from 'swr';
 import SimpleBar from 'simplebar-react';
 import 'simplebar-react/dist/simplebar.min.css';
 import { Calendar, momentLocalizer, Views } from 'react-big-calendar';
@@ -14,6 +15,7 @@ const localizer = momentLocalizer(moment);
 
 export default function Events() {
   const [events, setEvents] = useState([]);
+  const [search, setSearch] = useState("");
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [currentView, setCurrentView] = useState(Views.MONTH);
@@ -23,25 +25,34 @@ export default function Events() {
   const [email, setEmail] = useState('');
   const [subStatus, setSubStatus] = useState('');
 
+  const fetcher = (url) => fetch(url).then(res => {
+    if (!res.ok) throw new Error('Failed to fetch');
+    return res.json();
+  });
+  const { data: eventsData, error: eventsError, isLoading: eventsLoading } = useSWR('/api/events', fetcher, { revalidateOnFocus: true });
   useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const response = await fetch('/api/events');
-        if (!response.ok) throw new Error('Failed to fetch events');
-        const data = await response.json();
-        const formatted = data.map(evt => ({
-          ...evt,
-          start: new Date(evt.startDate),
-          end: new Date(evt.endDate),
-          allDay: evt.allDay || false,
-          eventLocation: evt.eventLocation || 'CSULB',
-        }));
-        setEvents(formatted);
-      } catch (err) {
-        console.error('Error fetching events:', err);
-      }
-    }; fetchEvents();
-  }, []);
+    if (eventsData) {
+      const formatted = eventsData.map(evt => ({
+        ...evt,
+        start: new Date(evt.startDate),
+        end: new Date(evt.endDate),
+        allDay: evt.allDay || false,
+        eventLocation: evt.eventLocation || 'CSULB',
+      }));
+      setEvents(formatted);
+    }
+    if (eventsError) console.error('Error fetching events:', eventsError);
+  }, [eventsData, eventsError]);
+
+  const filteredEvents = (events || []).filter((e)=>{
+    const q = (search || '').toLowerCase();
+    if (!q) return true;
+    return (
+      (e.title || '').toLowerCase().includes(q) ||
+      (e.description || '').toLowerCase().includes(q) ||
+      (e.eventLocation || '').toLowerCase().includes(q)
+    );
+  });
 
   const handleEventClick = event => {
     if (!modalIsOpen) {
@@ -171,6 +182,16 @@ export default function Events() {
         </div>
       </div>
 
+      {/* Search */}
+      <div className="container mx-auto px-6 md:px-0 mb-6">
+        <input
+          value={search}
+          onChange={(e)=>setSearch(e.target.value)}
+          placeholder="Search events..."
+          className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-acm-blue text-gray-700"
+        />
+      </div>
+
       {/* Calendar */}
       <motion.section
         className="container mx-auto pb-16 px-6 md:px-0"
@@ -182,7 +203,7 @@ export default function Events() {
           <div className="min-w-[1200px]">
             <Calendar
               localizer={localizer}
-              events={events}
+              events={filteredEvents}
               startAccessor="start"
               endAccessor="end"
               style={{ height: 600 }}
@@ -205,10 +226,13 @@ export default function Events() {
         <div className="max-w-2xl mx-auto bg-white shadow-lg rounded-2xl p-8 flex flex-col sm:flex-row items-center gap-6">
           {/* Logo (optional) */}
           <div className="hidden sm:block flex-shrink-0">
-            <img
+            <Image
               src="/images/acm-csulb.png"
               alt="ACM Logo"
+              width={64}
+              height={64}
               className="w-16 h-16 object-contain"
+              priority={false}
             />
           </div>
 
@@ -268,13 +292,15 @@ export default function Events() {
             transition={{ duration: 0.3 }}
           >
             {selectedEvent.image && (
-              <Image
-                src={selectedEvent.image}
-                alt={selectedEvent.title}
-                width={800}
-                height={400}
-                className="rounded-md mb-4"
-              />
+              <div className="relative w-full h-64 mb-4">
+                <Image
+                  src={selectedEvent.image}
+                  alt={selectedEvent.title}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 800px"
+                  className="object-cover rounded-md"
+                />
+              </div>
             )}
             <h2 className="text-3xl font-bold mb-4 text-center">{selectedEvent.title}</h2>
             <div className="text-gray-700 mb-4 text-lg leading-relaxed" dangerouslySetInnerHTML={{ __html: selectedEvent.description || 'No description provided.' }} />

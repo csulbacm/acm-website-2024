@@ -3,23 +3,40 @@ import clientPromise from "../../../../../../lib/mongodb";
 
 export async function GET(req, { params }) {
   const { id } = params;
-  // read the upvote cookie
   const cookieHeader = req.headers.get("cookie") || "";
-  const hasCookie    = cookieHeader.includes(`upvoted_${id}=true`);
 
-  // double-check IP server-side
-  const ip    = req.headers.get("x-forwarded-for")
-             || req.headers.get("x-real-ip")
-             || req.ip;
+  // Resolve blog by ObjectId or slug
   const client = await clientPromise;
-  const db     = client.db("acmData");
-  const blog   = await db.collection("blogs").findOne({ _id: new ObjectId(id) });
+  const db = client.db("acmData");
+  const col = db.collection("blogs");
+
+  let blog = null;
+  if (ObjectId.isValid(id)) {
+    blog = await col.findOne({ _id: new ObjectId(id) });
+  }
+  if (!blog) {
+    blog = await col.findOne({ slug: id });
+  }
   if (!blog) {
     return new Response(JSON.stringify({ error: "Blog not found" }), { status: 404 });
   }
 
-  const hasIp = Array.isArray(blog.upVoters) && blog.upVoters.includes(ip);
-  const hasUpvoted = hasCookie || hasIp;
+  const canonicalId = blog._id.toString();
 
-  return new Response(JSON.stringify({ hasUpvoted }), { status: 200 });
+  // Cookie check should use canonical _id so it works for slug URLs too
+  const hasCookie =
+    cookieHeader.includes(`upvoted_${canonicalId}=true`) ||
+    cookieHeader.includes(`upvoted_${id}=true`); // legacy slug-based cookie during earlier tests
+
+  // IP check
+  const ip =
+    req.headers.get("x-forwarded-for") ||
+    req.headers.get("x-real-ip") ||
+    req.ip;
+  const hasIp = Array.isArray(blog.upVoters) && blog.upVoters.includes(ip);
+
+  return new Response(
+    JSON.stringify({ hasUpvoted: hasCookie || hasIp }),
+    { status: 200 }
+  );
 }

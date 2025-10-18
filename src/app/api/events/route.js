@@ -4,9 +4,11 @@ import { ObjectId } from 'mongodb';
 import jwt from 'jsonwebtoken';
 import { hasAnyRole } from '../../../../lib/admin';
 import { sendBrevoEmail } from '../../../../lib/brevo';
+import { uploadImage, deleteImage } from '../../../../lib/cloudinary';
 
 const SECRET_KEY = process.env.JWT_SECRET;
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 export async function GET() {
   try {
@@ -40,6 +42,12 @@ export async function POST(req) {
 
     // Parse new event
     const event = await req.json();
+    // Upload image to Cloudinary if provided as data URL
+    if (event.image) {
+      const uploaded = await uploadImage(event.image, { folder: 'acm/events' });
+      event.image = uploaded.url;
+      event.imagePublicId = uploaded.public_id || event.imagePublicId || null;
+    }
 
     // Insert event
     const client = await clientPromise;
@@ -51,8 +59,8 @@ export async function POST(req) {
     const recipients = subs.map(s => ({ email: s.email }));
 
     // Prepare email content
-    const subject = `New Event: ${event.title}`;
-    const baseUrl = 'https://csulb-acm.org';
+  const subject = `New Event: ${event.title}`;
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://acm-csulb.org';
     const logoUrl = `${baseUrl}/images/acm-csulb.png`;
     let eventImage = null;
       if (event.image) {
@@ -76,7 +84,7 @@ export async function POST(req) {
         <p><strong>Date:</strong> ${new Date(event.startDate).toLocaleString()}</p>
         <p><strong>Location:</strong> ${event.eventLocation || 'CSULB'}</p>
         <div style="text-align:center; margin-top:30px;">
-          <a href="https://csulb-acm.org/events" style="background-color:#00437b;color:#ffffff;padding:12px 24px;border-radius:4px;text-decoration:none;">View All Events</a>
+          <a href="${baseUrl}/events" style="background-color:#00437b;color:#ffffff;padding:12px 24px;border-radius:4px;text-decoration:none;">View All Events</a>
         </div>
       </div>
     `;
@@ -89,7 +97,9 @@ export async function POST(req) {
     return new Response(JSON.stringify(result), { status: 201 });
   } catch (error) {
     console.error('Error adding event or sending emails:', error);
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const status = /unauthorized|jwt/i.test(String(error?.message)) ? 401 : 500;
+    const msg = status === 401 ? 'Unauthorized' : 'Internal Server Error';
+    return NextResponse.json({ error: msg }, { status });
   }
 }
 
@@ -113,9 +123,14 @@ export async function DELETE(req) {
     const { ids } = await req.json();
     const client = await clientPromise;
     const db = client.db('acmData');
-    await db.collection('events').deleteMany({
+    const toDelete = await db.collection('events').find({
       _id: { $in: ids.map(id => new ObjectId(id)) }
-    });
+    }).toArray();
+    // delete Cloudinary images
+    for (const ev of toDelete) {
+      if (ev.imagePublicId) await deleteImage(ev.imagePublicId);
+    }
+    await db.collection('events').deleteMany({ _id: { $in: ids.map(id => new ObjectId(id)) } });
     return NextResponse.json({ message: 'Events deleted successfully' });
   } catch (error) {
     console.error('Error deleting events or token verification failed:', error);

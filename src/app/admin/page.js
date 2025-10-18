@@ -935,7 +935,7 @@ const EventsSection = ({ events, searchTerm, setSearchTerm, title, description, 
           />
 
 
-        <label className="block text-lg font-semibold text-gray-700">Event Image <span className="font-normal">(Limit: 16 MB)</span></label>
+  <label className="block text-lg font-semibold text-gray-700">Event Image</label>
         <input 
           type="file"
           accept="image/png, image/jpeg, image/jpg, image/gif, image/webp" 
@@ -1121,7 +1121,7 @@ const ProfileSection = ({
           className="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
 
-        <label className="block text-lg font-semibold text-gray-700">Profile Image <span className="font-normal">(Limit: 16 MB)</span></label>
+  <label className="block text-lg font-semibold text-gray-700">Profile Image</label>
         <input
           type="file"
           accept="image/png, image/jpeg, image/jpg, image/gif, image/webp"
@@ -1280,7 +1280,7 @@ const BlogsSection = ({
           className="mb-4 text-gray-800"
         />
 
-        <label className="block text-lg font-semibold text-gray-700">Blog Image <span className="font-normal">(Limit: 16 MB)</span></label>
+  <label className="block text-lg font-semibold text-gray-700">Blog Image</label>
         <input
           type="file"
           accept="image/png, image/jpeg, image/jpg, image/gif, image/webp"

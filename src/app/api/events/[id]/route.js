@@ -5,8 +5,10 @@ import jwt from 'jsonwebtoken';
 import { hasAnyRole } from '../../../../../lib/admin';
 import { cookies } from 'next/headers';
 import { sendBrevoEmail } from '../../../../../lib/brevo';
+import { uploadImage, deleteImage } from '../../../../../lib/cloudinary';
 
 const SECRET_KEY = process.env.JWT_SECRET;
+export const runtime = 'nodejs';
 
 export async function PUT(req, { params }) {
   const { id } = params;
@@ -32,6 +34,17 @@ export async function PUT(req, { params }) {
     const updatedEvent = await req.json();
     const client = await clientPromise;
     const db = client.db('acmData');
+    // If a new image is provided, upload and possibly delete old
+    if (updatedEvent.image) {
+      const existing = await db.collection('events').findOne({ _id: new ObjectId(id) });
+      const uploaded = await uploadImage(updatedEvent.image, { folder: 'acm/events' });
+      updatedEvent.image = uploaded.url;
+      const newPid = uploaded.public_id || existing?.imagePublicId || null;
+      if (existing?.imagePublicId && uploaded.public_id && uploaded.public_id !== existing.imagePublicId) {
+        await deleteImage(existing.imagePublicId);
+      }
+      updatedEvent.imagePublicId = newPid;
+    }
     await db.collection('events').updateOne(
       { _id: new ObjectId(id) },
       { $set: updatedEvent }
@@ -42,8 +55,8 @@ export async function PUT(req, { params }) {
     const recipients = subs.map(s => ({ email: s.email }));
 
     // Prepare email content
-    const subject = `Updated Event: ${updatedEvent.title}`;
-    const baseUrl = 'https://csulb-acm.org';
+  const subject = `Updated Event: ${updatedEvent.title}`;
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://acm-csulb.org';
     const logoUrl = `${baseUrl}/images/acm-csulb.png`;
     let eventImage = null;
       if (updatedEvent.image) {
@@ -66,7 +79,7 @@ export async function PUT(req, { params }) {
         <p>${updatedEvent.description}</p>
         <p><strong>Date:</strong> ${new Date(updatedEvent.startDate).toLocaleString()}</p>
         <div style="text-align:center; margin-top:30px;">
-          <a href="https://csulb-acm.org/events" style="background-color:#00437b;color:#ffffff;padding:12px 24px;border-radius:4px;text-decoration:none;">View All Events</a>
+          <a href="${baseUrl}/events" style="background-color:#00437b;color:#ffffff;padding:12px 24px;border-radius:4px;text-decoration:none;">View All Events</a>
         </div>
       </div>
     `;
@@ -79,7 +92,9 @@ export async function PUT(req, { params }) {
     return NextResponse.json({ message: 'Event updated successfully' });
   } catch (error) {
     console.error('Error updating event or sending emails:', error);
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const status = /unauthorized|jwt/i.test(String(error?.message)) ? 401 : 500;
+    const msg = status === 401 ? 'Unauthorized' : 'Internal Server Error';
+    return NextResponse.json({ error: msg }, { status });
   }
 }
 
@@ -103,11 +118,15 @@ export async function DELETE(req, { params }) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     const client = await clientPromise;
-    const db = client.db('acmData');
-    await db.collection('events').deleteOne({ _id: new ObjectId(id) });
+  const db = client.db('acmData');
+  const existing = await db.collection('events').findOne({ _id: new ObjectId(id) });
+  if (existing?.imagePublicId) await deleteImage(existing.imagePublicId);
+  await db.collection('events').deleteOne({ _id: new ObjectId(id) });
     return NextResponse.json({ message: 'Event deleted successfully' });
   } catch (error) {
     console.error('Error deleting event or token verification failed:', error);
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const status = /unauthorized|jwt/i.test(String(error?.message)) ? 401 : 500;
+    const msg = status === 401 ? 'Unauthorized' : 'Internal Server Error';
+    return NextResponse.json({ error: msg }, { status });
   }
 }

@@ -1,34 +1,42 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { RotatingLines } from "react-loader-spinner";
 import 'react-quill/dist/quill.snow.css';
 
 export default function BlogDetails({ params }) {
-  const { blogId } = params;
+  const { blogId } = params; // can be an ObjectId or slug
   const [blog, setBlog] = useState(null);
   const [loading, setLoading] = useState(true);
   const [views, setViews] = useState(0);
   const [upvotes, setUpvotes] = useState(0);
   const [hasUpvoted, setHasUpvoted] = useState(false);
+  const [canonicalId, setCanonicalId] = useState(null);
 
   useEffect(() => {
     const fetchBlog = async () => {
       setLoading(true);
       try {
-        // Fetch blog data
-        const response = await fetch(`/api/blog/${blogId}`);
+        // Fetch blog data: try slug first, then id fallback
+        let response = await fetch(`/api/blog/${blogId}`);
+        if (!response.ok) {
+          // retry via slug endpoint (uses query param)
+          const url = `/api/blog/slug?slug=${encodeURIComponent(blogId)}`;
+          response = await fetch(url);
+        }
         if (!response.ok) throw new Error("Failed to fetch blog");
-        const data = await response.json();
+  const data = await response.json();
 
         // Initialize state
-        setBlog(data);
+  setBlog(data);
         setViews(data.views || 0);
         setUpvotes(data.upvotes || 0);
+  setCanonicalId(data._id || null);
 
         // Check upvote status (cookie + IP)
         const upvoteCheckRes = await fetch(
-          `/api/blog/${blogId}/upvote-check`,
+          `/api/blog/${encodeURIComponent(data._id || blogId)}/upvote-check`,
           { credentials: "include" }
         );
         if (upvoteCheckRes.ok) {
@@ -38,7 +46,7 @@ export default function BlogDetails({ params }) {
 
         // Increment view count
         const viewRes = await fetch(
-          `/api/blog/${blogId}/view`,
+          `/api/blog/${encodeURIComponent(data._id || blogId)}/view`,
           { method: "POST", credentials: "include" }
         );
         if (viewRes.ok) {
@@ -66,7 +74,7 @@ export default function BlogDetails({ params }) {
 
     try {
       const res = await fetch(
-        `/api/blog/${blogId}/upvote`,
+        `/api/blog/${encodeURIComponent(canonicalId || blogId)}/upvote`,
         {
           method: "POST",
           credentials: "include"
@@ -112,10 +120,26 @@ export default function BlogDetails({ params }) {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <div
-        className="relative w-full h-64 bg-cover bg-center flex items-center justify-center"
-        style={{ backgroundImage: `url(${blog.image || "/default-bg.jpg"})` }}
-      >
+      <div className="relative w-full h-64 flex items-center justify-center overflow-hidden">
+        {blog.image ? (
+          <Image
+            src={blog.image}
+            alt={blog.title}
+            fill
+            sizes="100vw"
+            className="object-cover"
+            priority
+          />
+        ) : (
+          <Image
+            src="/default-bg.jpg"
+            alt="Blog hero"
+            fill
+            sizes="100vw"
+            className="object-cover"
+            priority
+          />
+        )}
         <div className="absolute inset-0 bg-black opacity-50" />
         <h1 className="relative text-white text-5xl font-bold text-center px-4">
           {blog.title}

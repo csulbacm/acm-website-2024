@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import useSWR from 'swr';
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import { RotatingLines } from "react-loader-spinner"; // Import the RotatingLines loader
 
 function stripHtml(html) {
@@ -17,27 +19,28 @@ export default function Blogs() {
   const [totalPages, setTotalPages] = useState(1);
   const [sortBy, setSortBy] = useState("recent");
   const [loading, setLoading] = useState(true); // Track loading state
+  const [search, setSearch] = useState("");
 
+  const fetcher = (url) => fetch(url).then(res => {
+    if (!res.ok) throw new Error('Failed to fetch');
+    return res.json();
+  });
+  const { data, error: swrError, isLoading } = useSWR(`/api/blog?page=${page}&sort=${sortBy}`, fetcher, { revalidateOnFocus: true });
   useEffect(() => {
-    const fetchBlogs = async () => {
-      setLoading(true); // Start loading
-      try {
-        const response = await fetch(`/api/blog?page=${page}&sort=${sortBy}`);
-        if (!response.ok) {
-          throw new Error("Failed to fetch blogs");
-        }
-        const data = await response.json();
-        setBlogs(data.blogs);
-        setTotalPages(data.totalPages);
-      } catch (error) {
-        console.error("Error fetching blogs:", error);
-      } finally {
-        setLoading(false); // End loading
-      }
-    };
+    setLoading(isLoading);
+    if (data) { setBlogs(data.blogs); setTotalPages(data.totalPages); }
+    if (swrError) console.error('Error fetching blogs:', swrError);
+  }, [data, isLoading, swrError]);
 
-    fetchBlogs();
-  }, [page, sortBy]);
+  const filteredBlogs = (blogs || []).filter((b) => {
+    const q = (search || '').toLowerCase();
+    if (!q) return true;
+    return (
+      (b.title || '').toLowerCase().includes(q) ||
+      (b.author || '').toLowerCase().includes(q) ||
+      (b.content || '').toLowerCase().includes(q)
+    );
+  });
 
   return (
     <div className="min-h-screen bg-white">
@@ -66,6 +69,16 @@ export default function Blogs() {
             <p className="text-xl mt-4">Read our latest posts and stay informed!</p>
           </div>
         </motion.section>
+      </div>
+
+      {/* Search */}
+      <div className="container mx-auto px-6 md:px-0 mt-6">
+        <input
+          value={search}
+          onChange={(e)=>setSearch(e.target.value)}
+          placeholder="Search blogs..."
+          className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-acm-blue text-gray-700"
+        />
       </div>
 
       {/* Sort and Navigation */}
@@ -116,7 +129,7 @@ export default function Blogs() {
         />
       </div>
     ) : (
-      blogs.map((blog) => (
+  filteredBlogs.map((blog) => (
         <motion.div
           key={blog._id}
           className="bg-white p-6 rounded-lg shadow-lg text-black hover:shadow-xl transition-shadow flex flex-col h-full"
@@ -125,11 +138,16 @@ export default function Blogs() {
           transition={{ duration: 0.5, delay: 0.1 }}
         >
           {blog.image && (
-            <img
-              src={blog.image}
-              alt={blog.title}
-              className="w-full h-40 object-cover rounded-lg mb-4"
-            />
+            <div className="w-full h-40 relative rounded-lg mb-4 overflow-hidden">
+              <Image
+                src={blog.image}
+                alt={blog.title}
+                fill
+                sizes="(max-width: 768px) 100vw, 33vw"
+                className="object-cover"
+                priority={false}
+              />
+            </div>
           )}
           <div className="flex-grow">
             <h2 className="text-2xl font-bold mb-2">{blog.title}</h2>
@@ -152,7 +170,7 @@ export default function Blogs() {
                 transition={{ duration: 0.2 }} // Animation duration
               >
                 <Link
-                  href={`/blog/${blog._id}`}
+                  href={`/blog/${encodeURIComponent(blog.slug || blog._id)}`}
                   className="text-white bg-acm-blue px-4 py-2 rounded-lg font-bold whitespace-nowrap"
                   style={{ fontSize: 'clamp(0.75rem, 1vw, 1rem)' }} // Adjust font size responsively
                 >
@@ -167,7 +185,7 @@ export default function Blogs() {
       </motion.section>
 
       {/* Pagination */}
-      {!loading && (
+  {!loading && !search && (
         <div className="container mx-auto flex justify-center space-x-2 mt-8">
           {Array.from({ length: totalPages }, (_, i) => (
             <button

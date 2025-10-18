@@ -1,6 +1,9 @@
 import nodemailer from 'nodemailer';
 import { google } from 'googleapis';
 import { NextResponse } from 'next/server';
+import { rateLimit } from '../../../../lib/rateLimit';
+
+const limiter = rateLimit({ windowMs: 60_000, max: 10 });
 
 const OAuth2 = google.auth.OAuth2;
 
@@ -16,6 +19,11 @@ oauth2Client.setCredentials({
 
 export async function POST(req) {
   try {
+    const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
+    const { allowed, reset } = limiter(`contact:${ip}`);
+    if (!allowed) {
+      return NextResponse.json({ error: 'Too Many Requests' }, { status: 429, headers: { 'Retry-After': String(Math.ceil((reset - Date.now())/1000)) } });
+    }
     const { name, email, message } = await req.json();
 
     // Get the access token
