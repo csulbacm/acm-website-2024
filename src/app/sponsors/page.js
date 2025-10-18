@@ -1,6 +1,7 @@
 "use client";
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 
 export default function Sponsors() {
@@ -79,10 +80,12 @@ export default function Sponsors() {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
                 <Link href={sponsor.link} target="_blank" rel="noopener noreferrer">
-                  <img
+                  <Image
                     src={sponsor.logo}
                     alt={sponsor.name}
-                    className="mx-auto h-20 object-contain"
+                    width={320}
+                    height={80}
+                    className="mx-auto object-contain"
                   />
                   <h3 className="text-xl font-semibold mt-4">{sponsor.name}</h3>
                 </Link>
