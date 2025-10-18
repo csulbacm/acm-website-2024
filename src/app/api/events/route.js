@@ -10,6 +10,14 @@ const SECRET_KEY = process.env.JWT_SECRET;
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
+// Helper: only notify for future events
+function isFutureEvent(evt) {
+  if (!evt?.startDate) return false;
+  const start = new Date(evt.startDate);
+  if (Number.isNaN(start.getTime())) return false;
+  return start.getTime() > Date.now();
+}
+
 export async function GET() {
   try {
     const client = await clientPromise;
@@ -54,9 +62,9 @@ export async function POST(req) {
     const db = client.db('acmData');
     const result = await db.collection('events').insertOne(event);
 
-    // Fetch subscribers
-    const subs = await db.collection('subscribers').find({}).toArray();
-    const recipients = subs.map(s => ({ email: s.email }));
+  // Fetch subscribers
+  const subs = await db.collection('subscribers').find({}).toArray();
+  const recipients = subs.map(s => ({ email: s.email }));
 
     // Prepare email content
     const subject = `New Event: ${event.title}`;
@@ -125,8 +133,8 @@ export async function POST(req) {
       </div>
     `;
 
-    // Send notification email
-    if (recipients.length) {
+    // Send notification email only for future events
+    if (recipients.length && isFutureEvent(event)) {
       await sendBrevoEmail({ to: recipients, subject, htmlContent });
     }
 
@@ -162,11 +170,57 @@ export async function DELETE(req) {
     const toDelete = await db.collection('events').find({
       _id: { $in: ids.map(id => new ObjectId(id)) }
     }).toArray();
+
     // delete Cloudinary images
     for (const ev of toDelete) {
       if (ev.imagePublicId) await deleteImage(ev.imagePublicId);
     }
+
+    // delete from DB
     await db.collection('events').deleteMany({ _id: { $in: ids.map(id => new ObjectId(id)) } });
+
+  // notify subscribers of cancellations (one email per future-dated event)
+    if (toDelete.length) {
+      const subs = await db.collection('subscribers').find({}).toArray();
+      const recipients = subs.map(s => ({ email: s.email }));
+      if (recipients.length) {
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://acm-csulb.org';
+        const siteLogoSrc = `${baseUrl}/images/acm-csulb.png`;
+        let logoUrl = siteLogoSrc;
+        const cloudinaryUrl = process.env.CLOUDINARY_URL || '';
+        const cloudMatch = cloudinaryUrl.match(/@([^/]+)$/);
+        if (process.env.NEXT_PUBLIC_ACM_LOGO_URL) {
+          logoUrl = process.env.NEXT_PUBLIC_ACM_LOGO_URL;
+        } else if (cloudMatch && cloudMatch[1]) {
+          const cloudName = cloudMatch[1];
+          const encoded = encodeURIComponent(siteLogoSrc);
+          logoUrl = `https://res.cloudinary.com/${cloudName}/image/fetch/f_auto,q_auto/${encoded}`;
+        }
+
+        for (const ev of toDelete) {
+          if (!isFutureEvent(ev)) continue;
+          const locationText = ev.eventLocation || ev.location || 'CSULB';
+          const subject = `Canceled: ${ev.title}`;
+          const htmlContent = `
+            <div style="font-family: Arial, sans-serif; max-width:600px; margin:auto; padding:20px;">
+              <div style="text-align:center; margin-bottom:20px;">
+                <img src="${logoUrl}" alt="ACM CSULB Logo" style="display:block; margin:0 auto; border:0; outline:none; text-decoration:none; width:120px; max-width:120px; height:auto;" />
+              </div>
+              <h2 style="color:#B91C1C; margin:0 0 8px;">Event Canceled</h2>
+              <h3 style="margin:0 0 12px;">${ev.title}</h3>
+              <p style="margin:0 0 8px; color:#6b7280;">We’re sorry—this event has been canceled.</p>
+              <p style="margin:0 0 8px;"><strong>Original Date:</strong> ${new Date(ev.startDate).toLocaleString()}</p>
+              <p style="margin:0 0 16px;"><strong>Location:</strong> ${locationText}</p>
+              <div style="text-align:center; margin-top:20px;">
+                <a href="${baseUrl}/events" style="background-color:#00437b;color:#ffffff;padding:12px 16px;border-radius:4px;text-decoration:none;display:inline-block;">View All Events</a>
+              </div>
+            </div>
+          `;
+          await sendBrevoEmail({ to: recipients, subject, htmlContent });
+        }
+      }
+    }
+
     return NextResponse.json({ message: 'Events deleted successfully' });
   } catch (error) {
     console.error('Error deleting events or token verification failed:', error);
