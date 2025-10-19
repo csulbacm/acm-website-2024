@@ -4,19 +4,18 @@ import jwt from 'jsonwebtoken';
 const SECRET_KEY = process.env.JWT_SECRET;
 
 export async function GET(req) {
-  const token = req.cookies.get('token'); // Get the token object
+  const token = req.cookies.get('token');
 
-  // Check if the token exists and retrieve its value
+  // No token: respond gracefully without 401 noise
   if (!token || typeof token.value !== 'string') {
-    console.error("Token is missing or not a string:", token);
-    return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+    return NextResponse.json({ authenticated: false });
   }
 
   try {
-    jwt.verify(token.value, SECRET_KEY); // Use token.value for verification
-    return NextResponse.json({ message: 'Authenticated' });
-  } catch (error) {
-    console.error("Token verification failed:", error);
-    return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+    const decoded = jwt.verify(token.value, SECRET_KEY);
+    const safe = { email: decoded?.email, name: decoded?.name, role: decoded?.role };
+    return NextResponse.json({ authenticated: true, user: safe });
+  } catch {
+    return NextResponse.json({ authenticated: false });
   }
 }

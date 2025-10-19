@@ -9,11 +9,9 @@ export default function EventForm() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await fetch('/api/auth/verify');
-        
-        if (!response.ok) {
-          throw new Error('Not authenticated');
-        }
+  const response = await fetch('/api/auth/verify');
+  const data = await response.json().catch(() => ({}));
+  if (!data?.authenticated) throw new Error('Not authenticated');
       } catch (error) {
         console.error("Redirecting to login:", error);
         router.push('/login');

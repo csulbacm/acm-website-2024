@@ -5,18 +5,7 @@
 			"label": "Build Next.js",
 			"type": "shell",
 			"command": "npm run build",
-			"problemMatcher": [
-				"$eslint-stylish"
-			],
-			"group": "build"
-		},
-		{
-			"label": "Build Next.js",
-			"type": "shell",
-			"command": "npm run build",
-			"problemMatcher": [
-				"$eslint-stylish"
-			],
+			"problemMatcher": ["$eslint-stylish"],
 			"group": "build"
 		}
 	]

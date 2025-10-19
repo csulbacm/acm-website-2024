@@ -71,7 +71,8 @@ export default function AdminPage() {
       const checkAuth = async () => {
         try {
           const response = await fetch('/api/auth/verify');
-          if (!response.ok) throw new Error('Not authenticated');
+          const data = await response.json().catch(() => ({}));
+          if (!data?.authenticated) throw new Error('Not authenticated');
         } catch (error) {
           router.push('/login');
         }

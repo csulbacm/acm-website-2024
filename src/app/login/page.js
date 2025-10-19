@@ -16,12 +16,11 @@ export default function Login() {
     const checkAuth = async () => {
       try {
         const response = await fetch("/api/auth/verify", { method: "GET" });
-        if (response.ok) {
-          router.push("/admin"); // Redirect to admin page if authenticated
+        const data = await response.json().catch(() => ({}));
+        if (data?.authenticated) {
+          router.push("/admin");
         }
-      } catch {
-        // Do nothing if not authenticated
-      }
+      } catch {}
     };
 
     checkAuth();

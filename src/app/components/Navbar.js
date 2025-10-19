@@ -25,8 +25,9 @@ const Navbar = () => {
     const check = async () => {
       try {
         const res = await fetch('/api/auth/verify', { method: 'GET', cache: 'no-store' });
+        const data = await res.json().catch(() => ({}));
         if (!isMounted) return;
-        setIsAuthed(res.ok);
+        setIsAuthed(Boolean(data?.authenticated));
       } catch {
         if (!isMounted) return;
         setIsAuthed(false);
