@@ -1,7 +1,7 @@
 import clientPromise from '../../lib/mongodb';
 
 export default async function sitemap() {
-  const base = process.env.NEXT_PUBLIC_BASE_URL || 'https://csulb-acm.org';
+  const base = process.env.NEXT_PUBLIC_BASE_URL || 'https://acm-csulb.org';
   const staticPaths = ['', 'about', 'events', 'blog', 'contact', 'sponsors'];
   const urls = staticPaths.map((p) => ({
     url: p ? `${base}/${p}` : base,

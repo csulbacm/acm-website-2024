@@ -1,6 +1,6 @@
 // Next.js App Router robots configuration
 export default function robots() {
-  const base = process.env.NEXT_PUBLIC_BASE_URL || 'https://csulb-acm.org';
+  const base = process.env.NEXT_PUBLIC_BASE_URL || 'https://acm-csulb.org';
   return {
     rules: {
       userAgent: '*',

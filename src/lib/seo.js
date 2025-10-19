@@ -1,6 +1,6 @@
 // Small SEO helpers used by head.js files
 
-export const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://csulb-acm.org';
+export const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://acm-csulb.org';
 
 export function absoluteUrl(path = '') {
   if (!path) return baseUrl;

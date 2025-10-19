@@ -7,7 +7,7 @@ export function middleware(req) {
   const url = req.nextUrl.clone();
 
   // Canonical host redirect (skip for localhost and Vercel previews)
-  const base = process.env.NEXT_PUBLIC_BASE_URL || 'https://csulb-acm.org';
+  const base = process.env.NEXT_PUBLIC_BASE_URL || 'https://acm-csulb.org';
   try {
     const canonical = new URL(base);
     const canonicalHost = canonical.host.toLowerCase();
