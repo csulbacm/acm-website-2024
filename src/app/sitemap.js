@@ -18,11 +18,10 @@ export default async function sitemap() {
       const lastMod = b.updatedAt || b.createdAt || new Date();
       urls.push({ url: `${base}/blog/${encodeURIComponent(b.slug || String(b._id))}`, lastModified: lastMod, changeFrequency: 'monthly', priority: 0.8 });
     }
-    const events = await db.collection('events').find({}, { projection: { _id: 1, updatedAt: 1, startDate: 1 } }).toArray();
+    const events = await db.collection('events').find({}, { projection: { _id: 1, slug: 1, updatedAt: 1, startDate: 1 } }).toArray();
     for (const e of events) {
-      // We currently don’t have a dedicated event detail page route; include events listing only for now
-      // If detail pages are added later (e.g., /events/[id]), emit entries here:
-      // urls.push({ url: `${base}/events/${e._id}`, lastModified: e.updatedAt || e.startDate, changeFrequency: 'weekly', priority: 0.6 });
+      const path = `/events/${encodeURIComponent(e.slug || String(e._id))}`;
+      urls.push({ url: `${base}${path}`, lastModified: e.updatedAt || e.startDate || new Date(), changeFrequency: 'weekly', priority: 0.6 });
     }
   } catch (e) {
     // ignore db errors to not fail sitemap

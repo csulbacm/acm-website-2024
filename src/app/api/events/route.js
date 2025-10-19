@@ -48,6 +48,10 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+  // DB connection (used multiple times below)
+  const client = await clientPromise;
+  const db = client.db('acmData');
+
     // Parse new event
     const event = await req.json();
     // Upload image to Cloudinary if provided as data URL
@@ -57,9 +61,24 @@ export async function POST(req) {
       event.imagePublicId = uploaded.public_id || event.imagePublicId || null;
     }
 
+    // Generate slug (title + date) and ensure uniqueness
+    const baseSlug = String((event.title || '').toLowerCase())
+      .replace(/[^a-z0-9\s-]/g, '')
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+    const datePart = event.startDate ? new Date(event.startDate).toISOString().slice(0,10) : '';
+    let slug = [baseSlug, datePart].filter(Boolean).join('-') || `event-${Date.now()}`;
+  const existingSlug = await db.collection('events').findOne({ slug });
+    if (existingSlug) {
+      let i = 2;
+      while (await db.collection('events').findOne({ slug: `${slug}-${i}` })) i++;
+      slug = `${slug}-${i}`;
+    }
+    event.slug = slug;
+
     // Insert event
-    const client = await clientPromise;
-    const db = client.db('acmData');
     const result = await db.collection('events').insertOne(event);
 
   // Fetch subscribers
@@ -138,7 +157,7 @@ export async function POST(req) {
       await sendBrevoEmail({ to: recipients, subject, htmlContent });
     }
 
-    return new Response(JSON.stringify(result), { status: 201 });
+  return new Response(JSON.stringify({ ...result, slug }), { status: 201 });
   } catch (error) {
     console.error('Error adding event or sending emails:', error);
     const status = /unauthorized|jwt/i.test(String(error?.message)) ? 401 : 500;

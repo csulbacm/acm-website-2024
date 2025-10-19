@@ -10,6 +10,7 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { motion } from 'framer-motion';
 import Modal from 'react-modal';
 import Image from 'next/image';
+import Link from 'next/link';
 import Head from 'next/head';
 import { absoluteUrl } from '../../lib/seo';
 
@@ -355,6 +356,12 @@ export default function Events() {
                 rel="noopener noreferrer"
                 className="bg-blue-500 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-600 transition"
               >Add to Google Calendar</a>
+              {selectedEvent && (
+                <Link
+                  href={`/events/${encodeURIComponent(selectedEvent.slug || selectedEvent._id)}`}
+                  className="bg-acm-blue text-white px-4 py-2 rounded-lg font-bold hover:bg-acm-blue/80 transition"
+                >View details</Link>
+              )}
               <button onClick={closeModal} className="bg-gray-700 text-white px-6 py-2 rounded-lg font-bold hover:bg-gray-800 transition">Close</button>
             </div>
           </motion.div>
