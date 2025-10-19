@@ -1,6 +1,7 @@
 import './globals.css';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import { orgJsonLd } from '../lib/seo';
 
 export const metadata = {
   title: 'ACM at CSULB',
@@ -69,6 +70,17 @@ export default function RootLayout({ children }) {
         <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png" />
         <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png" />
         <link rel="manifest" href="/site.webmanifest" />
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="ACM at CSULB" />
+        <meta name="twitter:description" content="Association for Computing Machinery at CSULB: workshops, hackathons, networking, and more." />
+        <meta name="twitter:image" content="/images/acm-csulb.png" />
+
+        {/* JSON-LD Organization */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd()) }}
+        />
       </head>
       <body className="min-h-screen flex flex-col bg-gray-50" id="__next">
         <Navbar />

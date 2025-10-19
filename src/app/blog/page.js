@@ -6,6 +6,8 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import { RotatingLines } from "react-loader-spinner"; // Import the RotatingLines loader
+import Head from 'next/head';
+import { absoluteUrl } from '../../lib/seo';
 
 function stripHtml(html) {
   const tempDiv = document.createElement("div");
@@ -44,6 +46,14 @@ export default function Blogs() {
 
   return (
     <div className="min-h-screen bg-white">
+      <Head>
+        {totalPages > 1 && page > 1 && (
+          <link rel="prev" href={absoluteUrl(`/blog?page=${page - 1}`)} />
+        )}
+        {totalPages > 1 && page < totalPages && (
+          <link rel="next" href={absoluteUrl(`/blog?page=${page + 1}`)} />
+        )}
+      </Head>
       {/* Page Header */}
       <div className="relative area">
         <ul className="circles">

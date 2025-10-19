@@ -10,6 +10,8 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { motion } from 'framer-motion';
 import Modal from 'react-modal';
 import Image from 'next/image';
+import Head from 'next/head';
+import { absoluteUrl } from '../../lib/seo';
 
 const localizer = momentLocalizer(moment);
 
@@ -123,6 +125,39 @@ export default function Events() {
 
   return (
     <div className="min-h-screen bg-white">
+      <Head>
+  <link rel="canonical" href={absoluteUrl('/events')} />
+        {events && events.length > 0 && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify({
+                '@context': 'https://schema.org',
+                '@type': 'ItemList',
+                name: 'ACM at CSULB Events',
+                itemListElement: events.slice(0, 50).map((e, i) => ({
+                  '@type': 'ListItem',
+                  position: i + 1,
+                  item: {
+                    '@type': 'Event',
+                    name: e.title,
+                    description: e.description,
+                    startDate: e.start && new Date(e.start).toISOString(),
+                    endDate: e.end && new Date(e.end).toISOString(),
+                    eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+                    eventStatus: 'https://schema.org/EventScheduled',
+                    image: e.image ? absoluteUrl(e.image) : absoluteUrl('/images/acm-csulb.png'),
+                    location: e.eventLocation
+                      ? { '@type': 'Place', name: e.eventLocation, address: e.eventLocation }
+                      : undefined,
+                    organizer: { '@type': 'Organization', name: 'ACM at CSULB', url: absoluteUrl('/events') },
+                  },
+                })),
+              }),
+            }}
+          />
+        )}
+      </Head>
       {/* Header */}
       <div className="relative area">
         <ul className="circles">{Array(10).fill().map((_, i) => <li key={i} />)}</ul>

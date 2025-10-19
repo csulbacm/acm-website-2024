@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { RotatingLines } from "react-loader-spinner";
 import 'react-quill/dist/quill.snow.css';
+import Head from 'next/head';
+import { absoluteUrl } from '../../../lib/seo';
 
 export default function BlogDetails({ params }) {
   const { blogId } = params; // can be an ObjectId or slug
@@ -119,6 +121,27 @@ export default function BlogDetails({ params }) {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Head>
+  <link rel="canonical" href={absoluteUrl(`/blog/${encodeURIComponent(blog.slug || blog._id)}`)} />
+        {blog && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify({
+                '@context': 'https://schema.org',
+                '@type': 'BlogPosting',
+                headline: blog.title,
+                description: (blog.content || '').replace(/<[^>]+>/g, ' ').slice(0, 200),
+                image: (blog.image ? absoluteUrl(blog.image) : absoluteUrl('/images/acm-csulb.png')),
+                author: blog.author ? { '@type': 'Person', name: blog.author } : undefined,
+                datePublished: blog.createdAt ? new Date(blog.createdAt).toISOString() : undefined,
+                dateModified: blog.updatedAt ? new Date(blog.updatedAt).toISOString() : undefined,
+                mainEntityOfPage: absoluteUrl(`/blog/${encodeURIComponent(blog.slug || blog._id)}`),
+              }),
+            }}
+          />
+        )}
+      </Head>
       {/* Hero Section */}
       <div className="relative w-full h-64 flex items-center justify-center overflow-hidden">
         {blog.image ? (
