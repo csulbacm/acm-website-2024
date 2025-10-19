@@ -4,7 +4,7 @@ import { ObjectId } from 'mongodb';
 import jwt from 'jsonwebtoken';
 import { hasAnyRole } from '../../../../lib/admin';
 import { sendBrevoEmail } from '../../../../lib/brevo';
-import { uploadImage, deleteImage } from '../../../../lib/cloudinary';
+import { uploadImage, deleteImage, getPublicIdFromUrl } from '../../../../lib/cloudinary';
 
 const SECRET_KEY = process.env.JWT_SECRET;
 export const dynamic = 'force-dynamic';
@@ -133,7 +133,8 @@ export async function POST(req) {
       : `${fmtDateTime(start)}/${fmtDateTime(end)}`;
     const gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${datesParam}&details=${details}&location=${locationEnc}`;
 
-    const htmlContent = `
+  const eventUrl = `${baseUrl}/events/${encodeURIComponent(event.slug || String(result.insertedId))}`;
+  const htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width:600px; margin:auto; padding:20px;">
         <div style="text-align:center; margin-bottom:20px;">
           <img src="${logoUrl}" alt="ACM CSULB Logo" style="display:block; margin:0 auto; border:0; outline:none; text-decoration:none; width:120px; max-width:120px; height:auto;" />
@@ -146,7 +147,7 @@ export async function POST(req) {
         <p style="margin:0 0 16px;"><strong>Location:</strong> ${locationText}</p>
         <div style="text-align:center; margin-top:20px;">
           <a href="${gcalUrl}" style="background-color:#0B8043;color:#ffffff;padding:12px 16px;border-radius:4px;text-decoration:none;display:inline-block;margin-right:16px;">Add to Google Calendar</a>
-          <a href="${baseUrl}/events" style="background-color:#00437b;color:#ffffff;padding:12px 16px;border-radius:4px;text-decoration:none;display:inline-block;">View All Events</a>
+      <a href="${eventUrl}" style="background-color:#00437b;color:#ffffff;padding:12px 16px;border-radius:4px;text-decoration:none;display:inline-block;">View Event</a>
         </div>
         <div style="color:#6b7280; font-size:11px; text-align:center; margin-top:16px;">Images served via ${logoUrl.includes('res.cloudinary.com') ? 'Cloudinary' : 'CDN'}</div>
       </div>
@@ -192,7 +193,8 @@ export async function DELETE(req) {
 
     // delete Cloudinary images
     for (const ev of toDelete) {
-      if (ev.imagePublicId) await deleteImage(ev.imagePublicId);
+      const pid = ev.imagePublicId || getPublicIdFromUrl(ev.image);
+      if (pid) await deleteImage(pid);
     }
 
     // delete from DB

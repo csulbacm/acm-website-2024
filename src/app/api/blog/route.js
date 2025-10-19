@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createBlog, getAllBlogs, deleteBlogs } from '../../../../lib/blog';
 import { getAdminByEmail, hasAnyRole } from "../../../../lib/admin";
-import { uploadImage, deleteImage } from "../../../../lib/cloudinary";
+import { uploadImage, deleteImage, getPublicIdFromUrl } from "../../../../lib/cloudinary";
 import clientPromise from "../../../../lib/mongodb";
 import { ObjectId } from "mongodb";
 import jwt from 'jsonwebtoken';
@@ -110,7 +110,8 @@ export async function DELETE(req) {
   const db = client.db('acmData');
   const toDelete = await db.collection('blogs').find({ _id: { $in: ids.map((id)=> new ObjectId(id)) } }).toArray();
     for (const b of toDelete) {
-      if (b.imagePublicId) await deleteImage(b.imagePublicId);
+      const pid = b.imagePublicId || getPublicIdFromUrl(b.image);
+      if (pid) await deleteImage(pid);
     }
 
     const deleteResult = await deleteBlogs(ids);

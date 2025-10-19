@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken';
 import { hasAnyRole } from '../../../../../lib/admin';
 import { cookies } from 'next/headers';
 import { sendBrevoEmail } from '../../../../../lib/brevo';
-import { uploadImage, deleteImage } from '../../../../../lib/cloudinary';
+import { uploadImage, deleteImage, getPublicIdFromUrl } from '../../../../../lib/cloudinary';
 
 const SECRET_KEY = process.env.JWT_SECRET;
 export const runtime = 'nodejs';
@@ -47,9 +47,10 @@ export async function PUT(req, { params }) {
       const existing = await db.collection('events').findOne({ _id: new ObjectId(id) });
       const uploaded = await uploadImage(updatedEvent.image, { folder: 'acm/events' });
       updatedEvent.image = uploaded.url;
-      const newPid = uploaded.public_id || existing?.imagePublicId || null;
-      if (existing?.imagePublicId && uploaded.public_id && uploaded.public_id !== existing.imagePublicId) {
-        await deleteImage(existing.imagePublicId);
+      const existingPid = existing?.imagePublicId || getPublicIdFromUrl(existing?.image);
+      const newPid = uploaded.public_id || existingPid || null;
+      if (existingPid && uploaded.public_id && uploaded.public_id !== existingPid) {
+        await deleteImage(existingPid);
       }
       updatedEvent.imagePublicId = newPid;
     }
@@ -109,7 +110,8 @@ export async function PUT(req, { params }) {
       : `${fmtDateTime(start)}/${fmtDateTime(end)}`;
     const gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${datesParam}&details=${details}&location=${locationEnc}`;
 
-    const htmlContent = `
+  const eventUrl = `${baseUrl}/events/${encodeURIComponent(id)}`;
+  const htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width:600px; margin:auto; padding:20px;">
         <div style="text-align:center; margin-bottom:20px;">
           <img src="${logoUrl}" alt="ACM CSULB Logo" style="display:block; margin:0 auto; border:0; outline:none; text-decoration:none; width:120px; max-width:120px; height:auto;" />
@@ -122,7 +124,7 @@ export async function PUT(req, { params }) {
         <p style="margin:0 0 16px;"><strong>Location:</strong> ${locationText}</p>
         <div style="text-align:center; margin-top:20px;">
           <a href="${gcalUrl}" style="background-color:#0B8043;color:#ffffff;padding:12px 16px;border-radius:4px;text-decoration:none;display:inline-block;margin-right:16px;">Update in Google Calendar</a>
-          <a href="${baseUrl}/events" style="background-color:#00437b;color:#ffffff;padding:12px 16px;border-radius:4px;text-decoration:none;display:inline-block;">View All Events</a>
+      <a href="${eventUrl}" style="background-color:#00437b;color:#ffffff;padding:12px 16px;border-radius:4px;text-decoration:none;display:inline-block;">View Event</a>
         </div>
       </div>
     `;
@@ -170,6 +172,10 @@ export async function DELETE(req, { params }) {
 
     // Delete Cloudinary image if present
     if (existing.imagePublicId) await deleteImage(existing.imagePublicId);
+    else {
+      const pid = getPublicIdFromUrl(existing.image);
+      if (pid) await deleteImage(pid);
+    }
 
     // Delete the event
     await db.collection('events').deleteOne({ _id: new ObjectId(id) });

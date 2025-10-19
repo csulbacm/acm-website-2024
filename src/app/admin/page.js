@@ -51,6 +51,20 @@ export default function AdminPage() {
     const [success, setSuccess] = useState('');
   const [myRole, setMyRole] = useState('editor');
   const [isAdmin, setIsAdmin] = useState(false);
+  // Inline button-level loading & messages
+  const [savingEvent, setSavingEvent] = useState(false);
+  const [eventActionMsg, setEventActionMsg] = useState('');
+  const [savingBlog, setSavingBlog] = useState(false);
+  const [blogActionMsg, setBlogActionMsg] = useState('');
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [profileActionMsg, setProfileActionMsg] = useState('');
+  // Delete action states
+  const [deletingEvents, setDeletingEvents] = useState(false);
+  const [deleteEventsMsg, setDeleteEventsMsg] = useState('');
+  const [deletingBlogs, setDeletingBlogs] = useState(false);
+  const [deleteBlogsMsg, setDeleteBlogsMsg] = useState('');
+  const [deletingUsers, setDeletingUsers] = useState(false);
+  const [deleteUsersMsg, setDeleteUsersMsg] = useState('');
   // search queries per tab (except profile)
   const [eventsQuery, setEventsQuery] = useState('');
   const [blogsQuery, setBlogsQuery] = useState('');
@@ -144,7 +158,7 @@ export default function AdminPage() {
 
     const handleProfileUpdate = async (e) => {
       e.preventDefault();
-      setLoading(true);
+      setSavingProfile(true);
       setError('');
       setSuccess('');
   
@@ -165,17 +179,19 @@ export default function AdminPage() {
           });
   
           if (!response.ok) throw new Error('Failed to update profile');
-          setSuccess('Profile updated successfully!');
+          setProfileActionMsg('Profile updated successfully!');
       } catch (error) {
           setError(error.message || 'An error occurred while updating profile.');
       } finally {
-        setLoading(false);
+        setSavingProfile(false);
+        // Show message briefly then clear
+        if (!error) setTimeout(()=>setProfileActionMsg(''), 2500);
     }
 };
 
     const handleSubmit = async (e) => {
       e.preventDefault();
-      setLoading(true);
+      setSavingEvent(true);
       setError('');
       setSuccess('');
 
@@ -195,13 +211,14 @@ export default function AdminPage() {
             throw new Error(error || 'Failed to save event');
         }
 
-        setSuccess(editingEvent ? 'Event updated successfully!' : 'Event added successfully!');
-        resetForm();
+  setEventActionMsg(editingEvent ? 'Event updated successfully!' : 'Event added successfully!');
+  resetForm();
         fetchEvents();
     } catch (error) {
         setError(error.message || 'An error occurred while saving the event.');
     } finally {
-        setLoading(false);
+  setSavingEvent(false);
+  if (!error) setTimeout(()=>setEventActionMsg(''), 2500);
     }
 };
 
@@ -220,12 +237,12 @@ export default function AdminPage() {
       setSelectedEvents(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
     };
 
-    const handleDeleteSelected = async () => {
+  const handleDeleteSelected = async () => {
       if (selectedEvents.length === 0) {
         setError('No events selected for deletion');
         return;
     }
-    setLoading(true);
+  setDeletingEvents(true);
     setError('');
     setSuccess('');
 
@@ -241,13 +258,16 @@ export default function AdminPage() {
             throw new Error(error || 'Failed to delete events');
         }
 
-        setSuccess('Selected events deleted successfully!');
+  setDeleteEventsMsg('Selected events deleted successfully!');
         setSelectedEvents([]);
+  // If an edited event was deleted, clear the form
+  resetForm();
         fetchEvents();
     } catch (error) {
         setError(error.message || 'An error occurred while deleting events.');
     } finally {
-        setLoading(false);
+  setDeletingEvents(false);
+  if (!error) setTimeout(()=>setDeleteEventsMsg(''), 2500);
     }
 };
 
@@ -326,7 +346,7 @@ export default function AdminPage() {
 
     const handleDeleteUsers = async () => {
       if (!selectedUserIds.length) return;
-      setLoading(true);
+      setDeletingUsers(true);
       setError('');
       setSuccess('');
       try {
@@ -338,12 +358,13 @@ export default function AdminPage() {
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Failed to delete users');
         setSelectedUserIds([]);
-        setSuccess('User(s) deleted');
+  setDeleteUsersMsg('User(s) deleted');
         fetchUsers();
       } catch (err) {
         setError(err.message);
       } finally {
-        setLoading(false);
+  setDeletingUsers(false);
+  if (!error) setTimeout(()=>setDeleteUsersMsg(''), 2500);
       }
     };
 
@@ -411,7 +432,7 @@ export default function AdminPage() {
 
     const handleSubmitBlog = async (e) => {
       e.preventDefault();
-      setLoading(true);
+      setSavingBlog(true);
       setError('');
       setSuccess('');
       const newBlog = { title: blogTitle, content: blogContent, image: blogImage };
@@ -430,7 +451,7 @@ export default function AdminPage() {
           throw new Error(error || 'Failed to save blog');
       }
 
-      setSuccess(editingBlog ? 'Blog updated successfully!' : 'Blog added successfully!');
+  setBlogActionMsg(editingBlog ? 'Blog updated successfully!' : 'Blog added successfully!');
       resetBlogForm();
       const fetchResponse = await fetch('/api/blog');
       const data = await fetchResponse.json();
@@ -438,7 +459,8 @@ export default function AdminPage() {
   } catch (error) {
       setError(error.message || 'An error occurred while saving the blog.');
   } finally {
-      setLoading(false);
+  setSavingBlog(false);
+  if (!error) setTimeout(()=>setBlogActionMsg(''), 2500);
   }
 };
     
@@ -460,7 +482,7 @@ export default function AdminPage() {
         return;
       }
 
-      setLoading(true);
+      setDeletingBlogs(true);
       setError('');
       setSuccess('');
   
@@ -476,7 +498,7 @@ export default function AdminPage() {
           throw new Error(error || 'Failed to delete blogs');
       }
 
-      setSuccess('Selected blogs deleted successfully!');
+  setDeleteBlogsMsg('Selected blogs deleted successfully!');
       setSelectedBlogs([]);
       const fetchResponse = await fetch('/api/blog');
       const data = await fetchResponse.json();
@@ -484,7 +506,8 @@ export default function AdminPage() {
   } catch (error) {
       setError(error.message || 'An error occurred while deleting blogs.');
   } finally {
-      setLoading(false);
+  setDeletingBlogs(false);
+  if (!error) setTimeout(()=>setDeleteBlogsMsg(''), 2500);
   }
 };
     
@@ -660,6 +683,10 @@ export default function AdminPage() {
             selectedEvents={selectedEvents}
             resetForm={resetForm}
             editingEvent={editingEvent}
+            savingEvent={savingEvent}
+            eventActionMsg={eventActionMsg}
+            deletingEvents={deletingEvents}
+            deleteEventsMsg={deleteEventsMsg}
           />
   ) : activeTab === 'profile' ? (
           <ProfileSection
@@ -677,6 +704,8 @@ export default function AdminPage() {
             setProfileImage={setProfileImage}
             handleProfileUpdate={handleProfileUpdate}
             handleImageChange={handleImageChange}
+            savingProfile={savingProfile}
+            profileActionMsg={profileActionMsg}
           />
         ) : activeTab === 'blogs' ? (
           <BlogsSection
@@ -697,6 +726,10 @@ export default function AdminPage() {
             selectedBlogs={selectedBlogs}
             resetBlogForm={resetBlogForm}
             editingBlog={editingBlog}
+            savingBlog={savingBlog}
+            blogActionMsg={blogActionMsg}
+            deletingBlogs={deletingBlogs}
+            deleteBlogsMsg={deleteBlogsMsg}
           />
     ) : activeTab === 'users' && isAdmin ? (
           <UsersSection
@@ -718,7 +751,7 @@ export default function AdminPage() {
       setUsers={setUsers}
       userOrderDirty={userOrderDirty}
       setUserOrderDirty={setUserOrderDirty}
-      persistUserOrder={async (orderedIds)=>{
+  persistUserOrder={async (orderedIds)=>{
         try {
           const res = await fetch('/api/admin/users/reorder', {
             method: 'PUT',
@@ -734,6 +767,8 @@ export default function AdminPage() {
           setError(err.message);
         }
       }}
+  deletingUsers={deletingUsers}
+  deleteUsersMsg={deleteUsersMsg}
           />
   ) : null}
 
@@ -812,6 +847,8 @@ const UsersSection = ({
   userOrderDirty,
   setUserOrderDirty,
   persistUserOrder,
+  deletingUsers,
+  deleteUsersMsg,
 }) => {
   const filtered = users.filter((u) => {
     const q = (searchTerm || '').toLowerCase();
@@ -921,14 +958,22 @@ const UsersSection = ({
         </tbody>
       </table>
     </div>
-    <div className="mt-4 flex gap-2">
-      <button onClick={handleDeleteUsers} className="bg-red-600 text-white px-4 py-2 rounded">Delete Selected</button>
+    <div className="mt-4 flex gap-2 items-center">
+      {deletingUsers ? (
+        <div className="px-4 py-2">
+          <RotatingLines visible height="28" width="28" color="grey" strokeColor="grey" strokeWidth="5" ariaLabel="rotating-lines-loading" />
+        </div>
+      ) : deleteUsersMsg ? (
+        <div className="text-green-600 font-semibold">{deleteUsersMsg}</div>
+      ) : (
+        <button onClick={handleDeleteUsers} className="bg-red-600 text-white px-4 py-2 rounded">Delete Selected</button>
+      )}
     </div>
   </div>
   );
 };
 // Events Section Component
-const EventsSection = ({ events, searchTerm, setSearchTerm, title, description, startDate, endDate, allDay, eventLocation, image, setTitle, setDescription, setStartDate, setEndDate, setAllDay, setEventLocation, setImage, handleSubmit, handleEditEvent, handleDeleteSelected, handleSelectEvent, selectedEvents, resetForm, editingEvent }) => {
+const EventsSection = ({ events, searchTerm, setSearchTerm, title, description, startDate, endDate, allDay, eventLocation, image, setTitle, setDescription, setStartDate, setEndDate, setAllDay, setEventLocation, setImage, handleSubmit, handleEditEvent, handleDeleteSelected, handleSelectEvent, selectedEvents, resetForm, editingEvent, savingEvent, eventActionMsg, deletingEvents, deleteEventsMsg }) => {
   const filtered = events.filter((e) => {
     const q = (searchTerm || '').toLowerCase();
     if (!q) return true;
@@ -1018,10 +1063,18 @@ const EventsSection = ({ events, searchTerm, setSearchTerm, title, description, 
           className="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400" 
         />
 
-        <div className="flex space-x-4">
-          <button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-md transition duration-200">
-            {editingEvent ? 'Update Event' : 'Add Event'}
-          </button>
+        <div className="flex space-x-4 items-center">
+          {savingEvent ? (
+            <div className="flex-1 flex justify-center">
+              <RotatingLines visible height="32" width="32" color="grey" strokeColor="grey" strokeWidth="5" ariaLabel="rotating-lines-loading" />
+            </div>
+          ) : eventActionMsg ? (
+            <div className="flex-1 text-center text-green-600 font-semibold">{eventActionMsg}</div>
+          ) : (
+            <button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-md transition duration-200">
+              {editingEvent ? 'Update Event' : 'Add Event'}
+            </button>
+          )}
           {editingEvent && (
             <button type="button" onClick={resetForm} className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 rounded-md transition duration-200">
               Cancel
@@ -1076,12 +1129,22 @@ const EventsSection = ({ events, searchTerm, setSearchTerm, title, description, 
           ))}
         </tbody>
       </table>
-      <button
-        onClick={handleDeleteSelected}
-        className="mt-6 w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-md transition duration-200"
-      >
-        Delete Selected
-      </button>
+      <div className="mt-6 w-full">
+        {deletingEvents ? (
+          <div className="flex justify-center py-1">
+            <RotatingLines visible height="32" width="32" color="grey" strokeColor="grey" strokeWidth="5" ariaLabel="rotating-lines-loading" />
+          </div>
+        ) : deleteEventsMsg ? (
+          <div className="text-green-600 text-center font-semibold">{deleteEventsMsg}</div>
+        ) : (
+          <button
+            onClick={handleDeleteSelected}
+            className="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-md transition duration-200"
+          >
+            Delete Selected
+          </button>
+        )}
+      </div>
     </div>
 
     {/* Live Event Preview */}
@@ -1144,7 +1207,8 @@ const EventsSection = ({ events, searchTerm, setSearchTerm, title, description, 
 const ProfileSection = ({
   name, titleProfile, linkedin, github, website, profileImage,
   setName, setTitleProfile, setLinkedin, setGithub, setWebsite,
-  setProfileImage, handleProfileUpdate, handleImageChange
+  setProfileImage, handleProfileUpdate, handleImageChange,
+  savingProfile, profileActionMsg
 }) => (
   <div className="flex flex-col-reverse lg:flex-row lg:space-x-8 justify-center items-center">
     {/* Profile Form */}
@@ -1204,9 +1268,17 @@ const ProfileSection = ({
           className="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
 
-        <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-md transition duration-200">
-          Save Profile
-        </button>
+        {savingProfile ? (
+          <div className="flex justify-center py-2">
+            <RotatingLines visible height="32" width="32" color="grey" strokeColor="grey" strokeWidth="5" ariaLabel="rotating-lines-loading" />
+          </div>
+        ) : profileActionMsg ? (
+          <div className="text-green-600 text-center font-semibold py-2">{profileActionMsg}</div>
+        ) : (
+          <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-md transition duration-200">
+            Save Profile
+          </button>
+        )}
       </form>
     </div>
 
@@ -1312,7 +1384,11 @@ const BlogsSection = ({
   selectedBlogs,
   resetBlogForm,
   editingBlog,
-  name
+  name,
+  savingBlog,
+  blogActionMsg,
+  deletingBlogs,
+  deleteBlogsMsg
 }) => {
   const filtered = blogs.filter((b) => {
     const q = (searchTerm || '').toLowerCase();
@@ -1365,13 +1441,21 @@ const BlogsSection = ({
           className="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
 
-        <div className="flex space-x-4">
-          <button
-            type="submit"
-            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-md transition duration-200"
-          >
-            {editingBlog ? 'Update Blog' : 'Create Blog'}
-          </button>
+        <div className="flex space-x-4 items-center">
+          {savingBlog ? (
+            <div className="flex-1 flex justify-center">
+              <RotatingLines visible height="32" width="32" color="grey" strokeColor="grey" strokeWidth="5" ariaLabel="rotating-lines-loading" />
+            </div>
+          ) : blogActionMsg ? (
+            <div className="flex-1 text-center text-green-600 font-semibold">{blogActionMsg}</div>
+          ) : (
+            <button
+              type="submit"
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-md transition duration-200"
+            >
+              {editingBlog ? 'Update Blog' : 'Create Blog'}
+            </button>
+          )}
           {editingBlog && (
             <button
               type="button"
@@ -1394,7 +1478,7 @@ const BlogsSection = ({
           className="w-full p-2 border rounded"
         />
       </div>
-      <table className="w-full bg-white rounded-lg shadow-lg">
+  <table className="w-full bg-white rounded-lg shadow-lg">
         <thead className="bg-gray-100 text-xs sm:text-base text-gray-700 font-semibold">
           <tr>
             <th className="p-1 sm:p-3 text-left">Select</th>
@@ -1430,12 +1514,22 @@ const BlogsSection = ({
           ))}
         </tbody>
       </table>
-      <button
-        onClick={handleDeleteSelectedBlogs}
-        className="mt-6 w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-md transition duration-200"
-      >
-        Delete Selected
-      </button>
+      <div className="mt-6 w-full">
+        {deletingBlogs ? (
+          <div className="flex justify-center py-1">
+            <RotatingLines visible height="32" width="32" color="grey" strokeColor="grey" strokeWidth="5" ariaLabel="rotating-lines-loading" />
+          </div>
+        ) : deleteBlogsMsg ? (
+          <div className="text-green-600 text-center font-semibold">{deleteBlogsMsg}</div>
+        ) : (
+          <button
+            onClick={handleDeleteSelectedBlogs}
+            className="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-md transition duration-200"
+          >
+            Delete Selected
+          </button>
+        )}
+      </div>
     </div>
 
 {/* Live Blog Preview */}

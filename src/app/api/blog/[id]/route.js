@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getBlogById, updateBlog } from '../../../../../lib/blog';
 import { getAdminByEmail, hasAnyRole } from '../../../../../lib/admin';
-import { uploadImage, deleteImage } from '../../../../../lib/cloudinary';
+import { uploadImage, deleteImage, getPublicIdFromUrl } from '../../../../../lib/cloudinary';
 import clientPromise from '../../../../../lib/mongodb';
 import { ObjectId } from 'mongodb';
 import jwt from 'jsonwebtoken';
@@ -61,10 +61,11 @@ export async function PUT(req, { params }) {
         const existing = await db.collection('blogs').findOne({ _id: new ObjectId(canonicalId) });
         const uploaded = await uploadImage(updates.image, { folder: 'acm/blogs' });
         updates.image = uploaded.url;
-        if (existing?.imagePublicId && uploaded.public_id && uploaded.public_id !== existing.imagePublicId) {
-          await deleteImage(existing.imagePublicId);
+        const existingPid = existing?.imagePublicId || getPublicIdFromUrl(existing?.image);
+        if (existingPid && uploaded.public_id && uploaded.public_id !== existingPid) {
+          await deleteImage(existingPid);
         }
-        updates.imagePublicId = uploaded.public_id || existing?.imagePublicId || null;
+        updates.imagePublicId = uploaded.public_id || existingPid || null;
       }
       const updatedBlog = await updateBlog(canonicalId, updates);
   
