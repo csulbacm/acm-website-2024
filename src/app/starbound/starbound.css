@@ -14,7 +14,10 @@
   height: 1px;
   background-color: #fff;
   border-radius: 50%;
-  transform: translate(-50%, -50%);
+  /* Improve Safari/iOS animation reliability */
+  will-change: transform;
+  transform: translate3d(-50%, -50%, 0);
+  -webkit-transform: translate3d(-50%, -50%, 0);
   pointer-events: none;
   z-index: 0;
   box-shadow: -42vw -4vh 0px 0px #fff, 25vw -41vh 0px 0px #fff,
@@ -47,14 +50,26 @@
     33vw -8vh 1px 0px #fff, -16vw 17vh 0px 0px #fff, 18vw 27vh 0px 1px #fff,
     -8vw -10vh 1px 1px #fff;
   animation: zoom 16s alternate infinite;
+  -webkit-animation: zoom 16s alternate infinite;
 }
 
 @keyframes zoom {
   0% {
-    transform: translate(-50%, -50%) scale(1);
+    transform: translate3d(-50%, -50%, 0) scale(1);
+    -webkit-transform: translate3d(-50%, -50%, 0) scale(1);
   }
   100% {
-    transform: translate(-50%, -50%) scale(1.5);
+    transform: translate3d(-50%, -50%, 0) scale(1.5);
+    -webkit-transform: translate3d(-50%, -50%, 0) scale(1.5);
+  }
+}
+
+@-webkit-keyframes zoom {
+  0% {
+    -webkit-transform: translate3d(-50%, -50%, 0) scale(1);
+  }
+  100% {
+    -webkit-transform: translate3d(-50%, -50%, 0) scale(1.5);
   }
 }
 
@@ -106,6 +121,8 @@
   background: rgba(15, 23, 42, 0.82);
   border: 1px solid rgba(148, 163, 184, 0.18);
   border-radius: 28px;
+  /* Safari requires prefixed backdrop filter */
+  -webkit-backdrop-filter: blur(16px);
   backdrop-filter: blur(16px);
   box-shadow: 0 30px 80px -50px rgba(15, 23, 42, 0.85);
 }
@@ -242,9 +259,13 @@
   justify-content: center;
   pointer-events: none;
   filter: drop-shadow(0 4px 12px rgba(15, 23, 42, 0.9));
+  /* CSS Motion Path with Safari prefixes */
   offset-path: path("M 24 160 C 200 40, 400 40, 576 160");
+  -webkit-offset-path: path("M 24 160 C 200 40, 400 40, 576 160");
   offset-distance: 0%;
+  -webkit-offset-distance: 0%;
   animation: flyPath 6s ease-in-out infinite;
+  -webkit-animation: flyPath 6s ease-in-out infinite;
 }
 
 .mission-anim .rocket-svg {
@@ -267,6 +288,7 @@
 @keyframes flyPath {
   0% {
     offset-distance: 0%;
+    -webkit-offset-distance: 0%;
     opacity: 0;
   }
   10% {
@@ -274,12 +296,34 @@
   }
   50% {
     offset-distance: 50%;
+    -webkit-offset-distance: 50%;
   }
   90% {
     opacity: 1;
   }
   100% {
     offset-distance: 100%;
+    -webkit-offset-distance: 100%;
+    opacity: 1;
+  }
+}
+
+@-webkit-keyframes flyPath {
+  0% {
+    -webkit-offset-distance: 0%;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  50% {
+    -webkit-offset-distance: 50%;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    -webkit-offset-distance: 100%;
     opacity: 1;
   }
 }
