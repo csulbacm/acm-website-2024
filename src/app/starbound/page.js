@@ -8,64 +8,90 @@ export const metadata = {
 
 export default function StarboundPage() {
     return (
-        <main className="relative min-h-screen bg-black text-white">
+        <main className="starbound-page relative min-h-screen text-slate-100">
             {/* 🌌 Starry background layer */}
             <div className="starfield" />
 
-            {/* Content sits above the stars */}
-            <section className="relative z-10 text-center py-24">
-                <h1 className="text-5xl font-bold mb-6">Project Starbound</h1>
-                <p className="text-lg max-w-3xl mx-auto text-gray-300">
-                    ACM’s flagship initiative that empowers students to transform their ideas into
-                    real, long-term projects through structured guidance, mentorship, and clear milestones.
-                </p>
+            {/* Hero */}
+            <section className="starbound-section relative z-10 px-6 pt-28 pb-16">
+                <div className="container mx-auto max-w-5xl starbound-hero text-center">
+                    <div className="inline-flex items-center gap-2 rounded-full border border-slate-600/40 bg-slate-900/50 px-4 py-1 text-sm font-semibold uppercase tracking-widest text-slate-300">
+                        Launch • Build • Thrive
+                    </div>
+                    <h1 className="mt-6 text-5xl font-bold text-white md:text-6xl">
+                        Project Starbound
+                    </h1>
+                    <p className="mt-5 text-lg text-slate-300 md:text-xl">
+                        ACM’s flagship initiative that empowers students to transform their ideas into
+                        real, long-term projects through structured guidance, mentorship, and clear milestones.
+                    </p>
+                </div>
             </section>
 
-            <section className="relative z-10 py-20 text-center bg-black/80">
-                <h2 className="text-3xl font-bold mb-6">Our Mission</h2>
-                <p className="text-lg max-w-3xl mx-auto text-gray-300 mb-10">
-                    Starbound helps students take their ideas from concept to completion through guided project development.
-                    We provide structure, mentorship, and checkpoints to help every participant learn, grow, and build something meaningful.
-                </p>
+            {/* Mission */}
+            <section className="starbound-section relative z-10 px-6">
+                <div className="container mx-auto max-w-5xl starbound-panel text-center">
+                    <h2 className="text-3xl font-bold text-white">Our Mission</h2>
+                    <p className="mt-4 text-lg text-slate-300">
+                        Starbound helps students take their ideas from concept to completion through guided project development.
+                        We provide structure, mentorship, and checkpoints to help every participant learn, grow, and build something meaningful.
+                    </p>
 
-                {/* Mission animation */}
-                <MissionAnimation />
-            </section>
-
-            <section className="relative z-10 py-16 bg-black/80">
-                <div className="container mx-auto px-6">
-                    <h2 className="text-3xl font-bold text-center mb-12">Program Highlights</h2>
-                    <div className="grid md:grid-cols-4 gap-8">
-                        {[
-                            { title: "Launch", desc: "Turn your ideas into real projects with structured guidance and direction." },
-                            { title: "Milestones", desc: "Set goals, track progress, and celebrate your achievements." },
-                            { title: "Mentorship", desc: "Receive guidance from experienced ACM mentors." },
-                            { title: "Build", desc: "Create projects that showcase your skills and make real impact." },
-                        ].map((item, idx) => (
-                            <div
-                                key={item.title}
-                                data-i={idx}
-                                className="floating-card bg-slate-800/70 border border-slate-700 p-6 rounded-2xl text-center hover:border-amber-400 transition"
-                            >
-                                <h3 className="text-xl font-semibold text-amber-300 mb-2">{item.title}</h3>
-                                <p className="text-gray-300">{item.desc}</p>
-                            </div>
-                        ))}
+                    <div className="mt-12">
+                        <MissionAnimation />
                     </div>
                 </div>
             </section>
 
-            <section className="relative z-10 text-center py-20 bg-black/80">
-                <h2 className="text-3xl font-bold mb-4">Ready to Launch Your Project?</h2>
-                <p className="text-lg text-gray-300 mb-8">
-                    Join Project Starbound and start building something extraordinary with ACM at CSULB.
-                </p>
-                <a
-                    href="/contact"
-                    className="bg-amber-400 text-black px-8 py-3 rounded-lg font-semibold hover:bg-amber-300 transition"
-                >
-                    Get Involved
-                </a>
+            {/* Highlights */}
+            <section className="starbound-section relative z-10 px-6">
+                <div className="container mx-auto">
+                    <div className="starbound-panel">
+                        <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+                            <div>
+                                <h2 className="text-3xl font-bold text-white">Program Highlights</h2>
+                                <p className="mt-3 max-w-2xl text-left text-slate-300">
+                                    Starbound combines mentorship, checkpoints, and community to help your ideas take flight.
+                                    Each track is designed to give you momentum, accountability, and a portfolio-worthy result.
+                                </p>
+                            </div>
+                            <div className="rounded-full border border-amber-300/40 bg-amber-300/10 px-4 py-2 text-sm font-semibold text-amber-200">
+                                Cohort-based • 12 weeks • Demo Day
+                            </div>
+                        </div>
+
+                        <div className="mt-12 grid gap-8 md:grid-cols-4">
+                            {[
+                                { title: "Launch", desc: "Turn your ideas into real projects with structured guidance and direction." },
+                                { title: "Milestones", desc: "Set goals, track progress, and celebrate your achievements." },
+                                { title: "Mentorship", desc: "Receive guidance from experienced ACM mentors." },
+                                { title: "Build", desc: "Create projects that showcase your skills and make real impact." },
+                            ].map((item, idx) => (
+                                <div
+                                    key={item.title}
+                                    data-i={idx}
+                                    className="floating-card rounded-2xl border border-slate-700/60 bg-slate-900/70 p-6 text-center"
+                                >
+                                    <h3 className="text-xl font-semibold text-amber-300 mb-2">{item.title}</h3>
+                                    <p className="text-slate-300">{item.desc}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* CTA */}
+            <section className="starbound-section relative z-10 px-6 pb-24">
+                <div className="container mx-auto max-w-4xl starbound-panel text-center">
+                    <h2 className="text-3xl font-bold text-white">Ready to Launch Your Project?</h2>
+                    <p className="mt-4 text-lg text-slate-300">
+                        Join Project Starbound and start building something extraordinary with ACM at CSULB.
+                    </p>
+                    <a href="/contact" className="starbound-button mt-8">
+                        Get Involved
+                    </a>
+                </div>
             </section>
         </main>
     );
@@ -87,7 +113,6 @@ function MissionAnimation() {
             <svg className="path" viewBox="0 0 600 220" preserveAspectRatio="none" aria-hidden="true">
                 <path d="M 24 160 C 200 40, 400 40, 576 160" className="path-curve" />
             </svg>
-
 
             {/* Rocket */}
             <div className="rocket">
