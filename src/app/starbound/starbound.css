@@ -58,6 +58,7 @@
     transform: translate3d(-50%, -50%, 0) scale(1);
     -webkit-transform: translate3d(-50%, -50%, 0) scale(1);
   }
+
   100% {
     transform: translate3d(-50%, -50%, 0) scale(1.5);
     -webkit-transform: translate3d(-50%, -50%, 0) scale(1.5);
@@ -68,6 +69,7 @@
   0% {
     -webkit-transform: translate3d(-50%, -50%, 0) scale(1);
   }
+
   100% {
     -webkit-transform: translate3d(-50%, -50%, 0) scale(1.5);
   }
@@ -77,9 +79,11 @@
   0% {
     transform: translate(-50%, -50%) scale(1);
   }
+
   50% {
     transform: translate(-48%, -52%) scale(1.25);
   }
+
   100% {
     transform: translate(-50%, -50%) scale(1.05);
   }
@@ -89,22 +93,27 @@
   0% {
     transform: translate(-50%, -50%) scale(1.15);
   }
+
   50% {
     transform: translate(-52%, -48%) scale(0.95);
   }
+
   100% {
     transform: translate(-50%, -50%) scale(1.2);
   }
 }
 
 @keyframes starPulse {
+
   0%,
   100% {
     opacity: 0.8;
   }
+
   40% {
     opacity: 0.95;
   }
+
   70% {
     opacity: 0.7;
   }
@@ -135,7 +144,7 @@
   padding: clamp(2.5rem, 5vw, 3.5rem);
 }
 
-.starbound-section + .starbound-section {
+.starbound-section+.starbound-section {
   margin-top: clamp(3rem, 8vw, 5.5rem);
 }
 
@@ -177,12 +186,15 @@
 .floating-card[data-i="0"] {
   animation-delay: 0s;
 }
+
 .floating-card[data-i="1"] {
   animation-delay: 0.6s;
 }
+
 .floating-card[data-i="2"] {
   animation-delay: 1.1s;
 }
+
 .floating-card[data-i="3"] {
   animation-delay: 1.6s;
 }
@@ -196,9 +208,11 @@
   0% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-12px);
   }
+
   100% {
     transform: translateY(0);
   }
@@ -207,13 +221,14 @@
 .mission-anim {
   position: relative;
   width: 100%;
-  height: 220px;
+  max-width: 600px;
+  aspect-ratio: 600 / 220;
   margin: 0 auto;
 }
 
 .mission-anim .dot {
   position: absolute;
-  top: 140px;
+  top: calc(140 / 220 * 100%);
   width: 14px;
   height: 14px;
   background: linear-gradient(135deg, #0ea5e9, #38bdf8);
@@ -223,10 +238,11 @@
 }
 
 .mission-anim .dot-left {
-  left: 24px;
+  left: calc(24 / 600 * 100%);
 }
+
 .mission-anim .dot-right {
-  right: 24px;
+  right: calc(24 / 600 * 100%);
 }
 
 .mission-anim .dot-label {
@@ -247,6 +263,15 @@
   stroke-dasharray: 6 10;
 }
 
+.mission-anim .path {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+
 .mission-anim .rocket {
   position: absolute;
   width: 220px;
@@ -259,19 +284,27 @@
   justify-content: center;
   pointer-events: none;
   filter: drop-shadow(0 4px 12px rgba(15, 23, 42, 0.9));
-  /* CSS Motion Path with Safari prefixes */
-  offset-path: path("M 24 160 C 200 40, 400 40, 576 160");
-  -webkit-offset-path: path("M 24 160 C 200 40, 400 40, 576 160");
+  /* Path must match the SVG path exactly */
+  offset-path: path("M 34 140 C 200 30, 400 30, 576 140");
+  -webkit-offset-path: path("M 24 140 C 200 30, 400 30, 576 140");
   offset-distance: 0%;
   -webkit-offset-distance: 0%;
   animation: flyPath 6s ease-in-out infinite;
   -webkit-animation: flyPath 6s ease-in-out infinite;
+  /* Auto rotation makes the rocket follow the path direction */
+  offset-rotate: auto;
+  -webkit-offset-rotate: auto;
+  /* Center the rocket on the path */
+  offset-anchor: center center;
+  -webkit-offset-anchor: center center;
+  transform-origin: center center;
 }
 
 .mission-anim .rocket-svg {
-  width: 52px;
-  height: 52px;
-  transform: rotate(15deg);
+  width: 170px;
+  height: 170px;
+  /* Adjust initial rotation to align with path direction */
+  transform: rotate(80deg);
 }
 
 .mission-anim .rocket-tag {
@@ -291,16 +324,20 @@
     -webkit-offset-distance: 0%;
     opacity: 0;
   }
+
   10% {
     opacity: 1;
   }
+
   50% {
     offset-distance: 50%;
     -webkit-offset-distance: 50%;
   }
+
   90% {
     opacity: 1;
   }
+
   100% {
     offset-distance: 100%;
     -webkit-offset-distance: 100%;
@@ -313,15 +350,19 @@
     -webkit-offset-distance: 0%;
     opacity: 0;
   }
+
   10% {
     opacity: 1;
   }
+
   50% {
     -webkit-offset-distance: 50%;
   }
+
   90% {
     opacity: 1;
   }
+
   100% {
     -webkit-offset-distance: 100%;
     opacity: 1;
@@ -329,6 +370,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .starfield::before,
   .starfield::after {
     animation: none;
@@ -339,3 +381,33 @@
     offset-distance: 100%;
   }
 }
+
+.mission-anim .path-progress {
+  fill: none;
+  stroke: #38bdf8;          /* same blue as dots */
+  stroke-width: 2;
+  stroke-dasharray: 6 10;
+
+  /* hide path initially */
+  stroke-dashoffset: 1000;
+
+  animation: drawPath 6s ease-in-out infinite;
+  filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.4));
+}
+
+@keyframes drawPath {
+  0% {
+    stroke-dashoffset: 1000;
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+

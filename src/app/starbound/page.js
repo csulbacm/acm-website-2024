@@ -11,7 +11,6 @@ export default function StarboundPage() {
         <main className="starbound-page relative min-h-screen text-slate-100">
             {/* 🌌 Starry background layer */}
             <div className="starfield" />
-
             {/* Hero */}
             <section className="starbound-section relative z-10 px-6 pt-28 pb-16">
                 <div className="container mx-auto max-w-5xl starbound-hero text-center">
@@ -109,9 +108,19 @@ function MissionAnimation() {
                 <span className="dot-label">Dream Project</span>
             </div>
 
-            {/* Path (subtle line) */}
+            {/* Path (subtle line) - starts at "You" dot center and ends at "Dream Project" dot center */}
             <svg className="path" viewBox="0 0 600 220" preserveAspectRatio="none" aria-hidden="true">
-                <path d="M 24 160 C 200 40, 400 40, 576 160" className="path-curve" />
+                {/* gray dotted path */}
+                <path
+                    d="M 31 140 C 200 30, 400 30, 569 140"
+                    className="path-curve"
+                />
+
+                {/* blue progress path */}
+                <path
+                    d="M 31 140 C 200 30, 400 30, 569 140"
+                    className="path-progress"
+                />
             </svg>
 
             {/* Rocket */}

@@ -57,15 +57,15 @@ body {
 
 .area {
   background: linear-gradient(
-      180deg,
-      rgba(10, 12, 29, 0.75) 0%,
-      rgba(9, 14, 48, 0.85) 100%
+      rgba(0, 0, 0, 0.35),
+      rgba(0, 0, 0, 0.35)
     ),
     url("/images/hero.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
 }
+
 
 @keyframes gradientAnimation {
   0% {
